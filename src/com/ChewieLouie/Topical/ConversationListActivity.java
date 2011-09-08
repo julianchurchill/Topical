@@ -14,7 +14,7 @@ public class ConversationListActivity extends ListActivity {
 	@Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.conversationList);
-        setListAdapter(new ArrayAdapter<String>(this, R.layout.conversationListItem, searchResults));
+        setContentView(R.layout.conversation_list);
+        setListAdapter(new ArrayAdapter<String>(this, R.layout.conversation_list_item, searchResults));
     }
 }
