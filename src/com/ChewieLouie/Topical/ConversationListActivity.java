@@ -15,6 +15,7 @@ public class ConversationListActivity extends ListActivity {
 	@Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.conversation_list);
 		String[] conversations = getIntent().getStringArrayExtra( TopicalConstants.IntentExtraKey_Conversations );
 		if( conversations != null )
 			searchResults = Arrays.asList( conversations );
