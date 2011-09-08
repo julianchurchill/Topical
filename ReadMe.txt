@@ -1,0 +1,1 @@
+A simple app to allow the user to enter a word or phrase and search for relevant conversations in Google+
