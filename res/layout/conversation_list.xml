@@ -6,7 +6,6 @@
     <ListView android:id="@android:id/list"
 		android:layout_width="match_parent"
 		android:layout_height="match_parent"
-		android:background="#00FF00"
 		android:layout_weight="1"
 		android:drawSelectorOnTop="false"/>
 </LinearLayout>
