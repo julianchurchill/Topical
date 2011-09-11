@@ -19,4 +19,17 @@
             android:layout_height="wrap_content"
             android:text="Search"
             android:onClick="search"/>
+	<TextView
+        android:background="#c4c4c4"
+        android:textColor="#343434"
+    	android:layout_width="wrap_content" 
+   	    android:layout_height="wrap_content" 
+  	    android:text="@string/myTopics"
+  	    android:textSize="20sp"
+  	    android:textStyle="bold"/>
+    <ListView android:id="@+id/topicList"
+		android:layout_width="match_parent"
+		android:layout_height="match_parent"
+		android:layout_weight="1"
+		android:drawSelectorOnTop="false"/>
 </LinearLayout>
