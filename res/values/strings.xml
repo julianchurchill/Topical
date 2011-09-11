@@ -2,4 +2,5 @@
 <resources>
     <string name="app_name">Topical</string>
     <string name="topicalTitle">TopicaL</string>
+    <string name="myTopics">My Topics</string>
 </resources>
