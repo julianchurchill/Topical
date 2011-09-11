@@ -3,7 +3,7 @@
     android:orientation="vertical"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent">
-	<TextView
+	<TextView android:id="@+id/conversationsSearchTitle"
         android:background="#c4c4c4"
         android:textColor="#343434"
     	android:layout_width="fill_parent" 

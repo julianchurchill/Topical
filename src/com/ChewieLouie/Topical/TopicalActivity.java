@@ -21,6 +21,8 @@ public class TopicalActivity extends Activity {
     public void search( View view ) {
     	EditText editText = (EditText)findViewById( R.id.SearchText );
     	Intent intent = new Intent().setClass( getApplicationContext(), ConversationListActivity.class );
+    	intent.putExtra( TopicalConstants.IntentExtraKey_ConversationsSearchString,
+    			editText.getText().toString() );
     	intent.putExtra( TopicalConstants.IntentExtraKey_Conversations,
     			GooglePlusIfc.search( editText.getText().toString() ) );
     	startActivity( intent );
