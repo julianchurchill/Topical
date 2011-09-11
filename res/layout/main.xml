@@ -6,11 +6,12 @@
 	<TextView
         android:background="#c4c4c4"
         android:textColor="#343434"
-    	android:layout_width="wrap_content" 
+    	android:layout_width="fill_parent" 
    	    android:layout_height="wrap_content" 
   	    android:text="@string/topicalTitle"
   	    android:textSize="28sp"
-  	    android:textStyle="bold"/>
+  	    android:textStyle="bold"
+  	    android:gravity="center_horizontal"/>
 	<EditText android:id="@+id/SearchText"
     	android:layout_width="fill_parent" 
    	    android:layout_height="wrap_content"/>
@@ -22,13 +23,14 @@
 	<TextView
         android:background="#c4c4c4"
         android:textColor="#343434"
-    	android:layout_width="wrap_content" 
+    	android:layout_width="fill_parent" 
    	    android:layout_height="wrap_content" 
   	    android:text="@string/myTopics"
   	    android:textSize="20sp"
-  	    android:textStyle="bold"/>
+  	    android:textStyle="bold"
+  	    android:gravity="center_horizontal"/>
     <ListView android:id="@+id/topicList"
-		android:layout_width="match_parent"
+		android:layout_width="fill_parent"
 		android:layout_height="match_parent"
 		android:layout_weight="1"
 		android:drawSelectorOnTop="false"/>
