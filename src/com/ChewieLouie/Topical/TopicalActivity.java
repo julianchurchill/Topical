@@ -29,8 +29,8 @@ public class TopicalActivity extends Activity {
     private Intent createTopicListIntent( String topic, String[] listContents )
     {
     	Intent intent = new Intent().setClass( getApplicationContext(), TopicListActivity.class );
-    	intent.putExtra( TopicalConstants.IntentExtraKey_ConversationsSearchString, topic );
-    	intent.putExtra( TopicalConstants.IntentExtraKey_Conversations, listContents );
+    	intent.putExtra( TopicalConstants.IntentExtraKey_TopicListTopic, topic );
+    	intent.putExtra( TopicalConstants.IntentExtraKey_TopicListContents, listContents );
     	return intent;
     }
     
@@ -38,8 +38,8 @@ public class TopicalActivity extends Activity {
     {
     	final String[] topics = { "Topic 1", "Topic 2", "Topic 3" };
     	ListView conversationList = (ListView)findViewById( R.id.topicList );
-    	conversationList.setAdapter( new ArrayAdapter<String>( this, R.layout.conversation_list_item, 
-        		R.id.conversation_list_item_text, topics ) );
+    	conversationList.setAdapter( new ArrayAdapter<String>( this, R.layout.topic_list_item, 
+        		R.id.topic_list_item_text, topics ) );
     }
 
     private void addTopicItemClickNotifier()

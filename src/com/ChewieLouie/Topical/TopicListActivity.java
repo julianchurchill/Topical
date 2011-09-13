@@ -16,25 +16,25 @@ public class TopicListActivity extends ListActivity {
 	@Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.conversation_list);
-        addConversationsToList();
-        addSearchStringToTitle();
+        setContentView(R.layout.topic_list);
+        addTopicListContents();
+        addTopicToTitle();
     }
 
-	private void addConversationsToList()
+	private void addTopicListContents()
 	{
-		String[] conversations = getIntent().getStringArrayExtra( TopicalConstants.IntentExtraKey_Conversations );
-		if( conversations != null )
-			searchResults = Arrays.asList( conversations );
-        setListAdapter( new ArrayAdapter<String>( this, R.layout.conversation_list_item, 
-        		R.id.conversation_list_item_text, searchResults ) );
+		String[] topicListContents = getIntent().getStringArrayExtra( TopicalConstants.IntentExtraKey_TopicListContents );
+		if( topicListContents != null )
+			searchResults = Arrays.asList( topicListContents );
+        setListAdapter( new ArrayAdapter<String>( this, R.layout.topic_list_item, 
+        		R.id.topic_list_item_text, searchResults ) );
 	}
 
-	private void addSearchStringToTitle()
+	private void addTopicToTitle()
 	{
 		String searchQuery = getIntent().getStringExtra(
-			TopicalConstants.IntentExtraKey_ConversationsSearchString );
-		TextView title = (TextView)findViewById( R.id.conversationsSearchTitle );
+			TopicalConstants.IntentExtraKey_TopicListTopic );
+		TextView title = (TextView)findViewById( R.id.topicListTitle );
 		title.setText( title.getText() + ": \"" + searchQuery + "\"" );
 	}
 }

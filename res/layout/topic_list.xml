@@ -3,12 +3,12 @@
     android:orientation="vertical"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent">
-	<TextView android:id="@+id/conversationsSearchTitle"
+	<TextView android:id="@+id/topicListTitle"
         android:background="#c4c4c4"
         android:textColor="#343434"
     	android:layout_width="fill_parent" 
    	    android:layout_height="wrap_content" 
-  	    android:text="@string/conversationsTitle"
+  	    android:text="@string/topicListTitle"
   	    android:textSize="20sp"
   	    android:textStyle="bold"
   	    android:gravity="center_horizontal"/>

@@ -8,6 +8,6 @@ public class ViewTopicActivity extends ListActivity {
 	@Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.conversation_list);
+        setContentView(R.layout.topic_list);
     }
 }

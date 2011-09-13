@@ -3,5 +3,5 @@
     <string name="app_name">Topical</string>
     <string name="topicalTitle">TopicaL</string>
     <string name="myTopics">My Topics</string>
-    <string name="conversationsTitle">Conversations</string>
+    <string name="topicListTitle">Topic</string>
 </resources>
