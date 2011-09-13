@@ -9,7 +9,7 @@ import android.os.Bundle;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
-public class ConversationListActivity extends ListActivity {
+public class TopicListActivity extends ListActivity {
 
 	private List<String> searchResults = new ArrayList<String>();
 
