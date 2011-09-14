@@ -13,7 +13,7 @@ import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
 
-import com.ChewieLouie.Topical.Post.PostStatus;
+import com.ChewieLouie.Topical.Post.Status;
 
 public class TopicalActivity extends Activity {
 
@@ -43,7 +43,7 @@ public class TopicalActivity extends Activity {
     	currentTopic.clear();
     	for( String post : postsContent )
     	{
-    		currentTopic.add( new Post( post, PostStatus.New ) );
+    		currentTopic.add( new Post( post, Status.NEW ) );
     	}
     	return intent;
     }
@@ -69,11 +69,12 @@ public class TopicalActivity extends Activity {
     protected void onTopicListClicked( View view, int position )
     {
     	final String topic = testTopics[ position ];
-    	final String[] listContents = { "new post 1", "following no changes post", "following has changes" };
+    	final String[] listContents = { "new post 1", "following and not changed post",
+    			"following and has changed post" };
     	Intent intent = createTopicListIntent( topic, listContents );
-    	currentTopic.get( 0 ).status = PostStatus.New;
-    	currentTopic.get( 1 ).status = PostStatus.FollowingNoChanges;
-    	currentTopic.get( 2 ).status = PostStatus.FollowingHasChanges;
+    	currentTopic.get( 0 ).status = Status.NEW;
+    	currentTopic.get( 1 ).status = Status.FOLLOWING_AND_NOT_CHANGED;
+    	currentTopic.get( 2 ).status = Status.FOLLOWING_AND_HAS_CHANGED;
     	startActivity( intent );
     }
 }

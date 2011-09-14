@@ -18,15 +18,15 @@ public class TopicListAdapter extends ArrayAdapter<Post> {
     private Context myContext = null;
 
     // Key is post status, value is color int (see android.graphics.Color class)
-	private Map<Post.PostStatus, Integer> statusToColourMap = new HashMap<Post.PostStatus, Integer>();
+	private Map<Post.Status, Integer> statusToColourMap = new HashMap<Post.Status, Integer>();
 	
     public TopicListAdapter(Context context, int textViewResourceId, List<Post> items) {
     	super(context, textViewResourceId, items);
     	this.items = items;
     	this.myContext = context;
-		statusToColourMap.put( Post.PostStatus.New, Color.GRAY );
-		statusToColourMap.put( Post.PostStatus.FollowingNoChanges, Color.GREEN );
-		statusToColourMap.put( Post.PostStatus.FollowingHasChanges, Color.BLUE );
+		statusToColourMap.put( Post.Status.NEW, Color.GRAY );
+		statusToColourMap.put( Post.Status.FOLLOWING_AND_NOT_CHANGED, Color.GREEN );
+		statusToColourMap.put( Post.Status.FOLLOWING_AND_HAS_CHANGED, Color.BLUE );
     }
 
     @Override
