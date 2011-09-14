@@ -69,7 +69,7 @@ public class TopicalActivity extends Activity {
     protected void onTopicListClicked( View view, int position )
     {
     	final String topic = testTopics[ position ];
-    	final String[] listContents = { "test contents1", "test contents2", "test contents3" };
+    	final String[] listContents = { "new post 1", "following no changes post", "following has changes" };
     	Intent intent = createTopicListIntent( topic, listContents );
     	currentTopic.get( 0 ).status = PostStatus.New;
     	currentTopic.get( 1 ).status = PostStatus.FollowingNoChanges;
