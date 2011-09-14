@@ -13,39 +13,44 @@ import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
 
-import com.ChewieLouie.Topical.Post.Status;
-
 public class TopicalActivity extends Activity {
 
-	public static List<Post> currentTopic = new ArrayList<Post>();
+	public static List<Post> currentTopic = null;
 
-	private final String[] testTopics = { "Topic 1", "Topic 2", "Topic 3" };
+	private EditText searchEditText = null;
 	
+	private final String[] testTopics = { "Topic 1", "Topic 2", "Topic 3" };
+	private List<Post> testTopicListContents = new ArrayList<Post>();
+
+	public TopicalActivity() {
+		super();
+		testTopicListContents.add( new Post( "new post 1" ) );
+		testTopicListContents.add( new Post( "following and not changed post",
+				Post.Status.FOLLOWING_AND_NOT_CHANGED ) );
+		testTopicListContents.add( new Post( "following and has changed post",
+				Post.Status.FOLLOWING_AND_HAS_CHANGED ) );
+	}
+
 	@Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
         populateTopicList();
         addTopicItemClickNotifier();
+    	searchEditText = (EditText)findViewById( R.id.SearchText );
     }
 
     public void search( View view ) {
-    	EditText editText = (EditText)findViewById( R.id.SearchText );
-    	String topic = editText.getText().toString();
-    	startActivity( createTopicListIntent( topic, GooglePlusIfc.search( topic ) ) );
+    	String topic = searchEditText.getText().toString();
+    	showTopicList( topic, new GooglePlusIfc().search( topic ) );
     }
     
-    private Intent createTopicListIntent( String topic, String[] postsContent )
+    private void showTopicList( String topic, List<Post> posts )
     {
+    	currentTopic = posts;
     	Intent intent = new Intent().setClass( getApplicationContext(), TopicListActivity.class );
     	intent.putExtra( TopicalConstants.IntentExtraKey_TopicListTopic, topic );
-    	intent.putExtra( TopicalConstants.IntentExtraKey_TopicListContents, postsContent );
-    	currentTopic.clear();
-    	for( String post : postsContent )
-    	{
-    		currentTopic.add( new Post( post, Status.NEW ) );
-    	}
-    	return intent;
+    	startActivity( intent );
     }
     
     private void populateTopicList()
@@ -68,13 +73,6 @@ public class TopicalActivity extends Activity {
     
     protected void onTopicListClicked( View view, int position )
     {
-    	final String topic = testTopics[ position ];
-    	final String[] listContents = { "new post 1", "following and not changed post",
-    			"following and has changed post" };
-    	Intent intent = createTopicListIntent( topic, listContents );
-    	currentTopic.get( 0 ).status = Status.NEW;
-    	currentTopic.get( 1 ).status = Status.FOLLOWING_AND_NOT_CHANGED;
-    	currentTopic.get( 2 ).status = Status.FOLLOWING_AND_HAS_CHANGED;
-    	startActivity( intent );
+    	showTopicList( testTopics[position], testTopicListContents );
     }
 }

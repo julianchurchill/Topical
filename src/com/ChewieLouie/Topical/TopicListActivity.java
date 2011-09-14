@@ -15,14 +15,9 @@ public class TopicListActivity extends ListActivity {
     @Override
 	protected void onResume() {
 		super.onResume();
-		addTopicListContents();
         addTopicToTitle();
+		addTopicListContents();
     }
-
-	private void addTopicListContents()
-	{
-        setListAdapter( new TopicListAdapter( this, R.layout.topic_list_item, TopicalActivity.currentTopic ) );
-	}
 
 	private void addTopicToTitle()
 	{
@@ -30,5 +25,10 @@ public class TopicListActivity extends ListActivity {
 			TopicalConstants.IntentExtraKey_TopicListTopic );
 		TextView title = (TextView)findViewById( R.id.topicListTitle );
 		title.setText( title.getText() + ": \"" + searchQuery + "\"" );
+	}
+
+	private void addTopicListContents()
+	{
+        setListAdapter( new TopicListAdapter( this, R.layout.topic_list_item, TopicalActivity.currentTopic ) );
 	}
 }
