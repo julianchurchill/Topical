@@ -25,8 +25,8 @@ public class TopicListAdapter extends ArrayAdapter<Post> {
     	this.items = items;
     	this.myContext = context;
 		statusToColourMap.put( Post.Status.NEW, Color.GRAY );
-		statusToColourMap.put( Post.Status.FOLLOWING_AND_NOT_CHANGED, Color.GREEN );
-		statusToColourMap.put( Post.Status.FOLLOWING_AND_HAS_CHANGED, Color.BLUE );
+		statusToColourMap.put( Post.Status.FOLLOWING_AND_NOT_CHANGED, Color.BLUE );
+		statusToColourMap.put( Post.Status.FOLLOWING_AND_HAS_CHANGED, Color.CYAN );
     }
 
     @Override
