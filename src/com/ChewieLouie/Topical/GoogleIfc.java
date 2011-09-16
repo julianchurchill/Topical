@@ -3,11 +3,11 @@ package com.ChewieLouie.Topical;
 import java.util.ArrayList;
 import java.util.List;
 
-public class GooglePlusIfc {
+public class GoogleIfc {
 
 	private static List<Post> testSearchResults = new ArrayList<Post>();
 	
-	public GooglePlusIfc()
+	public GoogleIfc()
 	{
 		testSearchResults.add( new Post( "Some text" ) );
 		testSearchResults.add( new Post( "Another result" ) );
@@ -16,5 +16,9 @@ public class GooglePlusIfc {
 	
 	public List<Post> search( String searchText ) {
 		return testSearchResults;
+	}
+
+	public String getPostContent( String postID ) {
+		return "Some test post content";
 	}
 }

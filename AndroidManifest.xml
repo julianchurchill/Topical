@@ -13,10 +13,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".TopicListActivity">
-        </activity>
-        <activity android:name=".ViewTopicActivity">
-        </activity>
-
+        <activity android:name=".TopicListActivity"/>
+        <activity android:name=".ViewPostActivity"/>
     </application>
 </manifest>

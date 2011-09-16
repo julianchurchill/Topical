@@ -1,7 +1,10 @@
 package com.ChewieLouie.Topical;
 
 import android.app.ListActivity;
+import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.ListView;
 import android.widget.TextView;
 
 public class TopicListActivity extends ListActivity {
@@ -18,6 +21,15 @@ public class TopicListActivity extends ListActivity {
         addTopicToTitle();
 		addTopicListContents();
     }
+
+	@Override
+	protected void onListItemClick(ListView l, View v, int position, long id) {
+		super.onListItemClick(l, v, position, id);
+    	Post post = (Post)l.getItemAtPosition( position );
+    	Intent intent = new Intent().setClass( getApplicationContext(), ViewPostActivity.class );
+    	intent.putExtra( TopicalConstants.IntentExtraKey_ViewTopicID, post.ID );
+    	startActivity( intent );
+	}
 
 	private void addTopicToTitle()
 	{
