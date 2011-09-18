@@ -9,10 +9,13 @@ import android.widget.TextView;
 
 public class TopicListActivity extends ListActivity {
 
+	private TextView title = null;
+
 	@Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.topic_list);
+		title = (TextView)findViewById( R.id.topicListTitle );
 	}
 	
     @Override
@@ -35,8 +38,8 @@ public class TopicListActivity extends ListActivity {
 	{
 		String searchQuery = getIntent().getStringExtra(
 			TopicalConstants.IntentExtraKey_TopicListTopic );
-		TextView title = (TextView)findViewById( R.id.topicListTitle );
-		title.setText( title.getText() + ": \"" + searchQuery + "\"" );
+		CharSequence titlePrefix = getApplicationContext().getText( R.string.topicListTitle );
+		title.setText( titlePrefix + ": \"" + searchQuery + "\"" );
 	}
 
 	private void addTopicListContents()
