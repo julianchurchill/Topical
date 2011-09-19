@@ -24,10 +24,12 @@ public class TopicalActivity extends Activity {
 
 	public TopicalActivity() {
 		super();
-		testTopicListContents.add( new Post( "new post 1" ) );
+		testTopicListContents.add( new Post( "new post 1", "snippet 1" ) );
 		testTopicListContents.add( new Post( "following and not changed post",
+				"snippet 2",
 				Post.Status.FOLLOWING_AND_NOT_CHANGED ) );
 		testTopicListContents.add( new Post( "following and has changed post",
+				"snippet 3 the final snippet, returns.",
 				Post.Status.FOLLOWING_AND_HAS_CHANGED ) );
 	}
 

@@ -40,13 +40,20 @@ public class TopicListAdapter extends ArrayAdapter<Post> {
     	Post p = items.get(position);
     	if (p != null)
     	{
-    		TextView tt = (TextView) v.findViewById(R.id.topic_list_item_text);
-            if (tt != null)
-            {
-        		tt.setText( p.text );
-        		tt.setBackgroundColor( statusToColourMap.get( TopicalActivity.currentTopic.get( position ).status ) );
-            }
+    		TextView titleTextView = setListItemContent( v, R.id.topic_list_item_title, p.title );
+    		setListItemContent( v, R.id.topic_list_item_text, p.text );
+    		setItemStatus( titleTextView, p.status );
         }
         return v;
+    }
+    
+    private TextView setListItemContent( View v, int listItemResource, String text ) {
+		TextView view = (TextView) v.findViewById( listItemResource );
+    	view.setText( text );
+        return view;
+    }
+    
+    private void setItemStatus( TextView titleTextView, Post.Status status ) {
+    	titleTextView.setBackgroundColor( statusToColourMap.get( status ) );
     }
 }

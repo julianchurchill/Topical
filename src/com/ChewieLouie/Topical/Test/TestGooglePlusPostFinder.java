@@ -12,9 +12,9 @@ public class TestGooglePlusPostFinder implements GooglePlusPostFinderIfc {
 	
 	public TestGooglePlusPostFinder()
 	{
-		testSearchResults.add( new Post( "Some text" ) );
-		testSearchResults.add( new Post( "Another result" ) );
-		testSearchResults.add( new Post( "And another one" ) );
+		testSearchResults.add( new Post( "Some text", "test snippet 1" ) );
+		testSearchResults.add( new Post( "Another result", "test snippet 2" ) );
+		testSearchResults.add( new Post( "And another one", "test snippet 3" ) );
 	}
 	
 	@Override
