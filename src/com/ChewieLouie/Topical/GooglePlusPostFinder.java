@@ -48,9 +48,4 @@ public class GooglePlusPostFinder implements GooglePlusPostFinderIfc {
 		}
 		return posts;
 	}
-
-	@Override
-	public String getPostContent( String postID ) {
-		return null;
-	}
 }

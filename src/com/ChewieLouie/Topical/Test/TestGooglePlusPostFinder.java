@@ -1,7 +1,10 @@
-package com.ChewieLouie.Topical;
+package com.ChewieLouie.Topical.Test;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import com.ChewieLouie.Topical.GooglePlusPostFinderIfc;
+import com.ChewieLouie.Topical.Post;
 
 public class TestGooglePlusPostFinder implements GooglePlusPostFinderIfc {
 
@@ -17,10 +20,5 @@ public class TestGooglePlusPostFinder implements GooglePlusPostFinderIfc {
 	@Override
 	public List<Post> search( String searchText ) {
 		return testSearchResults;
-	}
-
-	@Override
-	public String getPostContent( String postID ) {
-		return "Some test post content";
 	}
 }

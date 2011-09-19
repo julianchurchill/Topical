@@ -6,12 +6,12 @@ public class Post {
 	public Status status = Status.NEW;
 	public String ID = "";
 
-	Post( String t )
+	public Post( String t )
 	{
 		text = t;
 	}
 
-	Post( String t, Status s )
+	public Post( String t, Status s )
 	{
 		text = t;
 		status = s;

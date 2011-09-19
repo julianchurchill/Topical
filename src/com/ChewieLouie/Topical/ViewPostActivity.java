@@ -19,6 +19,6 @@ public class ViewPostActivity extends Activity {
 	protected void onResume() {
 		super.onResume();
 		final String postID = getIntent().getStringExtra( TopicalConstants.IntentExtraKey_ViewTopicID );
-		textView.setText( GooglePlusPostFinderFactory.create().getPostContent( postID ) );
+		textView.setText( GooglePlusFactory.create().getPostContent( postID ) );
 	}
 }
