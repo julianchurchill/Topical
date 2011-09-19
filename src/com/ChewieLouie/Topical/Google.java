@@ -31,8 +31,6 @@ public class Google implements GoogleIfc {
 		request.setCx( customSearchEngineID );
 		List<Result> results = null;
 		try {
-//			#error this keeps return "412 Precondition failed" as HTTP response
-//			#error I must have missed something in the query setup...
 			Search searchResult = request.execute();
 			if( searchResult != null )
 			{
