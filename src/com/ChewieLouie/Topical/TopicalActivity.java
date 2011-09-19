@@ -97,7 +97,8 @@ public class TopicalActivity extends Activity {
     }
     
     private void createTestPosts() {
-    	testTopicListContents.add( new Post( "new post 1", "snippet 1" ) );
+    	testTopicListContents.add( new Post( "new post 1", "snippet 1",
+    			Post.Status.NEW ) );
 		testTopicListContents.add( new Post( "following and not changed post",
 				"snippet 2",
 				Post.Status.FOLLOWING_AND_NOT_CHANGED ) );

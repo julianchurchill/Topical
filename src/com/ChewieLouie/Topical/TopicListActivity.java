@@ -30,7 +30,7 @@ public class TopicListActivity extends ListActivity {
 		super.onListItemClick(l, v, position, id);
     	Post post = (Post)l.getItemAtPosition( position );
     	Intent intent = new Intent().setClass( getApplicationContext(), ViewPostActivity.class );
-    	intent.putExtra( TopicalConstants.IntentExtraKey_ViewTopicID, post.ID );
+    	intent.putExtra( TopicalConstants.IntentExtraKey_ViewTopicID, post.postID );
     	startActivity( intent );
 	}
 

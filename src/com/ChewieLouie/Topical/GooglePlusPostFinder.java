@@ -15,7 +15,7 @@ public class GooglePlusPostFinder implements GooglePlusPostFinderIfc {
 	private static final String googleAPIKey = "AIzaSyA1UkMy-J3PbX6ozp22P0KbV7XApguSb7s";
 	// This is the value of the 'cx' parameter for a search query - see my custom search engines
 	private static final String customSearchEngineID = "007835778103156738196:6m3_5zp5pye";
-	      	
+
 	private Customsearch customSearch = null;
 	
 	public GooglePlusPostFinder()	{
@@ -43,7 +43,8 @@ public class GooglePlusPostFinder implements GooglePlusPostFinderIfc {
 		{
 			for( Result result : results )
 			{
-				posts.add( new Post( result.getTitle(), result.getSnippet() ) );
+				Post newPost = new Post( result.getTitle(), result.getSnippet(), result.getLink() );
+				posts.add( newPost );
 			}
 		}
 		return posts;
