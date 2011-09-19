@@ -11,6 +11,7 @@ public class Post {
 	public String url = "";
 
 	private static final String gPlusURLPostsSeperator = "/posts/";
+	private String content = null;
 	
 	public Post( String title, String text, String url )
 	{
@@ -24,6 +25,14 @@ public class Post {
 		this.title = title;
 		this.text = text;
 		this.status = status;
+	}
+	
+	public String getContent() {
+		if( content == null )
+		{
+			content = GooglePlusFactory.create().getPostContent( postID );
+		}
+		return content;
 	}
 
 	private void setUrl( String url ) {

@@ -18,7 +18,8 @@ public class ViewPostActivity extends Activity {
 	@Override
 	protected void onResume() {
 		super.onResume();
-		final String postID = getIntent().getStringExtra( TopicalConstants.IntentExtraKey_ViewTopicID );
-		textView.setText( GooglePlusFactory.create().getPostContent( postID ) );
+		final int index = getIntent().getIntExtra( TopicalConstants.IntentExtraKey_ViewTopicIndex, -1 );
+		Post post = TopicalActivity.currentTopic.get( index );
+		textView.setText( post.getContent() );
 	}
 }

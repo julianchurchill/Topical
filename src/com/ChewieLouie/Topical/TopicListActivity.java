@@ -28,9 +28,8 @@ public class TopicListActivity extends ListActivity {
 	@Override
 	protected void onListItemClick(ListView l, View v, int position, long id) {
 		super.onListItemClick(l, v, position, id);
-    	Post post = (Post)l.getItemAtPosition( position );
     	Intent intent = new Intent().setClass( getApplicationContext(), ViewPostActivity.class );
-    	intent.putExtra( TopicalConstants.IntentExtraKey_ViewTopicID, post.postID );
+    	intent.putExtra( TopicalConstants.IntentExtraKey_ViewTopicIndex, position );
     	startActivity( intent );
 	}
 
