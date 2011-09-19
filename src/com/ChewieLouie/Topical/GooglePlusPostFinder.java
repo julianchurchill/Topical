@@ -10,7 +10,7 @@ import com.google.api.services.customsearch.Customsearch;
 import com.google.api.services.customsearch.model.Result;
 import com.google.api.services.customsearch.model.Search;
 
-public class Google implements GoogleIfc {
+public class GooglePlusPostFinder implements GooglePlusPostFinderIfc {
 	
 	private static final String googleAPIKey = "AIzaSyA1UkMy-J3PbX6ozp22P0KbV7XApguSb7s";
 	// This is the value of the 'cx' parameter for a search query - see my custom search engines
@@ -18,7 +18,7 @@ public class Google implements GoogleIfc {
 	      	
 	private Customsearch customSearch = null;
 	
-	public Google()	{
+	public GooglePlusPostFinder()	{
 		customSearch = new Customsearch( new NetHttpTransport(), new GsonFactory() );
 		customSearch.setKey( googleAPIKey );
 	}

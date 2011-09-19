@@ -3,11 +3,11 @@ package com.ChewieLouie.Topical;
 import java.util.ArrayList;
 import java.util.List;
 
-public class TestGoogle implements GoogleIfc {
+public class TestGooglePlusPostFinder implements GooglePlusPostFinderIfc {
 
 	private static List<Post> testSearchResults = new ArrayList<Post>();
 	
-	public TestGoogle()
+	public TestGooglePlusPostFinder()
 	{
 		testSearchResults.add( new Post( "Some text" ) );
 		testSearchResults.add( new Post( "Another result" ) );

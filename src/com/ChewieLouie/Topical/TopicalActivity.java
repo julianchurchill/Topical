@@ -42,7 +42,7 @@ public class TopicalActivity extends Activity {
 
     public void search( View view ) {
     	String topic = searchEditText.getText().toString();
-    	showTopicList( topic, GoogleFactory.create().search( topic ) );
+    	showTopicList( topic, GooglePlusPostFinderFactory.create().search( topic ) );
     }
     
     private void showTopicList( String topic, List<Post> posts )
