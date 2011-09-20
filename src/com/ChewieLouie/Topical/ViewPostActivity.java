@@ -6,13 +6,17 @@ import android.widget.TextView;
 
 public class ViewPostActivity extends Activity {
 
-	private TextView textView = null;
+	private TextView authorTextView = null;
+	private TextView textTextView = null;
+	private TextView commentTextView = null;
 	
 	@Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate( savedInstanceState );
         setContentView( R.layout.view_post );
-		textView = (TextView)findViewById( R.id.text );
+		authorTextView = (TextView)findViewById( R.id.author );
+		textTextView = (TextView)findViewById( R.id.text );
+		commentTextView = (TextView)findViewById( R.id.comments );
     }
 
 	@Override
@@ -20,6 +24,8 @@ public class ViewPostActivity extends Activity {
 		super.onResume();
 		final int index = getIntent().getIntExtra( TopicalConstants.IntentExtraKey_ViewTopicIndex, -1 );
 		Post post = TopicalActivity.currentTopic.get( index );
-		textView.setText( post.getContent() );
+		authorTextView.setText( post.getAuthor() );
+		textTextView.setText( post.getContent() );
+		commentTextView.setText( post.getComments() );
 	}
 }

@@ -6,6 +6,7 @@ import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.gson.GsonFactory;
 import com.google.api.services.plus.Plus;
 import com.google.api.services.plus.model.Activity;
+import com.google.api.services.plus.model.Person;
 
 public class GooglePlus implements GooglePlusIfc {
 
@@ -32,5 +33,37 @@ public class GooglePlus implements GooglePlusIfc {
 			e.printStackTrace();
 		}
 		return content;
+	}
+
+	@Override
+	public String getAuthor( String authorID ) {
+		String author = "";
+		Plus.People.Get request = plus.people.get( authorID );
+		try {
+			Person person = request.execute();
+			if( person != null )
+			{
+				author = person.getDisplayName();
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return author;
+	}
+
+	@Override
+	public String getComments( String postID ) {
+		String comments = "";
+		Plus.Activities.Get request = plus.activities.get( postID );
+		try {
+			Activity activity = request.execute();
+			if( activity != null )
+			{
+				comments = activity.getPlusObject().getReplies().toString();
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return comments;
 	}
 }
