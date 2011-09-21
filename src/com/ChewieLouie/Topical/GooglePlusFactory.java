@@ -4,7 +4,7 @@ package com.ChewieLouie.Topical;
 public class GooglePlusFactory {
 
 	static GooglePlusIfc create() {
-		return new GooglePlus();
+		return GooglePlus.Make();
 //		return new TestGooglePlus();
 	}
 }

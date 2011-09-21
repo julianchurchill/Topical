@@ -1,5 +1,7 @@
 package com.ChewieLouie.Topical;
 
+import java.io.IOException;
+
 public class Post {
 	public enum Status { NEW, FOLLOWING_AND_NOT_CHANGED, FOLLOWING_AND_HAS_CHANGED };
 
@@ -7,13 +9,11 @@ public class Post {
 	public String title = "";
 	public String text = "";
 	public String url = "";
+	public String author = null;
+	public String content = null;
+	public String comments = null;
 
-	private static final String gPlusURLPostsSeperator = "/posts/";
-	private String postID = null;
 	private String authorID = null;
-	private String author = null;
-	private String content = null;
-	private String comments = null;
 	
 	public Post( String title, String text, String url )
 	{
@@ -29,46 +29,29 @@ public class Post {
 		setUrl( url );
 		this.status = status;
 	}
-
-	public String getAuthor() {
+	
+	public void retrieveRemoteInformation() throws IOException {
 		if( author == null )
 		{
 			author = GooglePlusFactory.create().getAuthor( authorID );
 		}
-		return author;
-	}
-	
-	public String getContent() {
 		if( content == null )
 		{
-			content = GooglePlusFactory.create().getPostContent( postID );
+			content = GooglePlusFactory.create().getPostContent( authorID, url );
 		}
-		return content;
-	}
-	
-	public String getComments() {
 		if( comments == null )
 		{
-			comments = GooglePlusFactory.create().getComments( postID );
+			comments = GooglePlusFactory.create().getComments( authorID, url );
 		}
-		return comments;
 	}
 
 	private void setUrl( String url ) {
 		this.url = url;
-		extractPostIDFromURL( url );
 		extractAuthorIDFromURL( url );
 	}
 	
-	private void extractPostIDFromURL( String url ) {
-		int postIDStartIndex = url.indexOf( gPlusURLPostsSeperator ) + gPlusURLPostsSeperator.length();
-		if( postIDStartIndex != -1 )
-		{
-			postID = url.substring( postIDStartIndex );
-		}
-	}
-
 	private void extractAuthorIDFromURL( String url ) {
+		final String gPlusURLPostsSeperator = "/posts/";
 		int authorIDEndIndex = url.indexOf( gPlusURLPostsSeperator );
 		if( authorIDEndIndex != -1 )
 		{

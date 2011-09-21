@@ -1,10 +1,13 @@
 package com.ChewieLouie.Topical;
 
+import java.io.IOException;
+
 import android.app.Activity;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.Window;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class ViewPostActivity extends Activity {
 
@@ -30,21 +33,32 @@ public class ViewPostActivity extends Activity {
 		new GetPostInformationTask().execute( post );
 	}
 
-    private class GetPostInformationTask extends AsyncTask<Post, Void, Post> {
+    private class GetPostInformationTask extends AsyncTask<Post, Void, Boolean> {
+    	private String errorText = null;
+    	private Post post = null;
     	@Override
-		protected Post doInBackground( Post... post ) {
-    		post[0].getAuthor();
-    		post[0].getContent();
-    		post[0].getComments();
-    		return post[0];
+		protected Boolean doInBackground( Post... posts ) {
+    		post = posts[0];
+    		try {
+    			post.retrieveRemoteInformation();
+			} catch (IOException e) {
+				e.printStackTrace();
+				errorText = e.getMessage();
+				return false;
+			}
+    		return true;
 		}
 
 		@Override
-		protected void onPostExecute( Post post ) {
-			super.onPostExecute( post );
-			authorTextView.setText( post.getAuthor() );
-			textTextView.setText( post.getContent() );
-			commentTextView.setText( post.getComments() );
+		protected void onPostExecute( Boolean postPopulatedOk ) {
+			super.onPostExecute( postPopulatedOk );
+			if( postPopulatedOk == false )
+			{
+				Toast.makeText( getApplicationContext(), errorText, Toast.LENGTH_LONG ).show();
+			}
+			authorTextView.setText( post.author );
+			textTextView.setText( post.content );
+			commentTextView.setText( post.comments );
 	    	setProgressBarIndeterminateVisibility( false );
 		}
 
