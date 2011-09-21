@@ -20,22 +20,6 @@ public class GooglePlus implements GooglePlusIfc {
 	}
 	
 	@Override
-	public String getPostContent( String postID ) {
-		String content = "";
-		Plus.Activities.Get request = plus.activities.get( postID );
-		try {
-			Activity activity = request.execute();
-			if( activity != null )
-			{
-				content = activity.getPlusObject().getContent();
-			}
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		return content;
-	}
-
-	@Override
 	public String getAuthor( String authorID ) {
 		String author = "";
 		Plus.People.Get request = plus.people.get( authorID );
@@ -52,18 +36,43 @@ public class GooglePlus implements GooglePlusIfc {
 	}
 
 	@Override
+	public String getPostContent( String postID ) {
+		return getActivityInformation( postID, 
+			new ActivityCommandIfc() {
+				@Override
+				public String execute(Activity activity) {
+					return activity.getPlusObject().getContent();
+				}
+			});
+	}
+
+	@Override
 	public String getComments( String postID ) {
-		String comments = "";
+		return getActivityInformation( postID, 
+			new ActivityCommandIfc() {
+				@Override
+				public String execute(Activity activity) {
+					return activity.getPlusObject().getReplies().toString();
+				}
+			});
+	}
+	
+	private interface ActivityCommandIfc {
+		public String execute( Activity activity );
+	}
+	
+	private String getActivityInformation( String postID, ActivityCommandIfc command ) {
+		String information = "";
 		Plus.Activities.Get request = plus.activities.get( postID );
 		try {
 			Activity activity = request.execute();
 			if( activity != null )
 			{
-				comments = activity.getPlusObject().getReplies().toString();
+				information = command.execute( activity );
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		return comments;
+		return information;
 	}
 }
