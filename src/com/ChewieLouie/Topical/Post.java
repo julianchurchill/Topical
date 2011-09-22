@@ -15,6 +15,7 @@ public class Post {
 	public String imageURL = null;
 
 	private String authorID = null;
+	private GooglePlusIfc googlePlus = GooglePlusFactory.create();
 	
 	public Post( String title, String text, String url )
 	{
@@ -33,13 +34,13 @@ public class Post {
 	
 	public void retrieveRemoteInformation() throws IOException {
 		if( author == null )
-			author = GooglePlusFactory.create().getAuthor( authorID );
+			author = googlePlus.getAuthor( authorID );
 		if( content == null )
-			content = GooglePlusFactory.create().getPostContent( authorID, url );
+			content = googlePlus.getPostContent( authorID, url );
 		if( comments == null )
-			comments = GooglePlusFactory.create().getComments( authorID, url );
+			comments = googlePlus.getComments( authorID, url );
 		if( imageURL == null )
-			imageURL = GooglePlusFactory.create().getImageURL( authorID );
+			imageURL = googlePlus.getImageURL( authorID );
 	}
 
 	private void setUrl( String url ) {
@@ -54,9 +55,7 @@ public class Post {
 		{
 			int authorIDStartIndex = url.lastIndexOf( "/", authorIDEndIndex-1 ) + 1;
 			if( authorIDStartIndex != -1 )
-			{
 				authorID = url.substring( authorIDStartIndex, authorIDEndIndex );
-			}
 		}
 	}
 }
