@@ -16,9 +16,7 @@ public class GooglePlus implements GooglePlusIfc {
 	
 	public static GooglePlus Make() {
 		if( myPlus == null )
-		{
 			myPlus = new GooglePlus();
-		}
 		return myPlus;
 	}
 
@@ -35,13 +33,13 @@ public class GooglePlus implements GooglePlusIfc {
 	
 	@Override
 	public String getAuthor( String authorID ) throws IOException {
-		String author = "";
-		Person person = plus.people.get( authorID ).execute();
-		if( person != null )
-		{
-			author = person.getDisplayName();
-		}
-		return author;
+		return getPersonInformation( authorID,
+			new PersonInformationRetrieverIfc() {
+				@Override
+				public String retrieve( Person person ) {
+					return person.getDisplayName();
+				}
+			});
 	}
 
 	@Override
@@ -65,13 +63,36 @@ public class GooglePlus implements GooglePlusIfc {
 				}
 			});
 	}
-	
+
+	@Override
+	public String getImageURL( String authorID ) throws IOException {
+		return getPersonInformation( authorID,
+			new PersonInformationRetrieverIfc() {
+				@Override
+				public String retrieve( Person person ) {
+					return person.getImage().getUrl();
+				}
+			});
+	}
+
+	private interface PersonInformationRetrieverIfc {
+		public String retrieve( Person person );
+	}	
+
+	private String getPersonInformation( String authorID,
+			PersonInformationRetrieverIfc command ) throws IOException {
+		Person person = plus.people.get( authorID ).execute();
+		if( person != null )
+			return command.retrieve( person );
+		return "";
+	}
+
 	private interface ActivityInformationRetrieverIfc {
 		public String retrieve( Activity activity );
 	}
 	
-	private String getActivityInformation( String authorID, String url, ActivityInformationRetrieverIfc command ) throws IOException {
-		String information = "";
+	private String getActivityInformation( String authorID, String url,
+			ActivityInformationRetrieverIfc command ) throws IOException {
 		Activity foundActivity = null;
 		Plus.Activities.List request = plus.activities.list( authorID, collectionPublic );
 		ActivityFeed activityFeed = request.execute();
@@ -93,9 +114,7 @@ public class GooglePlus implements GooglePlusIfc {
 			activities = activityFeed.getItems();
 		}
 		if( foundActivity != null )
-		{
-			information = command.retrieve( foundActivity );
-		}
-		return information;
+			return command.retrieve( foundActivity );
+		return "";
 	}
 }

@@ -1,5 +1,7 @@
 package com.ChewieLouie.Topical.Test;
 
+import java.io.IOException;
+
 import com.ChewieLouie.Topical.GooglePlusIfc;
 
 public class TestGooglePlus implements GooglePlusIfc {
@@ -17,6 +19,11 @@ public class TestGooglePlus implements GooglePlusIfc {
 	@Override
 	public String getComments( String authorID, String url ) {
 		return "Many comments, they just go on and on";
+	}
+
+	@Override
+	public String getImageURL( String authorID ) throws IOException {
+		return "Some invalid image URL";
 	}
 
 }

@@ -12,6 +12,7 @@ public class Post {
 	public String author = null;
 	public String content = null;
 	public String comments = null;
+	public String imageURL = null;
 
 	private String authorID = null;
 	
@@ -32,17 +33,13 @@ public class Post {
 	
 	public void retrieveRemoteInformation() throws IOException {
 		if( author == null )
-		{
 			author = GooglePlusFactory.create().getAuthor( authorID );
-		}
 		if( content == null )
-		{
 			content = GooglePlusFactory.create().getPostContent( authorID, url );
-		}
 		if( comments == null )
-		{
 			comments = GooglePlusFactory.create().getComments( authorID, url );
-		}
+		if( imageURL == null )
+			imageURL = GooglePlusFactory.create().getImageURL( authorID );
 	}
 
 	private void setUrl( String url ) {
