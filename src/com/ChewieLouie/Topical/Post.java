@@ -16,6 +16,7 @@ public class Post {
 
 	private String authorID = null;
 	private GooglePlusIfc googlePlus = GooglePlusFactory.create();
+	private boolean isFollowed = false;
 	
 	public Post( String title, String text, String url )
 	{
@@ -57,5 +58,17 @@ public class Post {
 			if( authorIDStartIndex != -1 )
 				authorID = url.substring( authorIDStartIndex, authorIDEndIndex );
 		}
+	}
+
+	public void follow() {
+		isFollowed = true;
+	}
+
+	public void unfollow() {
+		isFollowed = false;
+	}
+
+	public boolean isFollowed() {
+		return isFollowed;
 	}
 }

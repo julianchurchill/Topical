@@ -4,4 +4,6 @@
     <string name="topicalTitle">TopicaL</string>
     <string name="myTopics">My Topics</string>
     <string name="topicListTitle">Topic</string>
+    <string name="follow">Follow</string>
+    <string name="unfollow">Unfollow</string>
 </resources>

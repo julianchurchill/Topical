@@ -10,6 +10,8 @@ import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.Html;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.Window;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -17,10 +19,14 @@ import android.widget.Toast;
 
 public class ViewPostActivity extends Activity {
 
+	private static final int FOLLOW_MENU_ITEM = 0;
+	private static final int UNFOLLOW_MENU_ITEM = 1;
 	private TextView authorTextView = null;
 	private TextView textTextView = null;
 	private TextView commentTextView = null;
 	private ImageView authorImageView = null;
+	private boolean isFollowMenuItemShown = true;
+	private Post post = null;
 	
 	@Override
     public void onCreate(Bundle savedInstanceState) {
@@ -33,11 +39,44 @@ public class ViewPostActivity extends Activity {
 		commentTextView = (TextView)findViewById( R.id.comments );
     }
 
-	@Override
+    @Override
+    public boolean onPrepareOptionsMenu( Menu menu )
+    {
+    	menu.clear();
+    	if( isFollowMenuItemShown )
+    		menu.add( Menu.NONE, FOLLOW_MENU_ITEM, Menu.NONE, getText( R.string.follow ) );
+    	else
+    		menu.add( Menu.NONE, UNFOLLOW_MENU_ITEM, Menu.NONE, getText( R.string.unfollow ) );
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected( MenuItem item )
+    {
+    	boolean retVal = true;
+        switch( item.getItemId() )
+        {
+        	case FOLLOW_MENU_ITEM:
+        		post.follow();
+            	isFollowMenuItemShown = false;
+        		break;
+	        case UNFOLLOW_MENU_ITEM:
+        		post.unfollow();
+            	isFollowMenuItemShown = true;
+	            break;
+	        default:
+	            retVal = super.onOptionsItemSelected( item );
+	            break;
+        }
+        return retVal;
+    }
+
+    @Override
 	protected void onResume() {
 		super.onResume();
 		final int index = getIntent().getIntExtra( TopicalConstants.IntentExtraKey_ViewTopicIndex, -1 );
-		Post post = TopicalActivity.currentTopic.get( index );
+		post = TopicalActivity.currentTopic.get( index );
+		isFollowMenuItemShown = post.isFollowed();
 		new GetPostInformationTask().execute( post );
 	}
 
