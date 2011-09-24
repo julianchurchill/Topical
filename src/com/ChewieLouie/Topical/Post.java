@@ -7,7 +7,6 @@ import android.os.AsyncTask;
 public class Post {
 	public enum Status { NEW, FOLLOWING_AND_NOT_CHANGED, FOLLOWING_AND_HAS_CHANGED };
 
-	public Status status = Status.NEW;
 	public String title = "";
 	public String text = "";
 	public String url = "";
@@ -27,12 +26,10 @@ public class Post {
 		setUrl( url );
 	}
 
-	public Post( String title, String text, String url, Status status )
-	{
-		this.title = title;
-		this.text = text;
-		setUrl( url );
-		this.status = status;
+	public Status getStatus() {
+		if( isFollowed )
+			return Status.FOLLOWING_AND_NOT_CHANGED;
+		return Status.NEW;
 	}
 	
 	public void retrieveRemoteInformation() throws IOException {

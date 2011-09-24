@@ -99,15 +99,12 @@ public class TopicalActivity extends Activity {
     private void createTestPosts() {
     	testTopicListContents.add( new Post( "new post 1",
     			"snippet 1",
-    			"http://somedomain/anauthorID/posts/aPostID",
-    			Post.Status.NEW ) );
+    			"http://somedomain/anauthorID/posts/aPostID" ) );
 		testTopicListContents.add( new Post( "following and not changed post",
 				"snippet 2",
-    			"http://somedomain/anauthorID/posts/aPostID",
-				Post.Status.FOLLOWING_AND_NOT_CHANGED ) );
+    			"http://somedomain/anauthorID/posts/aPostID" ) );
 		testTopicListContents.add( new Post( "following and has changed post",
 				"snippet 3 the final snippet, returns.",
-    			"http://somedomain/anauthorID/posts/aPostID",
-				Post.Status.FOLLOWING_AND_HAS_CHANGED ) );
+    			"http://somedomain/anauthorID/posts/aPostID" ) );
     }
 }

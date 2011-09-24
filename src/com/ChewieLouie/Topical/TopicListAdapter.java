@@ -41,8 +41,8 @@ public class TopicListAdapter extends ArrayAdapter<Post> {
     	if (p != null)
     	{
     		TextView titleTextView = setListItemContent( v, R.id.topic_list_item_title, p.title );
+    		setItemStatus( titleTextView, p.getStatus() );
     		setListItemContent( v, R.id.topic_list_item_text, p.text );
-    		setItemStatus( titleTextView, p.status );
         }
         return v;
     }
