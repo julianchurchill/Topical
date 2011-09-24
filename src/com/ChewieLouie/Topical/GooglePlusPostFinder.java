@@ -43,8 +43,7 @@ public class GooglePlusPostFinder implements GooglePlusPostFinderIfc {
 		{
 			for( Result result : results )
 			{
-				Post newPost = new Post( result.getTitle(), result.getSnippet(), result.getLink() );
-				posts.add( newPost );
+				posts.add( new Post( result.getTitle(), result.getSnippet(), result.getLink() ) );
 			}
 		}
 		return posts;

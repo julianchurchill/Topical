@@ -25,7 +25,7 @@ public class TopicalActivity extends Activity {
 
 	public TopicalActivity() {
 		super();
-		createTestPosts();
+		PersistentStorageFactory.setActivity( this );
 	}
 
 	@Override
@@ -94,17 +94,5 @@ public class TopicalActivity extends Activity {
     protected void onTopicListClicked( View view, int position )
     {
     	showTopicList( testTopics[position], testTopicListContents );
-    }
-    
-    private void createTestPosts() {
-    	testTopicListContents.add( new Post( "new post 1",
-    			"snippet 1",
-    			"http://somedomain/anauthorID/posts/aPostID" ) );
-		testTopicListContents.add( new Post( "following and not changed post",
-				"snippet 2",
-    			"http://somedomain/anauthorID/posts/aPostID" ) );
-		testTopicListContents.add( new Post( "following and has changed post",
-				"snippet 3 the final snippet, returns.",
-    			"http://somedomain/anauthorID/posts/aPostID" ) );
     }
 }

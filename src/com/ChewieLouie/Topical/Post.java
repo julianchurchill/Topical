@@ -18,12 +18,18 @@ public class Post {
 	private GooglePlusIfc googlePlus = GooglePlusFactory.create();
 	private boolean isFollowed = false;
 	private Map<DataType, String> postInfo = null;
+	private PersistentStorageIfc storage = null;
+	private static final String StorageKey_IsFollowed = "IsFollowed";
+	private String isFollowedStorageKey = null;
 	
 	public Post( String title, String text, String url )
 	{
+		this.storage = PersistentStorageFactory.create();
 		this.title = title;
 		this.text = text;
 		setUrl( url );
+		isFollowedStorageKey = StorageKey_IsFollowed + url;
+		this.isFollowed = Boolean.parseBoolean( storage.load( isFollowedStorageKey ) );
 	}
 
 	public Status getStatus() {
@@ -72,11 +78,16 @@ public class Post {
 	}
 
 	public void follow() {
-		isFollowed = true;
+		setFollow( true );
 	}
 
 	public void unfollow() {
-		isFollowed = false;
+		setFollow( false );
+	}
+	
+	private void setFollow( boolean follow ) {
+		isFollowed = follow;
+		storage.save( isFollowedStorageKey, String.valueOf( isFollowed ) );
 	}
 
 	public boolean isFollowed() {
