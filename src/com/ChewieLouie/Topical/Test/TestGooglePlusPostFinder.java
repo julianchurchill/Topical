@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.ChewieLouie.Topical.GooglePlusPostFinderIfc;
-import com.ChewieLouie.Topical.PersistentStorageIfc;
 import com.ChewieLouie.Topical.Post;
 
 public class TestGooglePlusPostFinder implements GooglePlusPostFinderIfc {
