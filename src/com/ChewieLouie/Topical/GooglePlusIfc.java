@@ -1,10 +1,11 @@
 package com.ChewieLouie.Topical;
 
 import java.io.IOException;
+import java.util.Map;
 
 public interface GooglePlusIfc {
-	public abstract String getAuthor( String authorID ) throws IOException;
-	public abstract String getPostContent( String authorID, String url ) throws IOException;
-	public abstract String getComments( String authorID, String url ) throws IOException;
-	public abstract String getImageURL( String authorID ) throws IOException;
+	public enum DataType { AUTHOR_NAME, AUTHOR_IMAGE, POST_CONTENT, COMMENTS };
+
+	public abstract Map<DataType, String> getPostInformation( String authorID, String url ) throws IOException;
+
 }

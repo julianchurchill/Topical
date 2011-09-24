@@ -1,6 +1,9 @@
 package com.ChewieLouie.Topical;
 
 import java.io.IOException;
+import java.util.Map;
+
+import com.ChewieLouie.Topical.GooglePlusIfc.DataType;
 
 import android.os.AsyncTask;
 
@@ -10,14 +13,11 @@ public class Post {
 	public String title = "";
 	public String text = "";
 	public String url = "";
-	public String author = null;
-	public String content = null;
-	public String comments = null;
-	public String imageURL = null;
 
 	private String authorID = null;
 	private GooglePlusIfc googlePlus = GooglePlusFactory.create();
 	private boolean isFollowed = false;
+	private Map<DataType, String> postInfo = null;
 	
 	public Post( String title, String text, String url )
 	{
@@ -33,14 +33,26 @@ public class Post {
 	}
 	
 	public void retrieveRemoteInformation() throws IOException {
-		if( author == null )
-			author = googlePlus.getAuthor( authorID );
-		if( content == null )
-			content = googlePlus.getPostContent( authorID, url );
-		if( comments == null )
-			comments = googlePlus.getComments( authorID, url );
-		if( imageURL == null )
-			imageURL = googlePlus.getImageURL( authorID );
+		if( postInfo == null )
+		{
+			postInfo = googlePlus.getPostInformation( authorID, url );
+		}
+	}
+
+	private String author() {
+		return postInfo.get( DataType.AUTHOR_NAME );
+	}
+
+	private String authorImageURL() {
+		return postInfo.get( DataType.AUTHOR_IMAGE );
+	}
+
+	private String content() {
+		return postInfo.get( DataType.POST_CONTENT );
+	}
+
+	private String comments() {
+		return postInfo.get( DataType.COMMENTS );
 	}
 
 	private void setUrl( String url ) {
@@ -99,10 +111,10 @@ public class Post {
 			super.onPostExecute( postPopulatedOk );
 			if( postPopulatedOk == false )
 				viewPost.showError( errorText );
-			viewPost.setAuthor( author );
-			viewPost.setAuthorImage( imageURL );
-			viewPost.setHTMLContent( content );
-			viewPost.setComments( "Comments: " + comments );
+			viewPost.setAuthor( author() );
+			viewPost.setAuthorImage( authorImageURL() );
+			viewPost.setHTMLContent( content() );
+			viewPost.setComments( "Comments: " + comments() );
 			viewPost.activityStopped();
 		}
 

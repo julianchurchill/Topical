@@ -1,14 +1,15 @@
 package com.ChewieLouie.Topical;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.gson.GsonFactory;
 import com.google.api.services.plus.Plus;
 import com.google.api.services.plus.model.Activity;
 import com.google.api.services.plus.model.ActivityFeed;
-import com.google.api.services.plus.model.Person;
 
 public class GooglePlus implements GooglePlusIfc {
 
@@ -30,69 +31,9 @@ public class GooglePlus implements GooglePlusIfc {
 		plus = new Plus( appName, new NetHttpTransport(), new GsonFactory() );
 		plus.setKey( googleAPIKey );
 	}
-	
-	@Override
-	public String getAuthor( String authorID ) throws IOException {
-		return getPersonInformation( authorID,
-			new PersonInformationRetrieverIfc() {
-				@Override
-				public String retrieve( Person person ) {
-					return person.getDisplayName();
-				}
-			});
-	}
 
-	@Override
-	public String getPostContent( String authorID, String url ) throws IOException {
-		return getActivityInformation( authorID, url, 
-			new ActivityInformationRetrieverIfc() {
-				@Override
-				public String retrieve(Activity activity) {
-					return activity.getPlusObject().getContent();
-				}
-			});
-	}
-
-	@Override
-	public String getComments( String authorID, String url ) throws IOException {
-		return getActivityInformation( authorID, url, 
-			new ActivityInformationRetrieverIfc() {
-				@Override
-				public String retrieve(Activity activity) {
-					return activity.getPlusObject().getReplies().toString();
-				}
-			});
-	}
-
-	@Override
-	public String getImageURL( String authorID ) throws IOException {
-		return getPersonInformation( authorID,
-			new PersonInformationRetrieverIfc() {
-				@Override
-				public String retrieve( Person person ) {
-					return person.getImage().getUrl();
-				}
-			});
-	}
-
-	private interface PersonInformationRetrieverIfc {
-		public String retrieve( Person person );
-	}	
-
-	private String getPersonInformation( String authorID,
-			PersonInformationRetrieverIfc command ) throws IOException {
-		Person person = plus.people.get( authorID ).execute();
-		if( person != null )
-			return command.retrieve( person );
-		return "";
-	}
-
-	private interface ActivityInformationRetrieverIfc {
-		public String retrieve( Activity activity );
-	}
-	
-	private String getActivityInformation( String authorID, String url,
-			ActivityInformationRetrieverIfc command ) throws IOException {
+	public Map<DataType, String> getPostInformation( String authorID, String url ) throws IOException {
+		Map<DataType, String> values = new HashMap<DataType, String>();
 		Activity foundActivity = null;
 		Plus.Activities.List request = plus.activities.list( authorID, collectionPublic );
 		ActivityFeed activityFeed = request.execute();
@@ -114,7 +55,12 @@ public class GooglePlus implements GooglePlusIfc {
 			activities = activityFeed.getItems();
 		}
 		if( foundActivity != null )
-			return command.retrieve( foundActivity );
-		return "";
+		{
+			values.put( DataType.AUTHOR_NAME, foundActivity.getActor().getDisplayName() );
+			values.put( DataType.AUTHOR_IMAGE, foundActivity.getActor().getImage().getUrl() );
+			values.put( DataType.POST_CONTENT, foundActivity.getPlusObject().getContent() );
+			values.put( DataType.COMMENTS, foundActivity.getPlusObject().getReplies().toString() );
+		}
+		return values;
 	}
 }
