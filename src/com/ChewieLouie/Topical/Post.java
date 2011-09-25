@@ -1,18 +1,16 @@
 package com.ChewieLouie.Topical;
 
 import java.io.IOException;
+import java.util.Calendar;
 import java.util.Map;
 
 import com.ChewieLouie.Topical.GooglePlusIfc.DataType;
+import com.google.api.client.util.DateTime;
 
 import android.os.AsyncTask;
 
 public class Post {
 	public enum Status { NEW, FOLLOWING_AND_NOT_CHANGED, FOLLOWING_AND_HAS_CHANGED };
-
-	public String title = "";
-	public String text = "";
-	public String url = "";
 
 	private String authorID = null;
 	private GooglePlusIfc googlePlus = GooglePlusFactory.create();
@@ -21,44 +19,31 @@ public class Post {
 	private PersistentStorageIfc storage = null;
 	private static final String StorageKey_IsFollowed = "IsFollowed";
 	private String isFollowedStorageKey = null;
+	private static final String StorageKey_PostID = "PostID";
+	private String postIDStorageKey = null;
+	private String postID = "";
+	private String title = "";
+	private String url = "";
+	private String summaryText = "";
+	private static final String StorageKey_LastViewedModificationTime = "LastViewedModificationTime";
+	private String lastViewedModificationTimeStorageKey = null;
+	private DateTime lastViewedModificationTime = null;
+	private DateTime currentModificationTime = null;
 	
-	public Post( String title, String text, String url )
+	public Post( String title, String summaryText, String url )
 	{
 		this.storage = PersistentStorageFactory.create();
 		this.title = title;
-		this.text = text;
+		this.summaryText = summaryText;
 		setUrl( url );
 		isFollowedStorageKey = StorageKey_IsFollowed + url;
 		this.isFollowed = Boolean.parseBoolean( storage.load( isFollowedStorageKey ) );
-	}
-
-	public Status getStatus() {
-		if( isFollowed )
-			return Status.FOLLOWING_AND_NOT_CHANGED;
-		return Status.NEW;
-	}
-	
-	public void retrieveRemoteInformation() throws IOException {
-		if( postInfo == null )
-		{
-			postInfo = googlePlus.getPostInformation( authorID, url );
-		}
-	}
-
-	private String author() {
-		return postInfo.get( DataType.AUTHOR_NAME );
-	}
-
-	private String authorImageURL() {
-		return postInfo.get( DataType.AUTHOR_IMAGE );
-	}
-
-	private String content() {
-		return postInfo.get( DataType.POST_CONTENT );
-	}
-
-	private String comments() {
-		return postInfo.get( DataType.COMMENTS );
+		postIDStorageKey = StorageKey_PostID + url;
+		this.postID = storage.load( postIDStorageKey );
+		lastViewedModificationTimeStorageKey = StorageKey_LastViewedModificationTime + url;
+		String modTime = storage.load( lastViewedModificationTimeStorageKey );
+		if( modTime.equals( "" ) == false )
+			this.lastViewedModificationTime = DateTime.parseRfc3339( modTime );
 	}
 
 	private void setUrl( String url ) {
@@ -98,6 +83,11 @@ public class Post {
 		new GetPostInformationTask( viewPost ).execute();
 	}
 
+	public void viewed() {
+		lastViewedModificationTime = currentModificationTime;
+		storage.save( StorageKey_LastViewedModificationTime, lastViewedModificationTime.toStringRfc3339() );
+	}
+
 	private class GetPostInformationTask extends AsyncTask<Void, Void, Boolean> {
     	private String errorText = null;
     	private ViewPostIfc viewPost = null;
@@ -125,14 +115,70 @@ public class Post {
 			viewPost.setAuthor( author() );
 			viewPost.setAuthorImage( authorImageURL() );
 			viewPost.setHTMLContent( content() );
-			viewPost.setComments( "Comments: " + comments() );
+			viewPost.setComments( comments() );
+			viewPost.setStatus( status() );
+			viewPost.setTitle( title );
+			viewPost.setSummaryText( summaryText );
 			viewPost.activityStopped();
+			currentModificationTime = DateTime.parseRfc3339( postInfo.get( DataType.MODIFICATION_TIME ) );
 		}
 
 		@Override
 		protected void onPreExecute() {
 			super.onPreExecute();
 			viewPost.activityStarted();
+		}
+
+		private void retrieveRemoteInformation() throws IOException {
+			if( postInfo == null )
+			{
+				if( postID.equals( "" ) )
+				{
+					postInfo = googlePlus.getPostInformation( authorID, url );
+					postID = postInfo.get( DataType.POST_ID );
+					storage.save( postIDStorageKey, postID );
+				}
+				else
+				{
+					postInfo = googlePlus.getPostInformationByPostID( postID );
+				}
+			}
+		}
+
+		private String author() {
+			return postInfo.get( DataType.AUTHOR_NAME );
+		}
+
+		private String authorImageURL() {
+			return postInfo.get( DataType.AUTHOR_IMAGE );
+		}
+
+		private String content() {
+			return postInfo.get( DataType.POST_CONTENT );
+		}
+
+		private String comments() {
+			return postInfo.get( DataType.COMMENTS );
+		}
+		
+		private boolean isPostModifiedSinceLastView() {
+			if( lastViewedModificationTime != null ) {
+				Calendar currentModificationCalendar = Calendar.getInstance();
+				currentModificationCalendar.setTimeInMillis( currentModificationTime.getValue() );
+				if( currentModificationCalendar.after( lastViewedModificationTime ) )
+					return true;
+			}
+			return false;
+		}
+
+		private Post.Status status() {
+			if( isFollowed )
+			{
+				if( isPostModifiedSinceLastView() )
+					return Post.Status.FOLLOWING_AND_HAS_CHANGED;
+				return Post.Status.FOLLOWING_AND_NOT_CHANGED;
+			}
+			return Post.Status.NEW;
 		}
     }
 }

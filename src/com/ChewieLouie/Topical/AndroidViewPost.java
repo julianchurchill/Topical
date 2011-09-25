@@ -5,6 +5,8 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 
+import com.ChewieLouie.Topical.Post.Status;
+
 import android.app.Activity;
 import android.graphics.drawable.Drawable;
 import android.text.Html;
@@ -50,10 +52,21 @@ public class AndroidViewPost implements ViewPostIfc {
 	}
 
 	@Override
+	public void setStatus( Status status ) {
+	}
+
+	@Override
+	public void setTitle( String title ) {
+	}
+
+	@Override
+	public void setSummaryText( String summary ) {
+	}
+
+	@Override
 	public void showError(String errorText) {
 		Toast.makeText( activity, errorText, Toast.LENGTH_LONG ).show();
 	}
-
 
 	@Override
 	public void activityStarted() {

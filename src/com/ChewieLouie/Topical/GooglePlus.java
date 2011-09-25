@@ -32,8 +32,13 @@ public class GooglePlus implements GooglePlusIfc {
 		plus.setKey( googleAPIKey );
 	}
 
+	@Override
+	public Map<DataType, String> getPostInformationByPostID(String postID) throws IOException {
+		Plus.Activities.Get request = plus.activities.get( postID ); 
+		return extractDataFromActivity( request.execute() );
+	}
+
 	public Map<DataType, String> getPostInformation( String authorID, String url ) throws IOException {
-		Map<DataType, String> values = new HashMap<DataType, String>();
 		Activity foundActivity = null;
 		Plus.Activities.List request = plus.activities.list( authorID, collectionPublic );
 		ActivityFeed activityFeed = request.execute();
@@ -54,12 +59,19 @@ public class GooglePlus implements GooglePlusIfc {
 			activityFeed = request.execute();
 			activities = activityFeed.getItems();
 		}
-		if( foundActivity != null )
+		return extractDataFromActivity( foundActivity );
+	}
+	
+	private Map<DataType, String> extractDataFromActivity( Activity activity ) {
+		Map<DataType, String> values = new HashMap<DataType, String>();
+		if( activity != null )
 		{
-			values.put( DataType.AUTHOR_NAME, foundActivity.getActor().getDisplayName() );
-			values.put( DataType.AUTHOR_IMAGE, foundActivity.getActor().getImage().getUrl() );
-			values.put( DataType.POST_CONTENT, foundActivity.getPlusObject().getContent() );
-			values.put( DataType.COMMENTS, foundActivity.getPlusObject().getReplies().toString() );
+			values.put( DataType.AUTHOR_NAME, activity.getActor().getDisplayName() );
+			values.put( DataType.AUTHOR_IMAGE, activity.getActor().getImage().getUrl() );
+			values.put( DataType.POST_CONTENT, activity.getPlusObject().getContent() );
+			values.put( DataType.COMMENTS, activity.getPlusObject().getReplies().toString() );
+			values.put( DataType.POST_ID, activity.getId() );
+			values.put( DataType.MODIFICATION_TIME, activity.getUpdated().toStringRfc3339() );
 		}
 		return values;
 	}
