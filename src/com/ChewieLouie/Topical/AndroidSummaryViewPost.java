@@ -61,6 +61,7 @@ public class AndroidSummaryViewPost implements ViewPostIfc {
 	@Override
 	public void activityStarted() {
 		titleTextView.setText( "Loading..." );
+		summaryTextView.setText( "Loading..." );
 	}
 
 	@Override

@@ -5,6 +5,7 @@ import java.util.Calendar;
 import java.util.Map;
 
 import com.ChewieLouie.Topical.GooglePlusIfc.DataType;
+import com.ChewieLouie.Topical.PersistentStorageIfc.ValueType;
 import com.google.api.client.util.DateTime;
 
 import android.os.AsyncTask;
@@ -17,31 +18,33 @@ public class Post {
 	private boolean isFollowed = false;
 	private Map<DataType, String> postInfo = null;
 	private PersistentStorageIfc storage = null;
-	private static final String StorageKey_IsFollowed = "IsFollowed";
-	private String isFollowedStorageKey = null;
-	private static final String StorageKey_PostID = "PostID";
-	private String postIDStorageKey = null;
 	private String postID = "";
-	private String title = "";
 	private String url = "";
+	private String title = "";
 	private String summaryText = "";
-	private static final String StorageKey_LastViewedModificationTime = "LastViewedModificationTime";
-	private String lastViewedModificationTimeStorageKey = null;
 	private DateTime lastViewedModificationTime = null;
 	private DateTime currentModificationTime = null;
-	
-	public Post( String title, String summaryText, String url )
-	{
-		this.storage = PersistentStorageFactory.create();
+
+	public Post( String url ) {
+		loadData( url );
+		this.title = storage.load( url, ValueType.TITLE );
+		this.summaryText = storage.load( url, ValueType.SUMMARY );
+	}
+
+	public Post( String title, String summaryText, String url )	{
+		loadData( url );
 		this.title = title;
 		this.summaryText = summaryText;
+		storage.save( url, ValueType.TITLE, title );
+		storage.save( url, ValueType.SUMMARY, summaryText );
+	}
+	
+	private void loadData( String url ) {
+		this.storage = PersistentStorageFactory.create();
 		setUrl( url );
-		isFollowedStorageKey = StorageKey_IsFollowed + url;
-		this.isFollowed = Boolean.parseBoolean( storage.load( isFollowedStorageKey ) );
-		postIDStorageKey = StorageKey_PostID + url;
-		this.postID = storage.load( postIDStorageKey );
-		lastViewedModificationTimeStorageKey = StorageKey_LastViewedModificationTime + url;
-		String modTime = storage.load( lastViewedModificationTimeStorageKey );
+		this.isFollowed = Boolean.parseBoolean( storage.load( url, ValueType.IS_FOLLOWED ) );
+		this.postID = storage.load( url, ValueType.POST_ID );
+		String modTime = storage.load( url, ValueType.LAST_VIEWED_MODIFICATION_TIME );
 		if( modTime.equals( "" ) == false )
 			this.lastViewedModificationTime = DateTime.parseRfc3339( modTime );
 	}
@@ -72,7 +75,7 @@ public class Post {
 	
 	private void setFollow( boolean follow ) {
 		isFollowed = follow;
-		storage.save( isFollowedStorageKey, String.valueOf( isFollowed ) );
+		storage.save( url, ValueType.IS_FOLLOWED, String.valueOf( isFollowed ) );
 	}
 
 	public boolean isFollowed() {
@@ -85,7 +88,7 @@ public class Post {
 
 	public void viewed() {
 		lastViewedModificationTime = currentModificationTime;
-		storage.save( StorageKey_LastViewedModificationTime, lastViewedModificationTime.toStringRfc3339() );
+		storage.save( url, ValueType.LAST_VIEWED_MODIFICATION_TIME, lastViewedModificationTime.toStringRfc3339() );
 	}
 
 	private class GetPostInformationTask extends AsyncTask<Void, Void, Boolean> {
@@ -117,16 +120,18 @@ public class Post {
 			viewPost.setHTMLContent( content() );
 			viewPost.setComments( comments() );
 			viewPost.setStatus( status() );
-			viewPost.setTitle( title );
 			viewPost.setSummaryText( summaryText );
 			viewPost.activityStopped();
-			currentModificationTime = DateTime.parseRfc3339( postInfo.get( DataType.MODIFICATION_TIME ) );
+			String lastViewedModificationTime = postInfo.get( DataType.MODIFICATION_TIME );
+			if( lastViewedModificationTime != null )
+				currentModificationTime = DateTime.parseRfc3339( lastViewedModificationTime );
 		}
 
 		@Override
 		protected void onPreExecute() {
 			super.onPreExecute();
 			viewPost.activityStarted();
+			viewPost.setTitle( title );
 		}
 
 		private void retrieveRemoteInformation() throws IOException {
@@ -136,7 +141,7 @@ public class Post {
 				{
 					postInfo = googlePlus.getPostInformation( authorID, url );
 					postID = postInfo.get( DataType.POST_ID );
-					storage.save( postIDStorageKey, postID );
+					storage.save( url, ValueType.POST_ID, postID );
 				}
 				else
 				{
@@ -162,7 +167,7 @@ public class Post {
 		}
 		
 		private boolean isPostModifiedSinceLastView() {
-			if( lastViewedModificationTime != null ) {
+			if( lastViewedModificationTime != null && currentModificationTime != null ) {
 				Calendar currentModificationCalendar = Calendar.getInstance();
 				currentModificationCalendar.setTimeInMillis( currentModificationTime.getValue() );
 				if( currentModificationCalendar.after( lastViewedModificationTime ) )

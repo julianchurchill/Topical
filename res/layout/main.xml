@@ -20,6 +20,11 @@
             android:layout_height="wrap_content"
             android:text="Search"
             android:onClick="search"/>
+    <Button android:id="@+id/ShowFollowedPostsButton"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:text="Followed Posts"
+            android:onClick="showFollowedPosts"/>
 	<TextView
         android:background="#c4c4c4"
         android:textColor="#343434"

@@ -38,6 +38,16 @@ public class TopicalActivity extends Activity {
     	searchEditText = (EditText)findViewById( R.id.SearchText );
     }
 
+	public void showFollowedPosts( View view ) {
+    	List<String> postURLs = PersistentStorageFactory.create().getAllPostURLsWhereFollowingIsTrue();
+    	currentTopic = new ArrayList<Post>();
+    	for( String url : postURLs )
+    		currentTopic.add( new Post( url ) );
+    	Intent intent = new Intent().setClass( getApplicationContext(), TopicListActivity.class );
+    	intent.putExtra( TopicalConstants.IntentExtraKey_TopicListTopic, "Followed Posts" );
+    	startActivity( intent );
+	}
+
     public void search( View view ) {
     	new SearchGoogleTask().execute( searchEditText.getText().toString() );
     }
