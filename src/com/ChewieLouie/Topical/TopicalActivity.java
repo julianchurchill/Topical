@@ -14,6 +14,7 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.Toast;
 
 public class TopicalActivity extends Activity {
 
@@ -65,7 +66,10 @@ public class TopicalActivity extends Activity {
 		protected void onPostExecute(List<Post> result) {
 			super.onPostExecute(result);
 	    	setProgressBarIndeterminateVisibility( false );
-	    	showTopicList( topic, result );
+	    	if( result.size() > 0 )
+	    		showTopicList( topic, result );
+	    	else
+	    		Toast.makeText( TopicalActivity.this, "No results found", Toast.LENGTH_LONG ).show();
 		}
 
 		@Override

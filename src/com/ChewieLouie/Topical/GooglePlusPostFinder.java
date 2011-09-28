@@ -18,7 +18,7 @@ public class GooglePlusPostFinder implements GooglePlusPostFinderIfc {
 
 	private Customsearch customSearch = null;
 	
-	public GooglePlusPostFinder()	{
+	public GooglePlusPostFinder() {
 		customSearch = new Customsearch( new NetHttpTransport(), new GsonFactory() );
 		customSearch.setKey( googleAPIKey );
 	}
@@ -26,24 +26,24 @@ public class GooglePlusPostFinder implements GooglePlusPostFinderIfc {
 	@Override
 	public List<Post> search( String searchText ) {
 		List<Post> posts = new ArrayList<Post>();
-		String query = searchText;
-		Customsearch.Cse.List request = customSearch.cse.list( query );
-		request.setCx( customSearchEngineID );
-		List<Result> results = null;
-		try {
-			Search searchResult = request.execute();
-			if( searchResult != null )
-			{
-				results = searchResult.getItems();
+		if( searchText.isEmpty() == false ) {
+			String query = searchText;
+			Customsearch.Cse.List request = customSearch.cse.list( query );
+			request.setCx( customSearchEngineID );
+			List<Result> results = null;
+			try {
+				Search searchResult = request.execute();
+				if( searchResult != null )
+				{
+					results = searchResult.getItems();
+				}
+			} catch (IOException e) {
+				e.printStackTrace();
 			}
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		if( results != null )
-		{
-			for( Result result : results )
-			{
-				posts.add( new Post( result.getTitle(), result.getSnippet(), result.getLink() ) );
+			if( results != null ) {
+				for( Result result : results ) {
+					posts.add( new Post( result.getTitle(), result.getSnippet(), result.getLink() ) );
+				}
 			}
 		}
 		return posts;
