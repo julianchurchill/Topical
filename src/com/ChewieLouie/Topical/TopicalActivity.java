@@ -98,8 +98,7 @@ public class TopicalActivity extends Activity {
 	{
 	    ListView lv = (ListView)findViewById( R.id.topicList );
 	    lv.setOnItemClickListener( new OnItemClickListener() {
-			public void onItemClick(AdapterView<?> parent, View view, int position, long id)
-			{
+			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 				onTopicListClicked( view, position );
 			}
 		});

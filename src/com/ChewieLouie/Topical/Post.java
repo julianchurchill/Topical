@@ -57,8 +57,7 @@ public class Post {
 	private void extractAuthorIDFromURL( String url ) {
 		final String gPlusURLPostsSeperator = "/posts/";
 		int authorIDEndIndex = url.indexOf( gPlusURLPostsSeperator );
-		if( authorIDEndIndex != -1 )
-		{
+		if( authorIDEndIndex != -1 ) {
 			int authorIDStartIndex = url.lastIndexOf( "/", authorIDEndIndex-1 ) + 1;
 			if( authorIDStartIndex != -1 )
 				authorID = url.substring( authorIDStartIndex, authorIDEndIndex );
@@ -135,16 +134,13 @@ public class Post {
 		}
 
 		private void retrieveRemoteInformation() throws IOException {
-			if( postInfo == null )
-			{
-				if( postID.equals( "" ) )
-				{
+			if( postInfo == null ) {
+				if( postID.equals( "" ) ) {
 					postInfo = googlePlus.getPostInformation( authorID, url );
 					postID = postInfo.get( DataType.POST_ID );
 					storage.save( url, ValueType.POST_ID, postID );
 				}
-				else
-				{
+				else {
 					postInfo = googlePlus.getPostInformationByPostID( postID );
 				}
 			}
@@ -177,8 +173,7 @@ public class Post {
 		}
 
 		private Post.Status status() {
-			if( isFollowed )
-			{
+			if( isFollowed ) {
 				if( isPostModifiedSinceLastView() )
 					return Post.Status.FOLLOWING_AND_HAS_CHANGED;
 				return Post.Status.FOLLOWING_AND_NOT_CHANGED;
