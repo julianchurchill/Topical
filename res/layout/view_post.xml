@@ -14,8 +14,8 @@
 	    	android:scaleType="fitStart"
 	    	android:src="@drawable/icon"
 	     	android:adjustViewBounds="true"
-	    	android:maxHeight="30sp"
-	    	android:maxWidth="30sp"
+	    	android:maxHeight="40sp"
+	    	android:maxWidth="40sp"
 		    android:layout_width="wrap_content"
 		    android:layout_height="match_parent"/>
     	<TextView android:id="@+id/author"
@@ -24,7 +24,7 @@
 	    	android:layout_width="match_parent" 
 	   	    android:layout_height="wrap_content" 
 	  	    android:text="@string/myTopics"
-	  	    android:textSize="20sp"
+	  	    android:textSize="30sp"
 	  	    android:textStyle="bold"
 	  	    android:gravity="center_horizontal"/>  
  	</LinearLayout>
