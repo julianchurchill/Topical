@@ -26,7 +26,7 @@ import com.google.api.services.customsearch.model.Result;
 
 public class TopicalActivity extends Activity {
 
-	public static List<Post> currentTopic = null;
+	public static List<Post> currentPosts = null;
 
 	private EditText searchEditText = null;	
 	private final String[] testTopics = { "Topic 1", "Topic 2", "Topic 3" };
@@ -50,9 +50,9 @@ public class TopicalActivity extends Activity {
 
 	public void showFollowedPosts( View view ) {
     	List<String> postURLs = storage.getAllPostURLsWhereFollowingIsTrue();
-    	currentTopic = new ArrayList<Post>();
+    	currentPosts = new ArrayList<Post>();
     	for( String url : postURLs )
-    		currentTopic.add( new Post( url, storage ) );
+    		currentPosts.add( new Post( url, storage ) );
     	Intent intent = new Intent().setClass( getApplicationContext(), TopicListActivity.class );
     	intent.putExtra( TopicalConstants.IntentExtraKey_TopicListTopic, "Followed Posts" );
     	startActivity( intent );
@@ -101,7 +101,7 @@ public class TopicalActivity extends Activity {
     }
 
     private void showTopicList( String topic, List<Post> posts ) {
-    	currentTopic = posts;
+    	currentPosts = posts;
     	Intent intent = new Intent().setClass( getApplicationContext(), TopicListActivity.class );
     	intent.putExtra( TopicalConstants.IntentExtraKey_TopicListTopic, topic );
     	startActivity( intent );

@@ -73,7 +73,7 @@ public class ViewPostActivity extends Activity {
 	protected void onResume() {
 		super.onResume();
 		final int index = getIntent().getIntExtra( TopicalConstants.IntentExtraKey_ViewTopicIndex, -1 );
-		post = TopicalActivity.currentTopic.get( index );
+		post = TopicalActivity.currentPosts.get( index );
 		isFollowing = post.isFollowed();
 		post.viewed();
 		post.show( androidViewPost );
