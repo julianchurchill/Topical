@@ -21,10 +21,17 @@ public class MockGooglePlusPostFinder implements GooglePlusPostFinderIfc {
 		if( testSearchResults == null )
 		{
 			testSearchResults = new ArrayList<Post>();
-			testSearchResults.add( new Post( "Some text", "test snippet 1", testURL ) );
-			testSearchResults.add( new Post( "Another result", "test snippet 2", testURL ) );
-			testSearchResults.add( new Post( "And another one", "test snippet 3", testURL ) );
+			testSearchResults.add( createPost( testURL, "Some title", "test snippet 1" ) );
+			testSearchResults.add( createPost( testURL, "Another result", "test snippet 2" ) );
+			testSearchResults.add( createPost( testURL, "And another one", "test snippet 3" ) );
 		}
 		return testSearchResults;
+	}
+	
+	private Post createPost( String url, String title, String summary ) {
+		Post post = new Post( url );
+		post.setTitle( title );
+		post.setSummary( summary );
+		return post;
 	}
 }

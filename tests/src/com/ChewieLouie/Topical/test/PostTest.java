@@ -9,8 +9,8 @@ public class PostTest extends AndroidTestCase {
 		super();
 	}
 
-	public void testPostCanBeCreated() {
-		new Post( "", new MockPersistentStorage() );
+	public void testPostCanBeCreatedWithURL() {
+		new Post( "url", new MockPersistentStorage() );
 		assertTrue( true );
 	}
 }

@@ -26,44 +26,37 @@ public class Post {
 	private DateTime currentModificationTime = null;
 
 	public Post( String url ) {
-		this.storage = PersistentStorageFactory.create();
-		loadData( url );
-		this.title = storage.load( url, ValueType.TITLE );
-		this.summaryText = storage.load( url, ValueType.SUMMARY );
+		constructWithURL( url, PersistentStorageFactory.create() );
 	}
 
-	public Post( String url, PersistentStorageIfc persistentStorage ) {
-		this.storage = persistentStorage;
-		loadData( url );
-		this.title = storage.load( url, ValueType.TITLE );
-		this.summaryText = storage.load( url, ValueType.SUMMARY );
+	public Post( String url, PersistentStorageIfc storage ) {
+		constructWithURL( url, storage );
 	}
 
-	public Post( String title, String summaryText, String url )	{
-		this.storage = PersistentStorageFactory.create();
-		loadData( url );
-		this.title = title;
-		this.summaryText = summaryText;
-		storage.save( url, ValueType.TITLE, title );
-		storage.save( url, ValueType.SUMMARY, summaryText );
-	}
-	
-	public Post( String title, String summaryText, String url, PersistentStorageIfc persistentStorage )	{
-		this.storage = persistentStorage;
-		loadData( url );
-		this.title = title;
-		this.summaryText = summaryText;
-		storage.save( url, ValueType.TITLE, title );
-		storage.save( url, ValueType.SUMMARY, summaryText );
-	}
-	
-	private void loadData( String url ) {
+	private void constructWithURL( String url, PersistentStorageIfc storage ) {
+		this.storage = storage;
 		setUrl( url );
+		loadData();
+	}
+
+	private void loadData() {
+		this.title = storage.load( url, ValueType.TITLE );
+		this.summaryText = storage.load( url, ValueType.SUMMARY );
 		this.isFollowed = Boolean.parseBoolean( storage.load( url, ValueType.IS_FOLLOWED ) );
 		this.postID = storage.load( url, ValueType.POST_ID );
 		String modTime = storage.load( url, ValueType.LAST_VIEWED_MODIFICATION_TIME );
 		if( modTime.equals( "" ) == false )
 			this.lastViewedModificationTime = DateTime.parseRfc3339( modTime );
+	}
+
+	public void setTitle( String title ) {
+		this.title = title;
+		storage.save( url, ValueType.TITLE, title );
+	}
+
+	public void setSummary( String summaryText ) {
+		this.summaryText = summaryText;
+		storage.save( url, ValueType.SUMMARY, summaryText );
 	}
 
 	private void setUrl( String url ) {
