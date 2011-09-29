@@ -29,8 +29,7 @@ public class TopicalActivity extends Activity {
 	public static List<Post> currentPosts = null;
 
 	private EditText searchEditText = null;	
-	private final String[] testTopics = { "Topic 1", "Topic 2", "Topic 3" };
-	private List<Post> testTopicListContents = new ArrayList<Post>();
+	private final String[] watchedTopics = { "Topic 1", "Topic 2", "Topic 3" };
 	private PersistentStorageIfc storage = null;
 
 	public TopicalActivity() {
@@ -38,20 +37,19 @@ public class TopicalActivity extends Activity {
 	}
 
 	@Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    public void onCreate( Bundle savedInstanceState ) {
+        super.onCreate( savedInstanceState );
 		storage = new AndroidPreferenceStorage( this );
-        requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
-        setContentView(R.layout.main);
+        requestWindowFeature( Window.FEATURE_INDETERMINATE_PROGRESS );
+        setContentView( R.layout.main );
         populateTopicList();
         addTopicItemClickNotifier();
     	searchEditText = (EditText)findViewById( R.id.SearchText );
     }
 
 	public void showFollowedPosts( View view ) {
-    	List<String> postURLs = storage.getAllPostURLsWhereFollowingIsTrue();
     	currentPosts = new ArrayList<Post>();
-    	for( String url : postURLs )
+    	for( String url : storage.getAllPostURLsWhereFollowingIsTrue() )
     		currentPosts.add( new Post( url, storage ) );
     	Intent intent = new Intent().setClass( getApplicationContext(), TopicListActivity.class );
     	intent.putExtra( TopicalConstants.IntentExtraKey_TopicListTopic, "Followed Posts" );
@@ -110,7 +108,7 @@ public class TopicalActivity extends Activity {
     private void populateTopicList() {
     	ListView conversationList = (ListView)findViewById( R.id.topicList );
     	conversationList.setAdapter( new ArrayAdapter<String>( this, R.layout.topic_list_item, 
-        		R.id.topic_list_item_text, testTopics ) );
+        		R.id.topic_list_item_text, watchedTopics ) );
     }
 
     private void addTopicItemClickNotifier() {
@@ -123,6 +121,6 @@ public class TopicalActivity extends Activity {
 	}
     
     protected void onTopicListClicked( View view, int position ) {
-    	showTopicList( testTopics[position], testTopicListContents );
+    	showTopicList( watchedTopics[position], new ArrayList<Post>() );
     }
 }
