@@ -1,4 +1,4 @@
-package com.ChewieLouie.Topical.Test;
+package com.ChewieLouie.Topical.test;
 
 import java.util.ArrayList;
 import java.util.List;

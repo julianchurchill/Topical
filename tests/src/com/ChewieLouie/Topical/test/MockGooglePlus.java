@@ -1,4 +1,4 @@
-package com.ChewieLouie.Topical.Test;
+package com.ChewieLouie.Topical.test;
 
 import java.io.IOException;
 import java.util.Map;
