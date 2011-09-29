@@ -1,13 +1,5 @@
 package com.ChewieLouie.Topical.Activities;
 
-import com.ChewieLouie.Topical.AndroidViewPost;
-import com.ChewieLouie.Topical.Post;
-import com.ChewieLouie.Topical.R;
-import com.ChewieLouie.Topical.TopicalConstants;
-import com.ChewieLouie.Topical.R.id;
-import com.ChewieLouie.Topical.R.layout;
-import com.ChewieLouie.Topical.R.string;
-
 import android.app.Activity;
 import android.os.Bundle;
 import android.view.Menu;
@@ -15,6 +7,11 @@ import android.view.MenuItem;
 import android.view.Window;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import com.ChewieLouie.Topical.AndroidViewPost;
+import com.ChewieLouie.Topical.Post;
+import com.ChewieLouie.Topical.R;
+import com.ChewieLouie.Topical.TopicalConstants;
 
 public class ViewPostActivity extends Activity {
 
