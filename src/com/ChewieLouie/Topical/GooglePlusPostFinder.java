@@ -1,7 +1,6 @@
 package com.ChewieLouie.Topical;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 import com.google.api.client.http.javanet.NetHttpTransport;
@@ -24,13 +23,12 @@ public class GooglePlusPostFinder implements GooglePlusPostFinderIfc {
 	}
 
 	@Override
-	public List<Post> search( String searchText ) {
-		List<Post> posts = new ArrayList<Post>();
+	public List<Result> search( String searchText ) {
+		List<Result> results = null;
 		if( searchText.isEmpty() == false ) {
 			String query = searchText;
 			Customsearch.Cse.List request = customSearch.cse.list( query );
 			request.setCx( customSearchEngineID );
-			List<Result> results = null;
 			try {
 				Search searchResult = request.execute();
 				if( searchResult != null )
@@ -38,14 +36,7 @@ public class GooglePlusPostFinder implements GooglePlusPostFinderIfc {
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
-			if( results != null )
-				for( Result result : results ) {
-					Post post = new Post( result.getLink() );
-					post.setTitle( result.getTitle() );
-					post.setSummary( result.getSnippet() );
-					posts.add( post );
-				}
 		}
-		return posts;
+		return results;
 	}
 }

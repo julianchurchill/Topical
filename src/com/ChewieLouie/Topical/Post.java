@@ -25,15 +25,7 @@ public class Post {
 	private DateTime lastViewedModificationTime = null;
 	private DateTime currentModificationTime = null;
 
-	public Post( String url ) {
-		constructWithURL( url, PersistentStorageFactory.create() );
-	}
-
 	public Post( String url, PersistentStorageIfc storage ) {
-		constructWithURL( url, storage );
-	}
-
-	private void constructWithURL( String url, PersistentStorageIfc storage ) {
 		this.storage = storage;
 		setUrl( url );
 		loadData();
