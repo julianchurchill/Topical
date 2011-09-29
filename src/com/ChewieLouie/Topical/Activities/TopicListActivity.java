@@ -1,4 +1,11 @@
-package com.ChewieLouie.Topical;
+package com.ChewieLouie.Topical.Activities;
+
+import com.ChewieLouie.Topical.R;
+import com.ChewieLouie.Topical.TopicListAdapter;
+import com.ChewieLouie.Topical.TopicalConstants;
+import com.ChewieLouie.Topical.R.id;
+import com.ChewieLouie.Topical.R.layout;
+import com.ChewieLouie.Topical.R.string;
 
 import android.app.ListActivity;
 import android.content.Intent;

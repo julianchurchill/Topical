@@ -1,4 +1,12 @@
-package com.ChewieLouie.Topical;
+package com.ChewieLouie.Topical.Activities;
+
+import com.ChewieLouie.Topical.AndroidViewPost;
+import com.ChewieLouie.Topical.Post;
+import com.ChewieLouie.Topical.R;
+import com.ChewieLouie.Topical.TopicalConstants;
+import com.ChewieLouie.Topical.R.id;
+import com.ChewieLouie.Topical.R.layout;
+import com.ChewieLouie.Topical.R.string;
 
 import android.app.Activity;
 import android.os.Bundle;

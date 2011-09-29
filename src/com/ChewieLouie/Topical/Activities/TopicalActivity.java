@@ -1,7 +1,15 @@
-package com.ChewieLouie.Topical;
+package com.ChewieLouie.Topical.Activities;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import com.ChewieLouie.Topical.GooglePlusPostFinderFactory;
+import com.ChewieLouie.Topical.PersistentStorageFactory;
+import com.ChewieLouie.Topical.Post;
+import com.ChewieLouie.Topical.R;
+import com.ChewieLouie.Topical.TopicalConstants;
+import com.ChewieLouie.Topical.R.id;
+import com.ChewieLouie.Topical.R.layout;
 
 import android.app.Activity;
 import android.content.Intent;
