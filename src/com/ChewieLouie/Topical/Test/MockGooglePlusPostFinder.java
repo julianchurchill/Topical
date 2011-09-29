@@ -6,13 +6,13 @@ import java.util.List;
 import com.ChewieLouie.Topical.GooglePlusPostFinderIfc;
 import com.ChewieLouie.Topical.Post;
 
-public class TestGooglePlusPostFinder implements GooglePlusPostFinderIfc {
+public class MockGooglePlusPostFinder implements GooglePlusPostFinderIfc {
 
 	// A random URL - while valid in syntax doesn't actually point to a valid post/user
 	private static final String testURL = "https://plus.google.com/u/0/11361562123432432532128/posts/cFJH2197HuihTuU";
 	private static List<Post> testSearchResults = null;
 	
-	public TestGooglePlusPostFinder()
+	public MockGooglePlusPostFinder()
 	{
 	}
 	

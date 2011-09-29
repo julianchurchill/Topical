@@ -5,7 +5,7 @@ import java.util.Map;
 
 import com.ChewieLouie.Topical.GooglePlusIfc;
 
-public class TestGooglePlus implements GooglePlusIfc {
+public class MockGooglePlus implements GooglePlusIfc {
 
 	@Override
 	public Map<DataType, String> getPostInformationByPostID( String postID ) throws IOException {
