@@ -33,17 +33,14 @@ public class GooglePlusPostFinder implements GooglePlusPostFinderIfc {
 			List<Result> results = null;
 			try {
 				Search searchResult = request.execute();
-				if( searchResult != null ) {
+				if( searchResult != null )
 					results = searchResult.getItems();
-				}
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
-			if( results != null ) {
-				for( Result result : results ) {
+			if( results != null )
+				for( Result result : results )
 					posts.add( new Post( result.getTitle(), result.getSnippet(), result.getLink() ) );
-				}
-			}
 		}
 		return posts;
 	}

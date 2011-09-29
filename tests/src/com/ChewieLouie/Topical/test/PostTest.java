@@ -10,7 +10,7 @@ public class PostTest extends AndroidTestCase {
 	}
 
 	public void testPostCanBeCreated() {
-		new Post( "" );
+		new Post( "", new MockPersistentStorage() );
 		assertTrue( true );
 	}
 }

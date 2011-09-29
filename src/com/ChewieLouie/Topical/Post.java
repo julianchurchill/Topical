@@ -26,12 +26,30 @@ public class Post {
 	private DateTime currentModificationTime = null;
 
 	public Post( String url ) {
+		this.storage = PersistentStorageFactory.create();
+		loadData( url );
+		this.title = storage.load( url, ValueType.TITLE );
+		this.summaryText = storage.load( url, ValueType.SUMMARY );
+	}
+
+	public Post( String url, PersistentStorageIfc persistentStorage ) {
+		this.storage = persistentStorage;
 		loadData( url );
 		this.title = storage.load( url, ValueType.TITLE );
 		this.summaryText = storage.load( url, ValueType.SUMMARY );
 	}
 
 	public Post( String title, String summaryText, String url )	{
+		this.storage = PersistentStorageFactory.create();
+		loadData( url );
+		this.title = title;
+		this.summaryText = summaryText;
+		storage.save( url, ValueType.TITLE, title );
+		storage.save( url, ValueType.SUMMARY, summaryText );
+	}
+	
+	public Post( String title, String summaryText, String url, PersistentStorageIfc persistentStorage )	{
+		this.storage = persistentStorage;
 		loadData( url );
 		this.title = title;
 		this.summaryText = summaryText;
@@ -40,7 +58,6 @@ public class Post {
 	}
 	
 	private void loadData( String url ) {
-		this.storage = PersistentStorageFactory.create();
 		setUrl( url );
 		this.isFollowed = Boolean.parseBoolean( storage.load( url, ValueType.IS_FOLLOWED ) );
 		this.postID = storage.load( url, ValueType.POST_ID );
