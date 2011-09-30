@@ -17,7 +17,9 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 import com.ChewieLouie.Topical.AndroidPreferenceStorage;
+import com.ChewieLouie.Topical.GooglePlus;
 import com.ChewieLouie.Topical.GooglePlusPostFinderFactory;
+import com.ChewieLouie.Topical.NonBlockingPostThreadExecuter;
 import com.ChewieLouie.Topical.PersistentStorageIfc;
 import com.ChewieLouie.Topical.Post;
 import com.ChewieLouie.Topical.R;
@@ -50,10 +52,14 @@ public class TopicalActivity extends Activity {
 	public void showFollowedPosts( View view ) {
     	currentPosts = new ArrayList<Post>();
     	for( String url : storage.getAllPostURLsWhereFollowingIsTrue() )
-    		currentPosts.add( new Post( url, storage ) );
+    		currentPosts.add( createPostWithURL( url ) );
     	Intent intent = new Intent().setClass( getApplicationContext(), TopicListActivity.class );
     	intent.putExtra( TopicalConstants.IntentExtraKey_TopicListTopic, "Followed Posts" );
     	startActivity( intent );
+	}
+
+	private Post createPostWithURL( String url ) {
+		return new Post( url, storage, new NonBlockingPostThreadExecuter(), GooglePlus.Make() );
 	}
 
     public void search( View view ) {
@@ -73,9 +79,9 @@ public class TopicalActivity extends Activity {
 					posts.add( createPost( result ) );
 			return posts;
 		}
-    	
+
     	private Post createPost( Result result ) {
-			Post post = new Post( result.getLink(), storage );
+			Post post = createPostWithURL( result.getLink() );
 			post.setTitle( result.getTitle() );
 			post.setSummary( result.getSnippet() );
 			return post;

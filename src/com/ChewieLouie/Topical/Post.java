@@ -14,7 +14,7 @@ public class Post {
 	public enum Status { NEW, FOLLOWING_AND_NOT_CHANGED, FOLLOWING_AND_HAS_CHANGED };
 
 	private String authorID = null;
-	private GooglePlusIfc googlePlus = GooglePlusFactory.create();
+	private GooglePlusIfc googlePlus = null;
 	private boolean isFollowed = false;
 	private Map<DataType, String> postInfo = null;
 	private PersistentStorageIfc storage = null;
@@ -24,11 +24,26 @@ public class Post {
 	private String summaryText = "";
 	private DateTime lastViewedModificationTime = null;
 	private DateTime currentModificationTime = null;
+	private PostThreadExecuterIfc postThreadExecuter = null;
 
-	public Post( String url, PersistentStorageIfc storage ) {
+	public Post( String url, PersistentStorageIfc storage, PostThreadExecuterIfc executer,
+			GooglePlusIfc googlePlus ) {
 		this.storage = storage;
-		setUrl( url );
+		this.url = url;
+		this.postThreadExecuter = executer;
+		this.googlePlus = googlePlus;
+		extractAuthorIDFromURL( url );
 		loadData();
+	}
+
+	private void extractAuthorIDFromURL( String url ) {
+		final String gPlusURLPostsSeperator = "/posts/";
+		int authorIDEndIndex = url.indexOf( gPlusURLPostsSeperator );
+		if( authorIDEndIndex != -1 ) {
+			int authorIDStartIndex = url.lastIndexOf( "/", authorIDEndIndex-1 ) + 1;
+			if( authorIDStartIndex != -1 )
+				authorID = url.substring( authorIDStartIndex, authorIDEndIndex );
+		}
 	}
 
 	private void loadData() {
@@ -50,41 +65,23 @@ public class Post {
 		this.summaryText = summaryText;
 		storage.save( url, ValueType.SUMMARY, summaryText );
 	}
-
-	private void setUrl( String url ) {
-		this.url = url;
-		extractAuthorIDFromURL( url );
-	}
 	
-	private void extractAuthorIDFromURL( String url ) {
-		final String gPlusURLPostsSeperator = "/posts/";
-		int authorIDEndIndex = url.indexOf( gPlusURLPostsSeperator );
-		if( authorIDEndIndex != -1 ) {
-			int authorIDStartIndex = url.lastIndexOf( "/", authorIDEndIndex-1 ) + 1;
-			if( authorIDStartIndex != -1 )
-				authorID = url.substring( authorIDStartIndex, authorIDEndIndex );
-		}
-	}
-
 	public void follow() {
-		setFollow( true );
-	}
-
-	public void unfollow() {
-		setFollow( false );
-	}
-	
-	private void setFollow( boolean follow ) {
-		isFollowed = follow;
+		isFollowed = true;
 		storage.save( url, ValueType.IS_FOLLOWED, String.valueOf( isFollowed ) );
 	}
 
+	public void unfollow() {
+		isFollowed = false;
+		storage.save( url, ValueType.IS_FOLLOWED, String.valueOf( isFollowed ) );
+	}
+	
 	public boolean isFollowed() {
 		return isFollowed;
 	}
 
 	public void show( ViewPostIfc viewPost ) {
-		new GetPostInformationTask( viewPost ).execute();
+		postThreadExecuter.execute( new GetPostInformationTask( viewPost ) );
 	}
 
 	public void viewed() {
@@ -122,10 +119,10 @@ public class Post {
 			viewPost.setComments( comments() );
 			viewPost.setStatus( status() );
 			viewPost.setSummaryText( summaryText );
+			String modificationTime = postInfo.get( DataType.MODIFICATION_TIME );
+			if( modificationTime != null )
+				currentModificationTime = DateTime.parseRfc3339( modificationTime );
 			viewPost.activityStopped();
-			String lastViewedModificationTime = postInfo.get( DataType.MODIFICATION_TIME );
-			if( lastViewedModificationTime != null )
-				currentModificationTime = DateTime.parseRfc3339( lastViewedModificationTime );
 		}
 
 		@Override
@@ -142,9 +139,8 @@ public class Post {
 					postID = postInfo.get( DataType.POST_ID );
 					storage.save( url, ValueType.POST_ID, postID );
 				}
-				else {
+				else
 					postInfo = googlePlus.getPostInformationByPostID( postID );
-				}
 			}
 		}
 
