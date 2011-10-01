@@ -11,12 +11,7 @@ public class MockGooglePlus implements GooglePlusIfc {
 	Map<DataType, String> postInformation = new HashMap<DataType, String>();
 
 	@Override
-	public void getPostInformationByPostID(GooglePlusCallbackIfc callbackObj, String postID) {
-		callbackObj.postInformationResults( postInformation );
-	}
-
-	@Override
-	public void getPostInformation(GooglePlusCallbackIfc callbackObj, String authorID, String url) {
+	public void getPostInformation(GooglePlusCallbackIfc callbackObj, String postID, String authorID, String url) {
 		callbackObj.postInformationResults( postInformation );
 	}
 }

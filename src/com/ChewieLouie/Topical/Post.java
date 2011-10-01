@@ -15,7 +15,7 @@ public class Post implements GooglePlusCallbackIfc {
 	private boolean isFollowed = false;
 	private Map<DataType, String> postInfo = null;
 	private PersistentStorageIfc storage = null;
-	private String postID = "";
+	private String postID = null;
 	private String url = "";
 	private String title = "";
 	private String summaryText = "";
@@ -81,14 +81,28 @@ public class Post implements GooglePlusCallbackIfc {
 		viewPost.activityStarted();
 		viewPost.setTitle( title );
 
-		if( needsLoadingFromGooglePlus ) {
-			if( postID.equals( "" ) )
-				googlePlus.getPostInformation( this, authorID, url );
-			else
-				googlePlus.getPostInformationByPostID( this, postID );
-		}
+		if( needsLoadingFromGooglePlus )
+			googlePlus.getPostInformation( this, postID, authorID, url );
 		else
 			updateView();
+	}
+	
+	private void updateView() {
+		if( postInfo != null ) {
+			String newPostID = postInfo.get( DataType.POST_ID );
+			if( newPostID.equals( postID ) == false ) {
+				postID = newPostID;
+				storage.save( url, ValueType.POST_ID, postID );
+			}
+			viewPost.setAuthor( postInfo.get( DataType.AUTHOR_NAME ) );
+			viewPost.setAuthorImage( postInfo.get( DataType.AUTHOR_IMAGE ) );
+			viewPost.setHTMLContent( postInfo.get( DataType.POST_CONTENT ) );
+			viewPost.setComments( postInfo.get( DataType.COMMENTS ) );
+			viewPost.setStatus( status() );
+			viewPost.setSummaryText( summaryText );
+			currentModificationTime = DateTime.parseRfc3339( postInfo.get( DataType.MODIFICATION_TIME ) );
+		}
+		viewPost.activityStopped();
 	}
 
 	@Override
@@ -97,27 +111,12 @@ public class Post implements GooglePlusCallbackIfc {
 		this.needsLoadingFromGooglePlus = false;
 		updateView();
 	}
-	
-	private void updateView() {
-		String newPostID = postInfo.get( DataType.POST_ID );
-		if( newPostID != postID ) {
-			postID = newPostID;
-			storage.save( url, ValueType.POST_ID, postID );
-		}
-		viewPost.setAuthor( postInfo.get( DataType.AUTHOR_NAME ) );
-		viewPost.setAuthorImage( postInfo.get( DataType.AUTHOR_IMAGE ) );
-		viewPost.setHTMLContent( postInfo.get( DataType.POST_CONTENT ) );
-		viewPost.setComments( postInfo.get( DataType.COMMENTS ) );
-		viewPost.setStatus( status() );
-		viewPost.setSummaryText( summaryText );
-		currentModificationTime = DateTime.parseRfc3339( postInfo.get( DataType.MODIFICATION_TIME ) );
-		viewPost.activityStopped();
-	}
 
 	@Override
 	public void postInformationError( String errorText ) {
 		this.needsLoadingFromGooglePlus = false;
 		viewPost.showError( errorText );
+		viewPost.activityStopped();
 	}
 
 	public void viewed() {

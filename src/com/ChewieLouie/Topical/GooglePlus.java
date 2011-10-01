@@ -34,15 +34,9 @@ public class GooglePlus implements GooglePlusIfc {
 		plus.setKey( googleAPIKey );
 	}
 
-	@Override
-	public void getPostInformationByPostID( GooglePlusCallbackIfc callbackObj, String postID ) {
+	public void getPostInformation( GooglePlusCallbackIfc callbackObj, String postID, String authorID, String url ) {
 		GetPostInformationTask task = new GetPostInformationTask( callbackObj );
 		task.setPostID( postID );
-		task.execute();
-	}
-
-	public void getPostInformation( GooglePlusCallbackIfc callbackObj, String authorID, String url ) {
-		GetPostInformationTask task = new GetPostInformationTask( callbackObj );
 		task.setAuthorID( authorID );
 		task.setURL( url );
 		task.execute();
