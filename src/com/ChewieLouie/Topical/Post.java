@@ -1,6 +1,5 @@
 package com.ChewieLouie.Topical;
 
-import java.io.IOException;
 import java.util.Calendar;
 import java.util.Map;
 
@@ -8,9 +7,7 @@ import com.ChewieLouie.Topical.GooglePlusIfc.DataType;
 import com.ChewieLouie.Topical.PersistentStorageIfc.ValueType;
 import com.google.api.client.util.DateTime;
 
-import android.os.AsyncTask;
-
-public class Post {
+public class Post implements GooglePlusCallbackIfc {
 	public enum Status { NEW, FOLLOWING_AND_NOT_CHANGED, FOLLOWING_AND_HAS_CHANGED };
 
 	private String authorID = null;
@@ -24,13 +21,12 @@ public class Post {
 	private String summaryText = "";
 	private DateTime lastViewedModificationTime = null;
 	private DateTime currentModificationTime = null;
-	private PostThreadExecuterIfc postThreadExecuter = null;
+	private ViewPostIfc viewPost = null;
+	private boolean needsLoadingFromGooglePlus = true;
 
-	public Post( String url, PersistentStorageIfc storage, PostThreadExecuterIfc executer,
-			GooglePlusIfc googlePlus ) {
+	public Post( String url, PersistentStorageIfc storage, GooglePlusIfc googlePlus ) {
 		this.storage = storage;
 		this.url = url;
-		this.postThreadExecuter = executer;
 		this.googlePlus = googlePlus;
 		extractAuthorIDFromURL( url );
 		loadData();
@@ -81,102 +77,70 @@ public class Post {
 	}
 
 	public void show( ViewPostIfc viewPost ) {
-		postThreadExecuter.execute( new GetPostInformationTask( viewPost ) );
+		this.viewPost = viewPost;
+		viewPost.activityStarted();
+		viewPost.setTitle( title );
+
+		if( needsLoadingFromGooglePlus ) {
+			if( postID.equals( "" ) )
+				googlePlus.getPostInformation( this, authorID, url );
+			else
+				googlePlus.getPostInformationByPostID( this, postID );
+		}
+		else
+			updateView();
+	}
+
+	@Override
+	public void postInformationResults( Map<DataType, String> postInfo ) {
+		this.postInfo = postInfo;
+		this.needsLoadingFromGooglePlus = false;
+		updateView();
+	}
+	
+	private void updateView() {
+		String newPostID = postInfo.get( DataType.POST_ID );
+		if( newPostID != postID ) {
+			postID = newPostID;
+			storage.save( url, ValueType.POST_ID, postID );
+		}
+		viewPost.setAuthor( postInfo.get( DataType.AUTHOR_NAME ) );
+		viewPost.setAuthorImage( postInfo.get( DataType.AUTHOR_IMAGE ) );
+		viewPost.setHTMLContent( postInfo.get( DataType.POST_CONTENT ) );
+		viewPost.setComments( postInfo.get( DataType.COMMENTS ) );
+		viewPost.setStatus( status() );
+		viewPost.setSummaryText( summaryText );
+		currentModificationTime = DateTime.parseRfc3339( postInfo.get( DataType.MODIFICATION_TIME ) );
+		viewPost.activityStopped();
+	}
+
+	@Override
+	public void postInformationError( String errorText ) {
+		viewPost.showError( errorText );
 	}
 
 	public void viewed() {
 		lastViewedModificationTime = currentModificationTime;
-		storage.save( url, ValueType.LAST_VIEWED_MODIFICATION_TIME, lastViewedModificationTime.toStringRfc3339() );
+		if( lastViewedModificationTime != null )
+			storage.save( url, ValueType.LAST_VIEWED_MODIFICATION_TIME, lastViewedModificationTime.toStringRfc3339() );
 	}
 
-	private class GetPostInformationTask extends AsyncTask<Void, Void, Boolean> {
-    	private String errorText = null;
-    	private ViewPostIfc viewPost = null;
-    	public GetPostInformationTask( ViewPostIfc viewPost ) {
-    		this.viewPost = viewPost;
-    	}
+	private boolean isPostModifiedSinceLastView() {
+		if( lastViewedModificationTime != null && currentModificationTime != null ) {
+			Calendar currentModificationCalendar = Calendar.getInstance();
+			currentModificationCalendar.setTimeInMillis( currentModificationTime.getValue() );
+			if( currentModificationCalendar.after( lastViewedModificationTime ) )
+				return true;
+		}
+		return false;
+	}
 
-    	@Override
-		protected Boolean doInBackground( Void... params ) {
-    		try {
-    			retrieveRemoteInformation();
-			} catch (IOException e) {
-				e.printStackTrace();
-				errorText = e.getMessage();
-				return false;
-			}
-    		return true;
+	private Post.Status status() {
+		if( isFollowed ) {
+			if( isPostModifiedSinceLastView() )
+				return Post.Status.FOLLOWING_AND_HAS_CHANGED;
+			return Post.Status.FOLLOWING_AND_NOT_CHANGED;
 		}
-
-		@Override
-		protected void onPostExecute( Boolean postPopulatedOk ) {
-			super.onPostExecute( postPopulatedOk );
-			if( postPopulatedOk == false )
-				viewPost.showError( errorText );
-			viewPost.setAuthor( author() );
-			viewPost.setAuthorImage( authorImageURL() );
-			viewPost.setHTMLContent( content() );
-			viewPost.setComments( comments() );
-			viewPost.setStatus( status() );
-			viewPost.setSummaryText( summaryText );
-			String modificationTime = postInfo.get( DataType.MODIFICATION_TIME );
-			if( modificationTime != null )
-				currentModificationTime = DateTime.parseRfc3339( modificationTime );
-			viewPost.activityStopped();
-		}
-
-		@Override
-		protected void onPreExecute() {
-			super.onPreExecute();
-			viewPost.activityStarted();
-			viewPost.setTitle( title );
-		}
-
-		private void retrieveRemoteInformation() throws IOException {
-			if( postInfo == null ) {
-				if( postID.equals( "" ) ) {
-					postInfo = googlePlus.getPostInformation( authorID, url );
-					postID = postInfo.get( DataType.POST_ID );
-					storage.save( url, ValueType.POST_ID, postID );
-				}
-				else
-					postInfo = googlePlus.getPostInformationByPostID( postID );
-			}
-		}
-
-		private String author() {
-			return postInfo.get( DataType.AUTHOR_NAME );
-		}
-
-		private String authorImageURL() {
-			return postInfo.get( DataType.AUTHOR_IMAGE );
-		}
-
-		private String content() {
-			return postInfo.get( DataType.POST_CONTENT );
-		}
-
-		private String comments() {
-			return postInfo.get( DataType.COMMENTS );
-		}
-		
-		private boolean isPostModifiedSinceLastView() {
-			if( lastViewedModificationTime != null && currentModificationTime != null ) {
-				Calendar currentModificationCalendar = Calendar.getInstance();
-				currentModificationCalendar.setTimeInMillis( currentModificationTime.getValue() );
-				if( currentModificationCalendar.after( lastViewedModificationTime ) )
-					return true;
-			}
-			return false;
-		}
-
-		private Post.Status status() {
-			if( isFollowed ) {
-				if( isPostModifiedSinceLastView() )
-					return Post.Status.FOLLOWING_AND_HAS_CHANGED;
-				return Post.Status.FOLLOWING_AND_NOT_CHANGED;
-			}
-			return Post.Status.NEW;
-		}
-    }
+		return Post.Status.NEW;
+	}
 }

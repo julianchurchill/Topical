@@ -1,7 +1,6 @@
 package com.ChewieLouie.Topical.test;
 
 import android.test.AndroidTestCase;
-import android.test.UiThreadTest;
 
 import com.ChewieLouie.Topical.GooglePlusIfc.DataType;
 import com.ChewieLouie.Topical.PersistentStorageIfc.ValueType;
@@ -10,7 +9,6 @@ import com.ChewieLouie.Topical.Post;
 public class PostTest extends AndroidTestCase {
 	private Post post = null;
 	private MockPersistentStorage mockStorage = null;
-	private BlockingPostThreadExecuter mockPostThreadExecuter = new BlockingPostThreadExecuter();
 	private MockGooglePlus mockGooglePlus = null;
 	private String postID = "0123456789";
 	private String url = "startOfURL/authorID/posts/" + postID;
@@ -28,7 +26,8 @@ public class PostTest extends AndroidTestCase {
 		mockStorage.loadReturns.put( ValueType.LAST_VIEWED_MODIFICATION_TIME, lastViewedModificationTime );
 		mockGooglePlus = new MockGooglePlus();
 		mockGooglePlus.postInformation.put( DataType.POST_ID, postID );
-		post = new Post( url, mockStorage, mockPostThreadExecuter, mockGooglePlus );
+		mockGooglePlus.postInformation.put( DataType.MODIFICATION_TIME, lastViewedModificationTime );
+		post = new Post( url, mockStorage, mockGooglePlus );
 	}
 
 	public void testPostLoadsSomeDataFromStorageOnConstruction() {
@@ -144,31 +143,34 @@ public class PostTest extends AndroidTestCase {
 		assertFalse( post.isFollowed() );
 	}
 
-//#error how do we test the show()/viewed() methods? They depend on an Async task to retrieve
-//#error the GooglePlus results. How do we get rid of this Async task?
-//	@UiThreadTest
-//	public void testShowCallsSetAuthorOnView() {
-//		MockViewPost mockViewPost = new MockViewPost();
-//		post.show( mockViewPost );
-//		
-//		assertTrue( mockViewPost.setAuthorCalled );
-//	}
-//
-//	public void testViewedCausesSaveToStorage() {
-//		post.viewed();
-//
-//		assertTrue( mockStorage.saveCalled );
-//	}
-//
-//	public void testViewedCausesLastModificationDateTypeToBeSaved() {
-//		post.viewed();
-//		
-//		assertEquals( ValueType.LAST_VIEWED_MODIFICATION_TIME, mockStorage.saveArgsType );
-//	}
-//
-//	public void testViewedCausesLastModificationDateValueToBeSaved() {
-//		post.viewed();
-//		
-//		assertEquals( lastViewedModificationTime, mockStorage.saveArgsValue );
-//	}
+	public void testShowCallsSetAuthorOnView() {
+		MockViewPost mockViewPost = new MockViewPost();
+		post.show( mockViewPost );
+		
+		assertTrue( mockViewPost.setAuthorCalled );
+	}
+
+	public void testViewedCausesSaveToStorage() {
+		MockViewPost mockViewPost = new MockViewPost();
+		post.show( mockViewPost );
+		post.viewed();
+
+		assertTrue( mockStorage.saveCalled );
+	}
+
+	public void testViewedCausesLastModificationDateTypeToBeSaved() {
+		MockViewPost mockViewPost = new MockViewPost();
+		post.show( mockViewPost );
+		post.viewed();
+		
+		assertEquals( ValueType.LAST_VIEWED_MODIFICATION_TIME, mockStorage.saveArgsType );
+	}
+
+	public void testViewedCausesLastModificationDateValueToBeSaved() {
+		MockViewPost mockViewPost = new MockViewPost();
+		post.show( mockViewPost );
+		post.viewed();
+		
+		assertEquals( lastViewedModificationTime, mockStorage.saveArgsValue );
+	}
 }

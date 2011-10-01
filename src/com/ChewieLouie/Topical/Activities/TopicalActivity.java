@@ -19,7 +19,6 @@ import android.widget.Toast;
 import com.ChewieLouie.Topical.AndroidPreferenceStorage;
 import com.ChewieLouie.Topical.GooglePlus;
 import com.ChewieLouie.Topical.GooglePlusPostFinderFactory;
-import com.ChewieLouie.Topical.NonBlockingPostThreadExecuter;
 import com.ChewieLouie.Topical.PersistentStorageIfc;
 import com.ChewieLouie.Topical.Post;
 import com.ChewieLouie.Topical.R;
@@ -59,7 +58,7 @@ public class TopicalActivity extends Activity {
 	}
 
 	private Post createPostWithURL( String url ) {
-		return new Post( url, storage, new NonBlockingPostThreadExecuter(), GooglePlus.Make() );
+		return new Post( url, storage, GooglePlus.Make() );
 	}
 
     public void search( View view ) {

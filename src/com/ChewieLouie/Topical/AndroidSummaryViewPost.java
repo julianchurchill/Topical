@@ -55,7 +55,8 @@ public class AndroidSummaryViewPost implements ViewPostIfc {
 	}
 
 	@Override
-	public void showError(String errorText) {
+	public void showError( String errorText ) {
+		summaryTextView.setText( errorText );
 	}
 
 	@Override
