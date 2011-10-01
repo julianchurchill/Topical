@@ -1,5 +1,6 @@
 package com.ChewieLouie.Topical;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -13,14 +14,19 @@ public class AndroidSummaryViewPost implements ViewPostIfc {
 	private TextView titleTextView = null;
 	private TextView summaryTextView = null;
     // Key is post status, value is color int (see android.graphics.Color class)
-	private Map<Post.Status, Integer> statusToColourMap = new HashMap<Post.Status, Integer>();
+	private static final Map<Post.Status, Integer> statusToColourMap = initializeMap();
+	
+	private static Map<Post.Status, Integer> initializeMap() {
+		Map<Post.Status, Integer> map = new HashMap<Post.Status, Integer>();
+		map.put( Post.Status.NEW, Color.GRAY );
+		map.put( Post.Status.FOLLOWING_AND_NOT_CHANGED, Color.BLUE );
+		map.put( Post.Status.FOLLOWING_AND_HAS_CHANGED, Color.CYAN );
+		return Collections.unmodifiableMap( map );
+	}
 	
 	public AndroidSummaryViewPost( TextView titleTextView, TextView summaryTextView ) {
 		this.titleTextView = titleTextView;
 		this.summaryTextView = summaryTextView;
-		statusToColourMap.put( Post.Status.NEW, Color.GRAY );
-		statusToColourMap.put( Post.Status.FOLLOWING_AND_NOT_CHANGED, Color.BLUE );
-		statusToColourMap.put( Post.Status.FOLLOWING_AND_HAS_CHANGED, Color.CYAN );
 	}
 
 	@Override
