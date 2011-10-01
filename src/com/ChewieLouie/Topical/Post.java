@@ -116,6 +116,7 @@ public class Post implements GooglePlusCallbackIfc {
 
 	@Override
 	public void postInformationError( String errorText ) {
+		this.needsLoadingFromGooglePlus = false;
 		viewPost.showError( errorText );
 	}
 
