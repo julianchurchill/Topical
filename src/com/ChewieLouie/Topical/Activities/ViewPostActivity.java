@@ -30,12 +30,16 @@ public class ViewPostActivity extends Activity {
         super.onCreate( savedInstanceState );
         requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
         setContentView( R.layout.view_post );
+        findViews();
+		androidViewPost = new AndroidViewPost( this, authorTextView, authorImageView, textTextView, commentTextView );
+    }
+
+	private void findViews() {
 		authorImageView = (ImageView)findViewById( R.id.authorImage );
 		authorTextView = (TextView)findViewById( R.id.author );
 		textTextView = (TextView)findViewById( R.id.text );
 		commentTextView = (TextView)findViewById( R.id.comments );
-		androidViewPost = new AndroidViewPost( this, authorTextView, authorImageView, textTextView, commentTextView );
-    }
+	}
 
     @Override
     public boolean onPrepareOptionsMenu( Menu menu )
