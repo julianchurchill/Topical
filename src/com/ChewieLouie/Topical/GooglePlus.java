@@ -35,14 +35,14 @@ public class GooglePlus implements GooglePlusIfc {
 	}
 
 	public void getPostInformation( GooglePlusCallbackIfc callbackObj, String postID, String authorID, String url ) {
-		GetPostInformationTask task = new GetPostInformationTask( callbackObj );
+		GetPostTask task = new GetPostTask( callbackObj );
 		task.setPostID( postID );
 		task.setAuthorID( authorID );
 		task.setURL( url );
 		task.execute();
 	}
 
-	private class GetPostInformationTask extends AsyncTask<Void, Void, Boolean> {
+	private class GetPostTask extends AsyncTask<Void, Void, Boolean> {
     	private String errorText = null;
     	private String postID = null;
     	private String authorID = null;
@@ -50,7 +50,7 @@ public class GooglePlus implements GooglePlusIfc {
     	private Map<DataType, String> postInfo = new HashMap<DataType, String>();
     	private GooglePlusCallbackIfc callbackObj = null;
     	
-    	public GetPostInformationTask( GooglePlusCallbackIfc callbackObj ) {
+    	public GetPostTask( GooglePlusCallbackIfc callbackObj ) {
     		this.callbackObj = callbackObj;
     	}
 
@@ -87,25 +87,37 @@ public class GooglePlus implements GooglePlusIfc {
 		}
    
     	private Activity findActivityByAuthorAndURL() throws IOException {
-			Activity foundActivity = null;
 			Plus.Activities.List request = plus.activities.list( authorID, collectionPublic );
 			ActivityFeed activityFeed = request.execute();
-			List<Activity> activities = activityFeed.getItems();
-			while( activities != null ) {
-				for( Activity activity : activities ) {
-					if( activity.getUrl().equals( url ) ) {
-						foundActivity = activity;
-						break;
-					}
-				}
-				if( foundActivity != null || activityFeed.getNextPageToken() == null )
+			List<Activity> activitiesByAuthor = activityFeed.getItems();
+			while( activitiesByAuthor != null ) {
+				Activity foundActivity = findActivityByURL( url, activitiesByAuthor );
+				if( foundActivity != null )
+					return foundActivity;
+				if( moreActivitiesAvailable( activityFeed ) )
+					activitiesByAuthor = getMoreActivities( request, activityFeed );
+				else
 					break;
-				request.setPageToken( activityFeed.getNextPageToken() );
-				activityFeed = request.execute();
-				activities = activityFeed.getItems();
 			}
-			return foundActivity;
+			return null;
     	}
+    	
+    	private Activity findActivityByURL( String url, List<Activity> activities ) {
+			for( Activity activity : activities )
+				if( activity.getUrl().equals( url ) )
+					return activity;
+			return null;
+    	}
+
+		private List<Activity> getMoreActivities( Plus.Activities.List request,ActivityFeed feed )
+				throws IOException {
+			request.setPageToken( feed.getNextPageToken() );
+			return request.execute().getItems();
+		}
+		
+		private boolean moreActivitiesAvailable( ActivityFeed feed ) {
+			return feed.getNextPageToken() != null;
+		}
 
 		@Override
 		protected void onPostExecute( Boolean postPopulatedOk ) {
@@ -125,22 +137,20 @@ public class GooglePlus implements GooglePlusIfc {
 	private Map<DataType, String> extractDataFromActivity( Activity activity ) {
 		Map<DataType, String> values = new HashMap<DataType, String>();
 		if( activity != null ) {
-			putStringButDefaultToBlankIfNull( values, DataType.AUTHOR_NAME, activity.getActor().getDisplayName() );
-			putStringButDefaultToBlankIfNull( values, DataType.AUTHOR_IMAGE, activity.getActor().getImage().getUrl() );
-			putStringButDefaultToBlankIfNull( values, DataType.POST_CONTENT, activity.getPlusObject().getContent() );
-			putStringButDefaultToBlankIfNull( values, DataType.COMMENTS, activity.getPlusObject().getReplies().toString() );
-			putStringButDefaultToBlankIfNull( values, DataType.POST_ID, activity.getId() );
+			putString( values, DataType.AUTHOR_NAME, activity.getActor().getDisplayName() );
+			putString( values, DataType.AUTHOR_IMAGE, activity.getActor().getImage().getUrl() );
+			putString( values, DataType.POST_CONTENT, activity.getPlusObject().getContent() );
+			putString( values, DataType.COMMENTS, activity.getPlusObject().getReplies().toString() );
+			putString( values, DataType.POST_ID, activity.getId() );
 			if( activity.getUpdated() != null )
-				putStringButDefaultToBlankIfNull( values, DataType.MODIFICATION_TIME,
-					activity.getUpdated().toStringRfc3339() );
+				putString( values, DataType.MODIFICATION_TIME, activity.getUpdated().toStringRfc3339() );
 			else
-				putStringButDefaultToBlankIfNull( values, DataType.MODIFICATION_TIME,
-					activity.getPublished().toStringRfc3339() );
+				putString( values, DataType.MODIFICATION_TIME, activity.getPublished().toStringRfc3339() );
 		}
 		return values;
 	}
 
-	private void putStringButDefaultToBlankIfNull( Map<DataType, String> values, DataType type, String value ) {
+	private void putString( Map<DataType, String> values, DataType type, String value ) {
 		if( value == null )
 			values.put( type, "" );
 		else
