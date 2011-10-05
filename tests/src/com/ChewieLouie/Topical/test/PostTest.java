@@ -10,9 +10,11 @@ public class PostTest extends AndroidTestCase {
 	private Post post = null;
 	private MockPersistentStorage mockStorage = null;
 	private MockGooglePlus mockGooglePlus = null;
-	private String postID = "0123456789";
-	private String url = "startOfURL/authorID/posts/" + postID;
-	private String lastViewedModificationTime = "1985-04-12T23:20:50.523Z";
+	private final String postID = "0123456789";
+	private final String authorID = "9876543210";
+	private final String url = "startOfURL/" + authorID + "/posts/" + postID;
+	private final String lastViewedModificationTime = "1985-04-12T23:20:50.523Z";
+	private final String title = "TestTitle";
 
 	public PostTest() {
 		super();
@@ -24,6 +26,7 @@ public class PostTest extends AndroidTestCase {
 		mockStorage = new MockPersistentStorage();
 		mockStorage.loadReturns.put( ValueType.POST_ID, postID );
 		mockStorage.loadReturns.put( ValueType.LAST_VIEWED_MODIFICATION_TIME, lastViewedModificationTime );
+		mockStorage.loadReturns.put( ValueType.TITLE, title );
 		mockGooglePlus = new MockGooglePlus();
 		mockGooglePlus.postInformation.put( DataType.POST_ID, postID );
 		mockGooglePlus.postInformation.put( DataType.MODIFICATION_TIME, lastViewedModificationTime );
@@ -141,6 +144,66 @@ public class PostTest extends AndroidTestCase {
 		post.unfollow();
 		
 		assertFalse( post.isFollowed() );
+	}
+
+	public void testShowCallsActivityStartedOnView() {
+		MockViewPost mockViewPost = new MockViewPost();
+		post.show( mockViewPost );
+		
+		assertTrue( mockViewPost.activityStartedCalled );
+	}
+
+	public void testShowCallsSetTitleOnView() {
+		MockViewPost mockViewPost = new MockViewPost();
+		post.show( mockViewPost );
+
+		assertTrue( mockViewPost.setTitleCalled );
+	}
+
+	public void testShowCallsSetTitleOnViewWithSavedTitle() {
+		MockViewPost mockViewPost = new MockViewPost();
+		post.show( mockViewPost );
+
+		assertEquals( title, mockViewPost.setTitleArg );
+	}
+
+	public void testShowCallsGooglePlusGetPostInformationFirstTime() {
+		post.show( new MockViewPost() );
+
+		assertTrue( mockGooglePlus.getPostInformationCalled );
+	}
+
+	public void testShowCallsGooglePlusGetPostInformationWithPostAsCallbackObj() {
+		post.show( new MockViewPost() );
+
+		assertEquals( post, mockGooglePlus.getPostInformationArgsCallbackObj );
+	}
+
+	public void testShowCallsGooglePlusGetPostInformationWithPostID() {
+		post.show( new MockViewPost() );
+
+		assertEquals( postID, mockGooglePlus.getPostInformationArgsPostID );
+	}
+
+	public void testShowCallsGooglePlusGetPostInformationWithAuthorID() {
+		post.show( new MockViewPost() );
+
+		assertEquals( authorID, mockGooglePlus.getPostInformationArgsAuthorID );
+	}
+
+	public void testShowCallsGooglePlusGetPostInformationWithURL() {
+		post.show( new MockViewPost() );
+
+		assertEquals( url, mockGooglePlus.getPostInformationArgsURL );
+	}
+
+	public void testShowDoesNotCallGooglePlusGetPostInformationAfterFirstTime() {
+		MockViewPost mockViewPost = new MockViewPost();
+		post.show( mockViewPost );
+		mockGooglePlus.getPostInformationCalled = false;
+		post.show( mockViewPost );
+
+		assertFalse( mockGooglePlus.getPostInformationCalled );
 	}
 
 	public void testShowCallsSetAuthorOnView() {

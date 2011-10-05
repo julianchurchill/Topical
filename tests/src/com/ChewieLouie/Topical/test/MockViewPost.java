@@ -6,6 +6,9 @@ import com.ChewieLouie.Topical.ViewPostIfc;
 public class MockViewPost implements ViewPostIfc {
 
 	public boolean setAuthorCalled = false;
+	public boolean activityStartedCalled = false;
+	public boolean setTitleCalled = false;
+	public String setTitleArg = null;
 	
 	@Override
 	public void setAuthor( String author ) {
@@ -30,6 +33,8 @@ public class MockViewPost implements ViewPostIfc {
 
 	@Override
 	public void setTitle(String title) {
+		setTitleCalled = true;
+		setTitleArg = title;
 	}
 
 	@Override
@@ -42,6 +47,7 @@ public class MockViewPost implements ViewPostIfc {
 
 	@Override
 	public void activityStarted() {
+		activityStartedCalled = true;
 	}
 
 	@Override
