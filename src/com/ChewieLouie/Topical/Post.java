@@ -1,6 +1,8 @@
 package com.ChewieLouie.Topical;
 
 import java.util.Calendar;
+import java.util.concurrent.Semaphore;
+import java.util.HashMap;
 import java.util.Map;
 
 import com.ChewieLouie.Topical.GooglePlusIfc.DataType;
@@ -10,19 +12,20 @@ import com.google.api.client.util.DateTime;
 public class Post implements GooglePlusCallbackIfc {
 	public enum Status { NEW, FOLLOWING_AND_NOT_CHANGED, FOLLOWING_AND_HAS_CHANGED };
 
-	private String authorID = null;
-	private GooglePlusIfc googlePlus = null;
-	private boolean isFollowed = false;
-	private Map<DataType, String> postInfo = null;
-	private PersistentStorageIfc storage = null;
-	private String postID = null;
 	private String url = "";
+	private String authorID = null;
+	private String postID = null;
 	private String title = "";
 	private String summaryText = "";
 	private DateTime lastViewedModificationTime = null;
 	private DateTime currentModificationTime = null;
-	private ViewPostIfc viewPost = null;
+	private boolean isFollowed = false;
+	private Map<DataType, String> postInfo = new HashMap<DataType, String>();
 	private boolean needsLoadingFromGooglePlus = true;
+	private PersistentStorageIfc storage = null;
+	private GooglePlusIfc googlePlus = null;
+	private ViewPostIfc viewPost = null;
+	private Semaphore protectView = new Semaphore( 1 );
 
 	public Post( String url, PersistentStorageIfc storage, GooglePlusIfc googlePlus ) {
 		this.storage = storage;
@@ -77,46 +80,50 @@ public class Post implements GooglePlusCallbackIfc {
 	}
 
 	public void show( ViewPostIfc viewPost ) {
-		this.viewPost = viewPost;
 		viewPost.activityStarted();
 		viewPost.setTitle( title );
 
-		if( needsLoadingFromGooglePlus )
+		protectView.acquireUninterruptibly();
+		this.viewPost = viewPost;
+		if( needsLoadingFromGooglePlus ) {
 			googlePlus.getPostInformation( this, postID, authorID, url );
-		else
-			updateView();
-	}
-	
-	private void updateView() {
-		if( postInfo != null ) {
-			String newPostID = postInfo.get( DataType.POST_ID );
-			if( newPostID.equals( postID ) == false ) {
-				postID = newPostID;
-				storage.save( url, ValueType.POST_ID, postID );
-			}
-			viewPost.setAuthor( postInfo.get( DataType.AUTHOR_NAME ) );
-			viewPost.setAuthorImage( postInfo.get( DataType.AUTHOR_IMAGE ) );
-			viewPost.setHTMLContent( postInfo.get( DataType.POST_CONTENT ) );
-			viewPost.setComments( postInfo.get( DataType.COMMENTS ) );
-			viewPost.setStatus( status() );
-			viewPost.setSummaryText( summaryText );
-			currentModificationTime = DateTime.parseRfc3339( postInfo.get( DataType.MODIFICATION_TIME ) );
+			needsLoadingFromGooglePlus = false;
 		}
+		else
+			updateViewFromPostInfo();
+	}
+
+	private void updateViewFromPostInfo() {
+		viewPost.setAuthor( postInfo.get( DataType.AUTHOR_NAME ) );
+		viewPost.setAuthorImage( postInfo.get( DataType.AUTHOR_IMAGE ) );
+		viewPost.setHTMLContent( postInfo.get( DataType.POST_CONTENT ) );
+		viewPost.setComments( postInfo.get( DataType.COMMENTS ) );
+		viewPost.setStatus( status() );
+		viewPost.setSummaryText( summaryText );
 		viewPost.activityStopped();
+		protectView.release();
+	}
+
+	private void setPostID( String newPostID ) {
+		if( newPostID.equals( postID ) == false ) {
+			postID = newPostID;
+			storage.save( url, ValueType.POST_ID, postID );
+		}
 	}
 
 	@Override
 	public void postInformationResults( Map<DataType, String> postInfo ) {
 		this.postInfo = postInfo;
-		this.needsLoadingFromGooglePlus = false;
-		updateView();
+		setPostID( postInfo.get( DataType.POST_ID ) );
+		currentModificationTime = DateTime.parseRfc3339( postInfo.get( DataType.MODIFICATION_TIME ) );
+		updateViewFromPostInfo();
 	}
 
 	@Override
 	public void postInformationError( String errorText ) {
-		this.needsLoadingFromGooglePlus = false;
 		viewPost.showError( errorText );
 		viewPost.activityStopped();
+		protectView.release();
 	}
 
 	public void viewed() {
