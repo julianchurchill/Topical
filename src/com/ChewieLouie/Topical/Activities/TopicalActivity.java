@@ -62,7 +62,11 @@ public class TopicalActivity extends Activity {
 	}
 
     public void search( View view ) {
-    	new SearchGoogleTask().execute( searchEditText.getText().toString() );
+    	searchForTopic( searchEditText.getText().toString() );
+    }
+    
+    private void searchForTopic( String topic ) {
+    	new SearchGoogleTask().execute( topic );
     }
     
     private class SearchGoogleTask extends AsyncTask<String, Void, List<Post> > {
@@ -120,12 +124,8 @@ public class TopicalActivity extends Activity {
 	    ListView lv = (ListView)findViewById( R.id.topicList );
 	    lv.setOnItemClickListener( new OnItemClickListener() {
 			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-				onTopicListClicked( view, position );
+				searchForTopic( watchedTopics[position] );
 			}
 		});
 	}
-    
-    protected void onTopicListClicked( View view, int position ) {
-    	showTopicList( watchedTopics[position], new ArrayList<Post>() );
-    }
 }
