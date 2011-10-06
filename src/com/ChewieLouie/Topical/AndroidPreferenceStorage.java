@@ -35,17 +35,17 @@ public class AndroidPreferenceStorage implements PersistentStorageIfc {
 	}
 	
 	@Override
-	public void save( String url, ValueType type, String value ) {
+	public void save( String key, ValueType type, String value ) {
 		SharedPreferences.Editor editor = prefs.edit();
-		editor.putString( makeKey( url, type ), value );
+		editor.putString( makeKey( key, type ), value );
 		if( type == ValueType.IS_FOLLOWED )
-			updateFollowedPostList( url, value, editor );
+			updateFollowedPostList( key, value, editor );
 		editor.commit();
 	}
 
 	@Override
-	public String load( String url, ValueType type ) {
-		return prefs.getString( makeKey( url, type ), "" );
+	public String load( String key, ValueType type ) {
+		return prefs.getString( makeKey( key, type ), "" );
 	}
 
 	@Override
@@ -56,8 +56,8 @@ public class AndroidPreferenceStorage implements PersistentStorageIfc {
 		return new ArrayList<String>( Arrays.asList( postURLsString.split( "," ) ) );
 	}
 
-	private String makeKey( String url, ValueType type ) {
-		return typeToString.get( type ) + url;
+	private String makeKey( String uniqueString, ValueType type ) {
+		return typeToString.get( type ) + uniqueString;
 	}
 
 	private void updateFollowedPostList( String url, String nowFollowing, SharedPreferences.Editor editor ) {
