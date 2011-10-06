@@ -3,6 +3,8 @@ package com.ChewieLouie.Topical.Activities;
 import android.app.ListActivity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -13,15 +15,49 @@ import com.ChewieLouie.Topical.TopicalConstants;
 
 public class TopicListActivity extends ListActivity {
 
+	private static final int WATCH_MENU_ITEM = 0;
+	private static final int UNWATCH_MENU_ITEM = 1;
+
 	private TextView title = null;
+	private boolean isWatched = false;
 
 	@Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.topic_list);
 		title = (TextView)findViewById( R.id.topicListTitle );
-	}
-	
+	}	
+
+    @Override
+    public boolean onPrepareOptionsMenu( Menu menu )
+    {
+    	menu.clear();
+    	if( isWatched )
+    		menu.add( Menu.NONE, UNWATCH_MENU_ITEM, Menu.NONE, getText( R.string.unwatch ) );
+    	else
+    		menu.add( Menu.NONE, WATCH_MENU_ITEM, Menu.NONE, getText( R.string.watch ) );
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected( MenuItem item )
+    {
+    	boolean retVal = true;
+        switch( item.getItemId() )
+        {
+        	case WATCH_MENU_ITEM:
+            	isWatched = true;
+        		break;
+	        case UNWATCH_MENU_ITEM:
+            	isWatched = false;
+	            break;
+	        default:
+	            retVal = super.onOptionsItemSelected( item );
+	            break;
+        }
+        return retVal;
+    }
+
     @Override
 	protected void onResume() {
 		super.onResume();

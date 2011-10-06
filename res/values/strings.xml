@@ -6,4 +6,6 @@
     <string name="topicListTitle">Topic</string>
     <string name="follow">Follow</string>
     <string name="unfollow">Unfollow</string>
+    <string name="watch">Watch</string>
+    <string name="unwatch">Unwatch</string>
 </resources>
