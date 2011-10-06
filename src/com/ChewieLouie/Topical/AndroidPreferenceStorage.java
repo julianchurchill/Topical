@@ -26,6 +26,7 @@ public class AndroidPreferenceStorage implements PersistentStorageIfc {
 		map.put( ValueType.POST_ID, "PostID" );
 		map.put( ValueType.TITLE, "Title" );
 		map.put( ValueType.SUMMARY, "Summary" );
+		map.put( ValueType.WATCHED_TOPIC, "WatchedTopic" );
 		return Collections.unmodifiableMap( map );
 	}
 	
