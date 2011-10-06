@@ -46,33 +46,33 @@ public class Post implements GooglePlusCallbackIfc {
 	}
 
 	private void loadData() {
-		this.title = storage.load( url, ValueType.TITLE );
-		this.summaryText = storage.load( url, ValueType.SUMMARY );
-		this.isFollowed = Boolean.parseBoolean( storage.load( url, ValueType.IS_FOLLOWED ) );
-		this.postID = storage.load( url, ValueType.POST_ID );
-		String modTime = storage.load( url, ValueType.LAST_VIEWED_MODIFICATION_TIME );
+		this.title = storage.loadValueByKeyAndType( url, ValueType.TITLE );
+		this.summaryText = storage.loadValueByKeyAndType( url, ValueType.SUMMARY );
+		this.isFollowed = Boolean.parseBoolean( storage.loadValueByKeyAndType( url, ValueType.IS_FOLLOWED ) );
+		this.postID = storage.loadValueByKeyAndType( url, ValueType.POST_ID );
+		String modTime = storage.loadValueByKeyAndType( url, ValueType.LAST_VIEWED_MODIFICATION_TIME );
 		if( modTime.equals( "" ) == false )
 			this.lastViewedModificationTime = DateTime.parseRfc3339( modTime );
 	}
 
 	public void setTitle( String title ) {
 		this.title = title;
-		storage.save( url, ValueType.TITLE, title );
+		storage.saveValueByKeyAndType( title, url, ValueType.TITLE );
 	}
 
 	public void setSummary( String summaryText ) {
 		this.summaryText = summaryText;
-		storage.save( url, ValueType.SUMMARY, summaryText );
+		storage.saveValueByKeyAndType( summaryText, url, ValueType.SUMMARY );
 	}
 	
 	public void follow() {
 		isFollowed = true;
-		storage.save( url, ValueType.IS_FOLLOWED, String.valueOf( isFollowed ) );
+		storage.saveValueByKeyAndType( String.valueOf( isFollowed ), url, ValueType.IS_FOLLOWED );
 	}
 
 	public void unfollow() {
 		isFollowed = false;
-		storage.save( url, ValueType.IS_FOLLOWED, String.valueOf( isFollowed ) );
+		storage.saveValueByKeyAndType( String.valueOf( isFollowed ), url, ValueType.IS_FOLLOWED );
 	}
 	
 	public boolean isFollowed() {
@@ -107,7 +107,7 @@ public class Post implements GooglePlusCallbackIfc {
 	private void setPostID( String newPostID ) {
 		if( newPostID.equals( postID ) == false ) {
 			postID = newPostID;
-			storage.save( url, ValueType.POST_ID, postID );
+			storage.saveValueByKeyAndType( postID, url, ValueType.POST_ID );
 		}
 	}
 
@@ -129,7 +129,7 @@ public class Post implements GooglePlusCallbackIfc {
 	public void viewed() {
 		lastViewedModificationTime = currentModificationTime;
 		if( lastViewedModificationTime != null )
-			storage.save( url, ValueType.LAST_VIEWED_MODIFICATION_TIME, lastViewedModificationTime.toStringRfc3339() );
+			storage.saveValueByKeyAndType( lastViewedModificationTime.toStringRfc3339(), url, ValueType.LAST_VIEWED_MODIFICATION_TIME );
 	}
 
 	private boolean isPostModifiedSinceLastView() {

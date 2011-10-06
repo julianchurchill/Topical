@@ -35,7 +35,7 @@ public class AndroidPreferenceStorage implements PersistentStorageIfc {
 	}
 	
 	@Override
-	public void save( String key, ValueType type, String value ) {
+	public void saveValueByKeyAndType( String value, String key, ValueType type ) {
 		SharedPreferences.Editor editor = prefs.edit();
 		editor.putString( makeKey( key, type ), value );
 		if( type == ValueType.IS_FOLLOWED )
@@ -44,7 +44,7 @@ public class AndroidPreferenceStorage implements PersistentStorageIfc {
 	}
 
 	@Override
-	public String load( String key, ValueType type ) {
+	public String loadValueByKeyAndType( String key, ValueType type ) {
 		return prefs.getString( makeKey( key, type ), "" );
 	}
 
