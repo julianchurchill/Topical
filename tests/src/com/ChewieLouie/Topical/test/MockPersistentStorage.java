@@ -18,16 +18,16 @@ public class MockPersistentStorage implements PersistentStorageIfc {
 	public String saveArgsValue = null;
 
 	@Override
-	public void save(String postURL, ValueType type, String value) {
+	public void save(String key, ValueType type, String value) {
 		saveCalled = true;
 		saveArgsType = type;
 		saveArgsValue = value;		
 	}
 
 	@Override
-	public String load(String postURL, ValueType type) {
+	public String load(String key, ValueType type) {
 		loadCalled = true;
-		loadArgsKey.add( postURL );
+		loadArgsKey.add( key );
 		loadArgsType.add( type );
 		return loadReturns.get( type );
 	}
