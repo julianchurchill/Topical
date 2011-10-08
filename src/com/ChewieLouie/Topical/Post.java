@@ -18,22 +18,26 @@ public class Post implements GooglePlusCallbackIfc {
 	private String summaryText = "";
 	private DateTime lastViewedModificationTime = null;
 	private DateTime currentModificationTime = null;
+	private String authorName = "";
+	private String authorImage = "";
+	private String content = "";
+	private String comments = "";
 	private boolean isFollowed = false;
-	private Map<DataType, String> postInfo = new HashMap<DataType, String>();
 	private PersistentStorageIfc storage = null;
 	private GooglePlusIfc googlePlus = null;
 	private int requestID = 0;
 	private Map<Integer, ViewPostIfc> viewPosts = new HashMap<Integer, ViewPostIfc>();
 
-	public Post( String url, PersistentStorageIfc storage, GooglePlusIfc googlePlus ) {
+	public Post( Map<DataType, String> postInfo, PersistentStorageIfc storage, GooglePlusIfc googlePlus ) {
 		this.storage = storage;
-		this.url = url;
 		this.googlePlus = googlePlus;
-		extractAuthorIDFromURL( url );
-		loadData();
+		setURL( postInfo.get( DataType.URL ) );
+		loadDataFromStorage();
+		parsePostInfo( postInfo );
 	}
 
-	private void extractAuthorIDFromURL( String url ) {
+	private void setURL( String url ) {
+		this.url = url;
 		final String gPlusURLPostsSeperator = "/posts/";
 		int authorIDEndIndex = url.indexOf( gPlusURLPostsSeperator );
 		if( authorIDEndIndex != -1 ) {
@@ -43,7 +47,24 @@ public class Post implements GooglePlusCallbackIfc {
 		}
 	}
 
-	private void loadData() {
+	private void parsePostInfo( Map<DataType, String> postInfo ) {
+		if( postInfo.get( DataType.POST_ID ) != null )
+			setPostID( postInfo.get( DataType.POST_ID ) );
+		if( postInfo.get( DataType.MODIFICATION_TIME ) != null )
+			currentModificationTime = DateTime.parseRfc3339( postInfo.get( DataType.MODIFICATION_TIME ) );
+		if( postInfo.get( DataType.TITLE ) != null )
+			setTitle( postInfo.get( DataType.TITLE ) );
+		if( postInfo.get( DataType.SUMMARY ) != null )
+			setSummary( postInfo.get( DataType.SUMMARY ) );
+		if( postInfo.get( DataType.AUTHOR_ID ) != null )
+			authorID = postInfo.get( DataType.AUTHOR_ID );
+		authorName = postInfo.get( DataType.AUTHOR_NAME );
+		authorImage = postInfo.get( DataType.AUTHOR_IMAGE );
+		content = postInfo.get( DataType.POST_CONTENT );
+		comments = postInfo.get( DataType.COMMENTS );
+	}
+
+	private void loadDataFromStorage() {
 		this.title = storage.load( url, ValueType.TITLE );
 		this.summaryText = storage.load( url, ValueType.SUMMARY );
 		this.isFollowed = Boolean.parseBoolean( storage.load( url, ValueType.IS_FOLLOWED ) );
@@ -53,12 +74,12 @@ public class Post implements GooglePlusCallbackIfc {
 			this.lastViewedModificationTime = DateTime.parseRfc3339( modTime );
 	}
 
-	public void setTitle( String title ) {
+	private void setTitle( String title ) {
 		this.title = title;
 		storage.save( url, ValueType.TITLE, title );
 	}
 
-	public void setSummary( String summaryText ) {
+	private void setSummary( String summaryText ) {
 		this.summaryText = summaryText;
 		storage.save( url, ValueType.SUMMARY, summaryText );
 	}
@@ -85,10 +106,10 @@ public class Post implements GooglePlusCallbackIfc {
 	}
 
 	private void updateViewFromPostInfo( ViewPostIfc viewPost ) {
-		viewPost.setAuthor( postInfo.get( DataType.AUTHOR_NAME ) );
-		viewPost.setAuthorImage( postInfo.get( DataType.AUTHOR_IMAGE ) );
-		viewPost.setHTMLContent( postInfo.get( DataType.POST_CONTENT ) );
-		viewPost.setComments( postInfo.get( DataType.COMMENTS ) );
+		viewPost.setAuthor( authorName );
+		viewPost.setAuthorImage( authorImage );
+		viewPost.setHTMLContent( content );
+		viewPost.setComments( comments );
 		viewPost.setStatus( status() );
 		viewPost.setSummaryText( summaryText );
 		viewPost.activityStopped();
@@ -101,9 +122,7 @@ public class Post implements GooglePlusCallbackIfc {
 
 	@Override
 	public void postInformationResults( Map<DataType, String> postInfo, int requestID ) {
-		this.postInfo = postInfo;
-		setPostID( postInfo.get( DataType.POST_ID ) );
-		currentModificationTime = DateTime.parseRfc3339( postInfo.get( DataType.MODIFICATION_TIME ) );
+		parsePostInfo( postInfo );
 		updateViewFromPostInfo( viewPosts.get( requestID ) );
 		viewPosts.remove( requestID );
 	}

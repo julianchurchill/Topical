@@ -1,7 +1,9 @@
 package com.ChewieLouie.Topical.Activities;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -18,12 +20,12 @@ import android.widget.Toast;
 
 import com.ChewieLouie.Topical.AndroidPreferenceStorage;
 import com.ChewieLouie.Topical.GooglePlus;
+import com.ChewieLouie.Topical.GooglePlusIfc.DataType;
 import com.ChewieLouie.Topical.GooglePlusPostFinderFactory;
 import com.ChewieLouie.Topical.PersistentStorageIfc;
 import com.ChewieLouie.Topical.Post;
 import com.ChewieLouie.Topical.R;
 import com.ChewieLouie.Topical.TopicalConstants;
-import com.google.api.services.customsearch.model.Result;
 
 public class TopicalActivity extends Activity {
 
@@ -58,7 +60,9 @@ public class TopicalActivity extends Activity {
 	}
 
 	private Post createPostWithURL( String url ) {
-		return new Post( url, storage, GooglePlus.Make() );
+		Map<DataType,String> postInfo = new HashMap<DataType, String>();
+		postInfo.put( DataType.URL, url );
+		return new Post( postInfo, storage, GooglePlus.Make() );
 	}
 
     public void search( View view ) {
@@ -71,20 +75,13 @@ public class TopicalActivity extends Activity {
     	@Override
 		protected List<Post> doInBackground( String... searchTerm ) {
     		topic = searchTerm[0];
-	    	List<Result> results = GooglePlusPostFinderFactory.create().search( topic );
+    		List< Map<DataType,String> > results = GooglePlusPostFinderFactory.create().search( topic );
 	    	List<Post> posts = new ArrayList<Post>();
 			if( results != null )
-				for( Result result : results )
-					posts.add( createPost( result ) );
+				for( Map<DataType,String> result : results )
+					posts.add( new Post( result, storage, GooglePlus.Make() ) );
 			return posts;
 		}
-
-    	private Post createPost( Result result ) {
-			Post post = createPostWithURL( result.getLink() );
-			post.setTitle( result.getTitle() );
-			post.setSummary( result.getSnippet() );
-			return post;
-    	}
 
 		@Override
 		protected void onPostExecute(List<Post> result) {

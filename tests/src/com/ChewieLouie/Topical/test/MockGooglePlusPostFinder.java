@@ -1,9 +1,11 @@
 package com.ChewieLouie.Topical.test;
 
-import java.util.List;
 
+import java.util.List;
+import java.util.Map;
+
+import com.ChewieLouie.Topical.GooglePlusIfc.DataType;
 import com.ChewieLouie.Topical.GooglePlusPostFinderIfc;
-import com.google.api.services.customsearch.model.Result;
 
 public class MockGooglePlusPostFinder implements GooglePlusPostFinderIfc {
 
@@ -15,7 +17,7 @@ public class MockGooglePlusPostFinder implements GooglePlusPostFinderIfc {
 	}
 	
 	@Override
-	public List<Result> search( String searchText ) {
+	public List< Map<DataType,String> > search( String searchText ) {
 		return null;
 	}
 }

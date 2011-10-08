@@ -1,5 +1,8 @@
 package com.ChewieLouie.Topical.test;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import android.test.AndroidTestCase;
 
 import com.ChewieLouie.Topical.GooglePlusIfc.DataType;
@@ -30,7 +33,9 @@ public class PostTest extends AndroidTestCase {
 		mockGooglePlus = new MockGooglePlus();
 		mockGooglePlus.postInformation.put( DataType.POST_ID, postID );
 		mockGooglePlus.postInformation.put( DataType.MODIFICATION_TIME, lastViewedModificationTime );
-		post = new Post( url, mockStorage, mockGooglePlus );
+		Map<DataType,String> postInfo = new HashMap<DataType, String>();
+		postInfo.put( DataType.URL, url );
+		post = new Post( postInfo, mockStorage, mockGooglePlus );
 	}
 
 	public void testPostLoadsSomeDataFromStorageOnConstruction() {
@@ -60,42 +65,6 @@ public class PostTest extends AndroidTestCase {
 
 	public void testPostLoadsLastViewedModificationTimeFromStorageOnConstruction() {
 		assertTrue( mockStorage.loadArgsType.contains( ValueType.LAST_VIEWED_MODIFICATION_TIME ) );
-	}
-
-	public void testSetTitleSavesToStorage() {
-		post.setTitle( "testTitle" );
-
-		assertEquals( "testTitle", mockStorage.saveArgsValue );
-	}
-
-	public void testSetTitleSavesTitleTypeToStorage() {
-		post.setTitle( "testTitle" );
-
-		assertEquals( ValueType.TITLE, mockStorage.saveArgsType );
-	}
-
-	public void testSetTitleSavesTitleValueToStorage() {
-		post.setTitle( "testTitle" );
-
-		assertEquals( "testTitle", mockStorage.saveArgsValue );
-	}
-
-	public void testSetSummarySavesToStorage() {
-		post.setSummary( "testSummary" );
-
-		assertTrue( mockStorage.saveCalled );
-	}
-
-	public void testSetSummarySavesSummaryTypeToStorage() {
-		post.setSummary( "testSummary" );
-
-		assertEquals( ValueType.SUMMARY, mockStorage.saveArgsType );
-	}
-
-	public void testSetSummarySavesSummaryValueToStorage() {
-		post.setSummary( "testSummary" );
-
-		assertEquals( "testSummary", mockStorage.saveArgsValue );
 	}
 
 	public void testFollowSavesToStorage() {
