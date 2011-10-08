@@ -26,7 +26,7 @@ public class Post implements GooglePlusCallbackIfc {
 	private PersistentStorageIfc storage = null;
 	private GooglePlusIfc googlePlus = null;
 	private int requestID = 0;
-	private Map<Integer, ViewPostIfc> viewPosts = new HashMap<Integer, ViewPostIfc>();
+	private Map<Integer, ViewPostIfc> views = new HashMap<Integer, ViewPostIfc>();
 
 	public Post( Map<DataType, String> postInfo, PersistentStorageIfc storage, GooglePlusIfc googlePlus ) {
 		this.storage = storage;
@@ -48,14 +48,11 @@ public class Post implements GooglePlusCallbackIfc {
 	}
 
 	private void parsePostInfo( Map<DataType, String> postInfo ) {
-		if( postInfo.get( DataType.POST_ID ) != null )
-			setPostID( postInfo.get( DataType.POST_ID ) );
+		setPostID( postInfo.get( DataType.POST_ID ) );
 		if( postInfo.get( DataType.MODIFICATION_TIME ) != null )
 			currentModificationTime = DateTime.parseRfc3339( postInfo.get( DataType.MODIFICATION_TIME ) );
-		if( postInfo.get( DataType.TITLE ) != null )
-			setTitle( postInfo.get( DataType.TITLE ) );
-		if( postInfo.get( DataType.SUMMARY ) != null )
-			setSummary( postInfo.get( DataType.SUMMARY ) );
+		setTitle( postInfo.get( DataType.TITLE ) );
+		setSummary( postInfo.get( DataType.SUMMARY ) );
 		if( postInfo.get( DataType.AUTHOR_ID ) != null )
 			authorID = postInfo.get( DataType.AUTHOR_ID );
 		authorName = postInfo.get( DataType.AUTHOR_NAME );
@@ -74,14 +71,25 @@ public class Post implements GooglePlusCallbackIfc {
 			this.lastViewedModificationTime = DateTime.parseRfc3339( modTime );
 	}
 
+	private void setPostID( String postID ) {
+		if( postID != null ) {
+			this.postID = postID;
+			storage.save( url, ValueType.POST_ID, postID );
+		}
+	}
+
 	private void setTitle( String title ) {
-		this.title = title;
-		storage.save( url, ValueType.TITLE, title );
+		if( title != null ) {
+			this.title = title;
+			storage.save( url, ValueType.TITLE, title );
+		}
 	}
 
 	private void setSummary( String summaryText ) {
-		this.summaryText = summaryText;
-		storage.save( url, ValueType.SUMMARY, summaryText );
+		if( summaryText != null ) {
+			this.summaryText = summaryText;
+			storage.save( url, ValueType.SUMMARY, summaryText );
+		}
 	}
 	
 	public void follow() {
@@ -98,41 +106,47 @@ public class Post implements GooglePlusCallbackIfc {
 		return isFollowed;
 	}
 
-	public void show( ViewPostIfc viewPost ) {
-		viewPost.activityStarted();
-		viewPost.setTitle( title );
-		viewPosts.put( requestID, viewPost );
-		googlePlus.getPostInformation( this, new GooglePlusQuery( postID, authorID, url ), requestID++ );
+	public void show( ViewPostIfc view ) {
+		view.activityStarted();
+		view.setTitle( title );
+		if( postInfoIncomplete() ) {
+			views.put( requestID, view );
+			googlePlus.getPostInformation( this, new GooglePlusQuery( postID, authorID, url ), requestID++ );
+		}
+		else
+			updateView( view );
+	}
+	
+	private boolean postInfoIncomplete() {
+		return  postID == null || postID.isEmpty() || 
+				authorID == null || authorID.isEmpty() || 
+				content == null || content.isEmpty() ||
+				authorImage == null || authorImage.isEmpty();
 	}
 
-	private void updateViewFromPostInfo( ViewPostIfc viewPost ) {
-		viewPost.setAuthor( authorName );
-		viewPost.setAuthorImage( authorImage );
-		viewPost.setHTMLContent( content );
-		viewPost.setComments( comments );
-		viewPost.setStatus( status() );
-		viewPost.setSummaryText( summaryText );
-		viewPost.activityStopped();
-	}
-
-	private void setPostID( String newPostID ) {
-		postID = newPostID;
-		storage.save( url, ValueType.POST_ID, postID );
+	private void updateView( ViewPostIfc view ) {
+		view.setAuthor( authorName );
+		view.setAuthorImage( authorImage );
+		view.setHTMLContent( content );
+		view.setComments( comments );
+		view.setStatus( status() );
+		view.setSummaryText( summaryText );
+		view.activityStopped();
 	}
 
 	@Override
 	public void postInformationResults( Map<DataType, String> postInfo, int requestID ) {
 		parsePostInfo( postInfo );
-		updateViewFromPostInfo( viewPosts.get( requestID ) );
-		viewPosts.remove( requestID );
+		updateView( views.get( requestID ) );
+		views.remove( requestID );
 	}
 
 	@Override
 	public void postInformationError( String errorText, int requestID ) {
-		ViewPostIfc viewPost = viewPosts.get( requestID );
-		viewPost.showError( errorText );
-		viewPost.activityStopped();
-		viewPosts.remove( requestID );
+		ViewPostIfc view = views.get( requestID );
+		view.showError( errorText );
+		view.activityStopped();
+		views.remove( requestID );
 	}
 
 	public void viewed() {

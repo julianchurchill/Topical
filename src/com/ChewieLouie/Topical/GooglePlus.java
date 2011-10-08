@@ -151,24 +151,29 @@ public class GooglePlus implements GooglePlusIfc {
 			callbackObj.postInformationResults( postInfo, requestID );
 	}
 
-	private Map<DataType, String> extractDataFromActivity( Activity activity ) {
+	public static Map<DataType, String> extractDataFromActivity( Activity activity ) {
 		Map<DataType, String> values = null;
 		if( activity != null ) {
 			values = new HashMap<DataType, String>();
-			putString( values, DataType.AUTHOR_NAME, activity.getActor().getDisplayName() );
+			putString( values, DataType.AUTHOR_ID, activity.getActor().getId() );
 			putString( values, DataType.AUTHOR_IMAGE, activity.getActor().getImage().getUrl() );
-			putString( values, DataType.POST_CONTENT, activity.getPlusObject().getContent() );
+			final String authorName = activity.getActor().getDisplayName();
+			putString( values, DataType.AUTHOR_NAME, authorName );
 			putString( values, DataType.COMMENTS, activity.getPlusObject().getReplies().toString() );
-			putString( values, DataType.POST_ID, activity.getId() );
 			if( activity.getUpdated() != null )
 				putString( values, DataType.MODIFICATION_TIME, activity.getUpdated().toStringRfc3339() );
 			else
 				putString( values, DataType.MODIFICATION_TIME, activity.getPublished().toStringRfc3339() );
+			putString( values, DataType.POST_CONTENT, activity.getPlusObject().getContent() );
+			putString( values, DataType.POST_ID, activity.getId() );
+			putString( values, DataType.SUMMARY, activity.getTitle() );
+			putString( values, DataType.TITLE, authorName );
+			putString( values, DataType.URL, activity.getUrl() );
 		}
 		return values;
 	}
 
-	private void putString( Map<DataType, String> values, DataType type, String value ) {
+	private static void putString( Map<DataType, String> values, DataType type, String value ) {
 		if( value == null )
 			values.put( type, "" );
 		else
