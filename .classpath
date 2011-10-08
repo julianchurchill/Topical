@@ -16,7 +16,7 @@
 	<classpathentry kind="lib" path="C:/Program Files/Development/Google/JavaClientAPI-1.5.0/dependencies/httpcore-4.0.1.jar" sourcepath="C:/Program Files/Development/Google/JavaClientAPI-1.5.0/dependencies/httpcore-4.0.1-sources.jar"/>
 	<classpathentry kind="lib" path="C:/Program Files/Development/Google/JavaClientAPI-1.5.0/dependencies/commons-codec-1.3.jar" sourcepath="C:/Program Files/Development/Google/JavaClientAPI-1.5.0/dependencies/commons-codec-1.3-sources.jar"/>
 	<classpathentry kind="lib" path="C:/Program Files/Development/Google/JavaClientAPI-1.5.0/dependencies/guava-r09.jar" sourcepath="C:/Program Files/Development/Google/JavaClientAPI-1.5.0/dependencies/guava-r09-sources.jar"/>
-	<classpathentry kind="lib" path="C:/Program Files/Development/Google/google-api-services-plus-v1-1.2.1-beta.jar"/>
 	<classpathentry kind="lib" path="C:/Program Files/Development/Google/google-api-services-customsearch-v1-1.2.3-beta.jar" sourcepath="C:/Program Files/Development/Google/google-api-services-customsearch-v1-1.2.3-beta-sources.jar"/>
+	<classpathentry kind="lib" path="C:/Program Files/Development/Google/google-api-services-plus-v1-1.2.4-beta.jar" sourcepath="C:/Program Files/Development/Google/google-api-services-plus-v1-1.2.4-beta-sources.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
