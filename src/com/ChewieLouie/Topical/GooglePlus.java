@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Semaphore;
 
 import android.os.AsyncTask;
 
@@ -28,70 +29,72 @@ public class GooglePlus implements GooglePlusIfc {
 	private static final String collectionPublic = "public";
 
 	private Plus plus = null;
+	private Map<String, Map<DataType, String>> postInfoCache = new HashMap<String, Map<DataType, String>>();
+	private Map<String, Semaphore> queriesInProgress = new HashMap<String, Semaphore>();
+	private Semaphore queriesInProgressSema4 = new Semaphore( 1 );
 
 	private GooglePlus() {
 		plus = new Plus( appName, new NetHttpTransport(), new GsonFactory() );
 		plus.setKey( googleAPIKey );
 	}
 
-	public void getPostInformation( GooglePlusCallbackIfc callbackObj, String postID, String authorID, String url ) {
-		GetPostTask task = new GetPostTask( callbackObj );
-		task.setPostID( postID );
-		task.setAuthorID( authorID );
-		task.setURL( url );
-		task.execute();
+	public void getPostInformation( GooglePlusCallbackIfc callbackObj, GooglePlusQuery query, int requestID ) {
+		if( postInfoCache.containsKey( query.makeKeyFromAuthorAndURL() ) )
+			callbackObj.postInformationResults( postInfoCache.get( query.makeKeyFromAuthorAndURL() ), requestID );
+		else
+			new GetPostTask( callbackObj, requestID, query ).execute();
 	}
 
 	private class GetPostTask extends AsyncTask<Void, Void, Boolean> {
     	private String errorText = null;
-    	private String postID = null;
-    	private String authorID = null;
-    	private String url = null;
-    	private Map<DataType, String> postInfo = new HashMap<DataType, String>();
+    	private GooglePlusQuery query = null;
     	private GooglePlusCallbackIfc callbackObj = null;
+    	private int requestID;
     	
-    	public GetPostTask( GooglePlusCallbackIfc callbackObj ) {
+    	public GetPostTask( GooglePlusCallbackIfc callbackObj, int requestID, GooglePlusQuery query ) {
     		this.callbackObj = callbackObj;
-    	}
-
-    	public void setPostID( String postID ) {
-    		this.postID = postID;
-    	}
-    	
-    	public void setAuthorID( String authorID ) {
-    		this.authorID = authorID;
-    	}
-
-    	public void setURL( String url ) {
-    		this.url = url;
+    		this.requestID = requestID;
+    		this.query = query;
     	}
 
     	@Override
 		protected Boolean doInBackground( Void... params ) {
-    		try {
-    			Activity activity = null;
-    			if( postID != null )
-    				activity = plus.activities.get( postID ).execute();
-    			else if( authorID != null && url != null )
-    				activity = findActivityByAuthorAndURL();
-    			if( activity != null )
-    				postInfo = extractDataFromActivity( activity );
-    			else
+			queriesInProgressSema4.acquireUninterruptibly();
+			if( queriesInProgress.containsKey( query.makeKeyFromAuthorAndURL() ) ) {
+    			queriesInProgressSema4.release();
+				queriesInProgress.get( query.makeKeyFromAuthorAndURL() ).acquireUninterruptibly();
+        		if( postInfoCache.containsKey( query.makeKeyFromAuthorAndURL() ) == false )
     				errorText = "No Google Plus post found";
-			} catch (IOException e) {
-				e.printStackTrace();
-				errorText = e.getMessage();
-				return false;
 			}
+    		else {
+	    		try {
+	    			queriesInProgress.put( query.makeKeyFromAuthorAndURL(), new Semaphore( 0 ) );
+        			queriesInProgressSema4.release();
+	    			Activity activity = null;
+	    			if( query.postID != null )
+	    				activity = plus.activities.get( query.postID ).execute();
+	    			else if( query.authorID != null && query.url != null )
+	    				activity = findActivityByAuthorAndURL();
+	    			if( activity != null )
+	    				postInfoCache.put( query.makeKeyFromAuthorAndURL(), extractDataFromActivity( activity ) );
+	    			else
+	    				errorText = "No Google Plus post found";
+    				queriesInProgress.get( query.makeKeyFromAuthorAndURL() ).release();
+				} catch (IOException e) {
+					e.printStackTrace();
+					errorText = e.getMessage();
+					return false;
+				}
+    		}
     		return true;
 		}
    
     	private Activity findActivityByAuthorAndURL() throws IOException {
-			Plus.Activities.List request = plus.activities.list( authorID, collectionPublic );
+			Plus.Activities.List request = plus.activities.list( query.authorID, collectionPublic );
 			ActivityFeed activityFeed = request.execute();
 			List<Activity> activitiesByAuthor = activityFeed.getItems();
 			while( activitiesByAuthor != null ) {
-				Activity foundActivity = findActivityByURL( url, activitiesByAuthor );
+				Activity foundActivity = findActivityByURL( query.url, activitiesByAuthor );
 				if( foundActivity != null )
 					return foundActivity;
 				if( moreActivitiesAvailable( activityFeed ) )
@@ -123,9 +126,9 @@ public class GooglePlus implements GooglePlusIfc {
 		protected void onPostExecute( Boolean postPopulatedOk ) {
 			super.onPostExecute( postPopulatedOk );
 			if( errorText != null )
-				callbackObj.postInformationError( errorText );
+				callbackObj.postInformationError( errorText, requestID );
 			else
-				callbackObj.postInformationResults( postInfo );
+				callbackObj.postInformationResults( postInfoCache.get( query.makeKeyFromAuthorAndURL() ), requestID );
 		}
 
 		@Override

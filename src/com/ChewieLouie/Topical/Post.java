@@ -3,9 +3,6 @@ package com.ChewieLouie.Topical;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.Semaphore;
-
-import android.os.AsyncTask;
 
 import com.ChewieLouie.Topical.GooglePlusIfc.DataType;
 import com.ChewieLouie.Topical.PersistentStorageIfc.ValueType;
@@ -23,11 +20,10 @@ public class Post implements GooglePlusCallbackIfc {
 	private DateTime currentModificationTime = null;
 	private boolean isFollowed = false;
 	private Map<DataType, String> postInfo = new HashMap<DataType, String>();
-	private boolean needsLoadingFromGooglePlus = true;
 	private PersistentStorageIfc storage = null;
 	private GooglePlusIfc googlePlus = null;
-	private ViewPostIfc viewPost = null;
-	private Semaphore protectView = new Semaphore( 1 );
+	private int requestID = 0;
+	private Map<Integer, ViewPostIfc> viewPosts = new HashMap<Integer, ViewPostIfc>();
 
 	public Post( String url, PersistentStorageIfc storage, GooglePlusIfc googlePlus ) {
 		this.storage = storage;
@@ -84,42 +80,11 @@ public class Post implements GooglePlusCallbackIfc {
 	public void show( ViewPostIfc viewPost ) {
 		viewPost.activityStarted();
 		viewPost.setTitle( title );
-
-		new ShowTask( viewPost ).execute();
-//		this.viewPost = viewPost;
-//		googlePlus.getPostInformation( Post.this, postID, authorID, url );
+		viewPosts.put( requestID, viewPost );
+		googlePlus.getPostInformation( this, new GooglePlusQuery( postID, authorID, url ), requestID++ );
 	}
 
-	class ShowTask extends AsyncTask<Void, Void, Void> {
-		private ViewPostIfc view = null;
-		private boolean updateView = false;
-
-		public ShowTask( ViewPostIfc view ) {
-			this.view = view;
-		}
-
-		@Override
-		protected Void doInBackground( Void... params ) {
-			protectView.acquireUninterruptibly();
-			viewPost = view;
-			if( needsLoadingFromGooglePlus ) {
-				googlePlus.getPostInformation( Post.this, postID, authorID, url );
-				needsLoadingFromGooglePlus = false;
-			}
-			else
-				updateView = true;
-			return null;
-		}
-
-		@Override
-		protected void onPostExecute( Void noArg ) {
-			super.onPostExecute( noArg );
-			if( updateView )
-				updateViewFromPostInfo();
-		}
-	}
-
-	private void updateViewFromPostInfo() {
+	private void updateViewFromPostInfo( ViewPostIfc viewPost ) {
 		viewPost.setAuthor( postInfo.get( DataType.AUTHOR_NAME ) );
 		viewPost.setAuthorImage( postInfo.get( DataType.AUTHOR_IMAGE ) );
 		viewPost.setHTMLContent( postInfo.get( DataType.POST_CONTENT ) );
@@ -127,7 +92,6 @@ public class Post implements GooglePlusCallbackIfc {
 		viewPost.setStatus( status() );
 		viewPost.setSummaryText( summaryText );
 		viewPost.activityStopped();
-		protectView.release();
 	}
 
 	private void setPostID( String newPostID ) {
@@ -138,18 +102,20 @@ public class Post implements GooglePlusCallbackIfc {
 	}
 
 	@Override
-	public void postInformationResults( Map<DataType, String> postInfo ) {
+	public void postInformationResults( Map<DataType, String> postInfo, int requestID ) {
 		this.postInfo = postInfo;
 		setPostID( postInfo.get( DataType.POST_ID ) );
 		currentModificationTime = DateTime.parseRfc3339( postInfo.get( DataType.MODIFICATION_TIME ) );
-		updateViewFromPostInfo();
+		updateViewFromPostInfo( viewPosts.get( requestID ) );
+		viewPosts.remove( requestID );
 	}
 
 	@Override
-	public void postInformationError( String errorText ) {
+	public void postInformationError( String errorText, int requestID ) {
+		ViewPostIfc viewPost = viewPosts.get( requestID );
 		viewPost.showError( errorText );
 		viewPost.activityStopped();
-		protectView.release();
+		viewPosts.remove( requestID );
 	}
 
 	public void viewed() {
