@@ -100,14 +100,13 @@ public class GooglePlus implements GooglePlusIfc {
     	private Activity findActivityByAuthorAndURL() throws IOException {
 			Plus.Activities.List request = plus.activities.list( query.authorID, collectionPublic );
 			ActivityFeed feed = null;
+			Activity foundActivity = null;
 			do {
 				feed = request.execute();
-				Activity foundActivity = findActivityByURL( query.url, feed.getItems() );
-				if( foundActivity != null )
-					return foundActivity;
+				foundActivity = findActivityByURL( query.url, feed.getItems() );
 				request.setPageToken( feed.getNextPageToken() );
-			} while( feed.getNextPageToken() != null );
-			return null;
+			} while( foundActivity == null && feed.getNextPageToken() != null );
+			return foundActivity;
     	}
     	
     	private Activity findActivityByURL( String url, List<Activity> activities ) {
