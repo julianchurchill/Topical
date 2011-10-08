@@ -1,9 +1,11 @@
 package com.ChewieLouie.Topical;
 
 import java.util.Calendar;
-import java.util.concurrent.Semaphore;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.Semaphore;
+
+import android.os.AsyncTask;
 
 import com.ChewieLouie.Topical.GooglePlusIfc.DataType;
 import com.ChewieLouie.Topical.PersistentStorageIfc.ValueType;
@@ -83,14 +85,38 @@ public class Post implements GooglePlusCallbackIfc {
 		viewPost.activityStarted();
 		viewPost.setTitle( title );
 
-		protectView.acquireUninterruptibly();
-		this.viewPost = viewPost;
-		if( needsLoadingFromGooglePlus ) {
-			googlePlus.getPostInformation( this, postID, authorID, url );
-			needsLoadingFromGooglePlus = false;
+		new ShowTask( viewPost ).execute();
+//		this.viewPost = viewPost;
+//		googlePlus.getPostInformation( Post.this, postID, authorID, url );
+	}
+
+	class ShowTask extends AsyncTask<Void, Void, Void> {
+		private ViewPostIfc view = null;
+		private boolean updateView = false;
+
+		public ShowTask( ViewPostIfc view ) {
+			this.view = view;
 		}
-		else
-			updateViewFromPostInfo();
+
+		@Override
+		protected Void doInBackground( Void... params ) {
+			protectView.acquireUninterruptibly();
+			viewPost = view;
+			if( needsLoadingFromGooglePlus ) {
+				googlePlus.getPostInformation( Post.this, postID, authorID, url );
+				needsLoadingFromGooglePlus = false;
+			}
+			else
+				updateView = true;
+			return null;
+		}
+
+		@Override
+		protected void onPostExecute( Void noArg ) {
+			super.onPostExecute( noArg );
+			if( updateView )
+				updateViewFromPostInfo();
+		}
 	}
 
 	private void updateViewFromPostInfo() {
