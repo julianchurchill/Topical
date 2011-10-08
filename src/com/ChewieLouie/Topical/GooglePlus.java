@@ -85,9 +85,9 @@ public class GooglePlus implements GooglePlusIfc {
 
     	private Activity findActivity( GooglePlusQuery query ) {
     		try {
-				if( query.postID != null )
+				if( query.postIDIsValid() )
 					return plus.activities.get( query.postID ).execute();
-				else if( query.authorID != null && query.url != null )
+				else if( query.authorIDIsValid() && query.urlIsValid() )
 					return findActivityByAuthorAndURL();
 			} catch (IOException e) {
 				e.printStackTrace();
@@ -143,7 +143,7 @@ public class GooglePlus implements GooglePlusIfc {
 	
 	private void callCallbackObj( String queryKey, GooglePlusCallbackIfc callbackObj, String errorText, int requestID ) {
 		Map<DataType, String> postInfo = postInfoCache.get( queryKey );
-		if( postInfo == null )
+		if( postInfo == null && errorText == null )
 			errorText = "No Google Plus post found";
 		if( errorText != null )
 			callbackObj.postInformationError( errorText, requestID );
