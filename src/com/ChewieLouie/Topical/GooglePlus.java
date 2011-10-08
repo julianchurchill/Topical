@@ -99,36 +99,24 @@ public class GooglePlus implements GooglePlusIfc {
    
     	private Activity findActivityByAuthorAndURL() throws IOException {
 			Plus.Activities.List request = plus.activities.list( query.authorID, collectionPublic );
-			ActivityFeed activityFeed = request.execute();
-			List<Activity> activitiesByAuthor = activityFeed.getItems();
-			while( activitiesByAuthor != null ) {
-				Activity foundActivity = findActivityByURL( query.url, activitiesByAuthor );
+			ActivityFeed feed = null;
+			do {
+				feed = request.execute();
+				Activity foundActivity = findActivityByURL( query.url, feed.getItems() );
 				if( foundActivity != null )
 					return foundActivity;
-				if( moreActivitiesAvailable( activityFeed ) )
-					activitiesByAuthor = getMoreActivities( request, activityFeed );
-				else
-					break;
-			}
+				request.setPageToken( feed.getNextPageToken() );
+			} while( feed.getNextPageToken() != null );
 			return null;
     	}
     	
     	private Activity findActivityByURL( String url, List<Activity> activities ) {
-			for( Activity activity : activities )
-				if( activity.getUrl().equals( url ) )
-					return activity;
+    		if( activities != null )
+    			for( Activity activity : activities )
+    				if( activity.getUrl().equals( url ) )
+    					return activity;
 			return null;
     	}
-
-		private List<Activity> getMoreActivities( Plus.Activities.List request,ActivityFeed feed )
-				throws IOException {
-			request.setPageToken( feed.getNextPageToken() );
-			return request.execute().getItems();
-		}
-		
-		private boolean moreActivitiesAvailable( ActivityFeed feed ) {
-			return feed.getNextPageToken() != null;
-		}
 
 		@Override
 		protected void onPostExecute( Void voidArg ) {
