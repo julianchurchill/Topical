@@ -95,10 +95,8 @@ public class Post implements GooglePlusCallbackIfc {
 	}
 
 	private void setPostID( String newPostID ) {
-		if( newPostID.equals( postID ) == false ) {
-			postID = newPostID;
-			storage.save( url, ValueType.POST_ID, postID );
-		}
+		postID = newPostID;
+		storage.save( url, ValueType.POST_ID, postID );
 	}
 
 	@Override
