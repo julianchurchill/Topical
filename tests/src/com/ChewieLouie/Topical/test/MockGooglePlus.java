@@ -1,6 +1,7 @@
 package com.ChewieLouie.Topical.test;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import com.ChewieLouie.Topical.GooglePlusCallbackIfc;
@@ -20,5 +21,10 @@ public class MockGooglePlus implements GooglePlusIfc {
 		getPostInformationArgsCallbackObj = callbackObj;
 		getPostInformationArgsQuery = query;
 		callbackObj.postInformationResults( postInformation, requestID );
+	}
+
+	@Override
+	public List<Map<DataType, String>> search(String searchText) {
+		return null;
 	}
 }

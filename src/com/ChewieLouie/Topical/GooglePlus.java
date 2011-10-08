@@ -1,6 +1,7 @@
 package com.ChewieLouie.Topical;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -43,6 +44,28 @@ public class GooglePlus implements GooglePlusIfc {
 			callCallbackObj( query.makeKeyFromAuthorAndURL(), callbackObj, null, requestID );
 		else
 			new GetPostTask( callbackObj, requestID, query ).execute();
+	}
+
+	@Override
+	public List< Map<DataType,String> > search( String searchText ) {
+		List< Map<DataType,String> > results = new ArrayList< Map<DataType,String> >();
+		Plus.Activities.Search request = plus.activities.search();
+		request.setQuery( searchText );
+		final int maxResults = 20;
+		int totalResultsParsed = 0;
+		ActivityFeed feed = null;
+		try {
+			do {
+				feed = request.execute();
+				request.setPageToken( feed.getNextPageToken() );
+				for( Activity activity : feed.getItems() )
+					results.add( GooglePlus.extractDataFromActivity( activity ) );
+				totalResultsParsed += feed.getItems().size();
+			} while( totalResultsParsed < maxResults && feed.getNextPageToken() != null );
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return results;
 	}
 
 	private class GetPostTask extends AsyncTask<Void, Void, Void> {

@@ -21,7 +21,6 @@ import android.widget.Toast;
 import com.ChewieLouie.Topical.AndroidPreferenceStorage;
 import com.ChewieLouie.Topical.GooglePlus;
 import com.ChewieLouie.Topical.GooglePlusIfc.DataType;
-import com.ChewieLouie.Topical.GooglePlusPostFinderFactory;
 import com.ChewieLouie.Topical.PersistentStorageIfc;
 import com.ChewieLouie.Topical.Post;
 import com.ChewieLouie.Topical.R;
@@ -75,7 +74,7 @@ public class TopicalActivity extends Activity {
     	@Override
 		protected List<Post> doInBackground( String... searchTerm ) {
     		topic = searchTerm[0];
-    		List< Map<DataType,String> > results = GooglePlusPostFinderFactory.create().search( topic );
+    		List< Map<DataType,String> > results = GooglePlus.Make().search( topic );
 	    	List<Post> posts = new ArrayList<Post>();
 			if( results != null )
 				for( Map<DataType,String> result : results )
