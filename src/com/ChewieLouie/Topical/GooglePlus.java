@@ -40,7 +40,7 @@ public class GooglePlus implements GooglePlusIfc {
 
 	public void getPostInformation( GooglePlusCallbackIfc callbackObj, GooglePlusQuery query, int requestID ) {
 		if( postInfoCache.containsKey( query.makeKeyFromAuthorAndURL() ) )
-			callbackObj.postInformationResults( postInfoCache.get( query.makeKeyFromAuthorAndURL() ), requestID );
+			callCallbackObj( query.makeKeyFromAuthorAndURL(), callbackObj, null, requestID );
 		else
 			new GetPostTask( callbackObj, requestID, query ).execute();
 	}
@@ -65,17 +65,11 @@ public class GooglePlus implements GooglePlusIfc {
 			if( isQueryInProgress() ) {
     			queriesInProgressSema4.release();
 				waitForQueryToComplete();
-        		if( postInfoCache.containsKey( queryKey ) == false )
-    				errorText = "No Google Plus post found";
 			}
     		else {
     			queriesInProgress.put( queryKey, new Semaphore( 0 ) );
     			queriesInProgressSema4.release();
-    			Activity activity = findActivity( query );
-    			if( activity != null )
-    				postInfoCache.put( queryKey, extractDataFromActivity( activity ) );
-    			else if( errorText == null )
-    				errorText = "No Google Plus post found";
+				postInfoCache.put( queryKey, extractDataFromActivity( findActivity( query ) ) );
 				queriesInProgress.get( queryKey ).release();
     		}
     		return null;
@@ -138,10 +132,7 @@ public class GooglePlus implements GooglePlusIfc {
 		@Override
 		protected void onPostExecute( Void voidArg ) {
 			super.onPostExecute( voidArg );
-			if( errorText != null )
-				callbackObj.postInformationError( errorText, requestID );
-			else
-				callbackObj.postInformationResults( postInfoCache.get( queryKey ), requestID );
+			callCallbackObj( queryKey, callbackObj, errorText, requestID );
 		}
 
 		@Override
@@ -149,10 +140,21 @@ public class GooglePlus implements GooglePlusIfc {
 			super.onPreExecute();
 		}
     }
+	
+	private void callCallbackObj( String queryKey, GooglePlusCallbackIfc callbackObj, String errorText, int requestID ) {
+		Map<DataType, String> postInfo = postInfoCache.get( queryKey );
+		if( postInfo == null )
+			errorText = "No Google Plus post found";
+		if( errorText != null )
+			callbackObj.postInformationError( errorText, requestID );
+		else
+			callbackObj.postInformationResults( postInfo, requestID );
+	}
 
 	private Map<DataType, String> extractDataFromActivity( Activity activity ) {
-		Map<DataType, String> values = new HashMap<DataType, String>();
+		Map<DataType, String> values = null;
 		if( activity != null ) {
+			values = new HashMap<DataType, String>();
 			putString( values, DataType.AUTHOR_NAME, activity.getActor().getDisplayName() );
 			putString( values, DataType.AUTHOR_IMAGE, activity.getActor().getImage().getUrl() );
 			putString( values, DataType.POST_CONTENT, activity.getPlusObject().getContent() );
