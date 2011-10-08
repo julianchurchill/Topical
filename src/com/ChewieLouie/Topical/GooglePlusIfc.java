@@ -1,7 +1,5 @@
 package com.ChewieLouie.Topical;
 
-import java.util.List;
-import java.util.Map;
 
 
 public interface GooglePlusIfc {
@@ -9,6 +7,6 @@ public interface GooglePlusIfc {
 
 	public abstract void getPostInformation( GooglePlusCallbackIfc callbackObj,
 			GooglePlusQuery query, int requestID );
-	public abstract List< Map<DataType,String> > search( String searchText );
+	public abstract void search( String searchText, GooglePlusCallbackIfc callbackObj );
 
 }

@@ -46,28 +46,6 @@ public class GooglePlus implements GooglePlusIfc {
 			new GetPostTask( callbackObj, requestID, query ).execute();
 	}
 
-	@Override
-	public List< Map<DataType,String> > search( String searchText ) {
-		List< Map<DataType,String> > results = new ArrayList< Map<DataType,String> >();
-		Plus.Activities.Search request = plus.activities.search();
-		request.setQuery( searchText );
-		final int maxResults = 20;
-		int totalResultsParsed = 0;
-		ActivityFeed feed = null;
-		try {
-			do {
-				feed = request.execute();
-				request.setPageToken( feed.getNextPageToken() );
-				for( Activity activity : feed.getItems() )
-					results.add( GooglePlus.extractDataFromActivity( activity ) );
-				totalResultsParsed += feed.getItems().size();
-			} while( totalResultsParsed < maxResults && feed.getNextPageToken() != null );
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		return results;
-	}
-
 	private class GetPostTask extends AsyncTask<Void, Void, Void> {
     	private String errorText = null;
     	private GooglePlusQuery query = null;
@@ -157,11 +135,6 @@ public class GooglePlus implements GooglePlusIfc {
 			super.onPostExecute( voidArg );
 			callCallbackObj( queryKey, callbackObj, errorText, requestID );
 		}
-
-		@Override
-		protected void onPreExecute() {
-			super.onPreExecute();
-		}
     }
 	
 	private void callCallbackObj( String queryKey, GooglePlusCallbackIfc callbackObj, String errorText, int requestID ) {
@@ -174,7 +147,57 @@ public class GooglePlus implements GooglePlusIfc {
 			callbackObj.postInformationResults( postInfo, requestID );
 	}
 
-	public static Map<DataType, String> extractDataFromActivity( Activity activity ) {
+	@Override
+	public void search( String searchText, GooglePlusCallbackIfc callbackObj ) {
+		new SearchTask( callbackObj, searchText ).execute();
+	}
+
+	private class SearchTask extends AsyncTask<Void, Void, Void> {
+    	private GooglePlusCallbackIfc callbackObj = null;
+    	private String searchText;
+		private List< Map<DataType,String> > results = new ArrayList< Map<DataType,String> >();
+		private Plus.Activities.Search request = null;
+   		private ActivityFeed feed = null;
+		private final int maxResults = 20;
+
+    	public SearchTask( GooglePlusCallbackIfc callbackObj, String searchText ) {
+    		this.callbackObj = callbackObj;
+    		this.searchText = searchText;
+    	}
+
+    	@Override
+		protected Void doInBackground( Void... params ) {
+    		request = plus.activities.search();
+    		request.setQuery( searchText );
+    		try {
+    			do {
+    				processActivityFeed();
+				} while( moreResultsAvailable() );
+    		} catch (IOException e) {
+    			e.printStackTrace();
+    		}
+    		return null;
+    	}
+
+    	private void processActivityFeed() throws IOException {
+    		feed = request.execute();
+			for( Activity activity : feed.getItems() )
+				results.add( extractDataFromActivity( activity ) );
+			request.setPageToken( feed.getNextPageToken() );
+    	}
+    	
+    	private boolean moreResultsAvailable() {
+    		return results.size() < maxResults && feed.getNextPageToken() != null;
+    	}
+
+    	@Override
+		protected void onPostExecute( Void voidArg ) {
+			super.onPostExecute( voidArg );
+			callbackObj.searchResults( results );
+		}
+	}
+
+	private static Map<DataType, String> extractDataFromActivity( Activity activity ) {
 		Map<DataType, String> values = null;
 		if( activity != null ) {
 			values = new HashMap<DataType, String>();

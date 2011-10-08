@@ -2,6 +2,7 @@ package com.ChewieLouie.Topical;
 
 import java.util.Calendar;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import com.ChewieLouie.Topical.GooglePlusIfc.DataType;
@@ -172,5 +173,9 @@ public class Post implements GooglePlusCallbackIfc {
 			return Post.Status.FOLLOWING_AND_NOT_CHANGED;
 		}
 		return Post.Status.NEW;
+	}
+
+	@Override
+	public void searchResults( List<Map<DataType, String>> results ) {
 	}
 }
