@@ -45,49 +45,62 @@ public class GooglePlus implements GooglePlusIfc {
 			new GetPostTask( callbackObj, requestID, query ).execute();
 	}
 
-	private class GetPostTask extends AsyncTask<Void, Void, Boolean> {
+	private class GetPostTask extends AsyncTask<Void, Void, Void> {
     	private String errorText = null;
     	private GooglePlusQuery query = null;
     	private GooglePlusCallbackIfc callbackObj = null;
     	private int requestID;
+    	private String queryKey = "";
     	
     	public GetPostTask( GooglePlusCallbackIfc callbackObj, int requestID, GooglePlusQuery query ) {
     		this.callbackObj = callbackObj;
     		this.requestID = requestID;
     		this.query = query;
+    		queryKey = query.makeKeyFromAuthorAndURL();
     	}
 
     	@Override
-		protected Boolean doInBackground( Void... params ) {
+		protected Void doInBackground( Void... params ) {
 			queriesInProgressSema4.acquireUninterruptibly();
-			if( queriesInProgress.containsKey( query.makeKeyFromAuthorAndURL() ) ) {
+			if( isQueryInProgress() ) {
     			queriesInProgressSema4.release();
-				queriesInProgress.get( query.makeKeyFromAuthorAndURL() ).acquireUninterruptibly();
-        		if( postInfoCache.containsKey( query.makeKeyFromAuthorAndURL() ) == false )
+				waitForQueryToComplete();
+        		if( postInfoCache.containsKey( queryKey ) == false )
     				errorText = "No Google Plus post found";
 			}
     		else {
-	    		try {
-	    			queriesInProgress.put( query.makeKeyFromAuthorAndURL(), new Semaphore( 0 ) );
-        			queriesInProgressSema4.release();
-	    			Activity activity = null;
-	    			if( query.postID != null )
-	    				activity = plus.activities.get( query.postID ).execute();
-	    			else if( query.authorID != null && query.url != null )
-	    				activity = findActivityByAuthorAndURL();
-	    			if( activity != null )
-	    				postInfoCache.put( query.makeKeyFromAuthorAndURL(), extractDataFromActivity( activity ) );
-	    			else
-	    				errorText = "No Google Plus post found";
-    				queriesInProgress.get( query.makeKeyFromAuthorAndURL() ).release();
-				} catch (IOException e) {
-					e.printStackTrace();
-					errorText = e.getMessage();
-					return false;
-				}
+    			queriesInProgress.put( queryKey, new Semaphore( 0 ) );
+    			queriesInProgressSema4.release();
+    			Activity activity = findActivity( query );
+    			if( activity != null )
+    				postInfoCache.put( queryKey, extractDataFromActivity( activity ) );
+    			else if( errorText == null )
+    				errorText = "No Google Plus post found";
+				queriesInProgress.get( queryKey ).release();
     		}
-    		return true;
+    		return null;
 		}
+
+    	private boolean isQueryInProgress() {
+    		return queriesInProgress.containsKey( queryKey );
+    	}
+    	
+    	private void waitForQueryToComplete() {
+			queriesInProgress.get( queryKey ).acquireUninterruptibly();
+    	}
+
+    	private Activity findActivity( GooglePlusQuery query ) {
+    		try {
+				if( query.postID != null )
+					return plus.activities.get( query.postID ).execute();
+				else if( query.authorID != null && query.url != null )
+					return findActivityByAuthorAndURL();
+			} catch (IOException e) {
+				e.printStackTrace();
+				errorText = e.getMessage();
+			}
+			return null;
+    	}
    
     	private Activity findActivityByAuthorAndURL() throws IOException {
 			Plus.Activities.List request = plus.activities.list( query.authorID, collectionPublic );
@@ -123,12 +136,12 @@ public class GooglePlus implements GooglePlusIfc {
 		}
 
 		@Override
-		protected void onPostExecute( Boolean postPopulatedOk ) {
-			super.onPostExecute( postPopulatedOk );
+		protected void onPostExecute( Void voidArg ) {
+			super.onPostExecute( voidArg );
 			if( errorText != null )
 				callbackObj.postInformationError( errorText, requestID );
 			else
-				callbackObj.postInformationResults( postInfoCache.get( query.makeKeyFromAuthorAndURL() ), requestID );
+				callbackObj.postInformationResults( postInfoCache.get( queryKey ), requestID );
 		}
 
 		@Override
