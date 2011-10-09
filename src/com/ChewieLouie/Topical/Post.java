@@ -1,8 +1,7 @@
 package com.ChewieLouie.Topical;
 
 import java.util.Calendar;
-import java.util.concurrent.Semaphore;
-import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import com.ChewieLouie.Topical.GooglePlusIfc.DataType;
@@ -19,23 +18,26 @@ public class Post implements GooglePlusCallbackIfc {
 	private String summaryText = "";
 	private DateTime lastViewedModificationTime = null;
 	private DateTime currentModificationTime = null;
+	private String authorName = "";
+	private String authorImage = "";
+	private String content = "";
+	private String comments = "";
 	private boolean isFollowed = false;
-	private Map<DataType, String> postInfo = new HashMap<DataType, String>();
-	private boolean needsLoadingFromGooglePlus = true;
 	private PersistentStorageIfc storage = null;
 	private GooglePlusIfc googlePlus = null;
-	private ViewPostIfc viewPost = null;
-	private Semaphore protectView = new Semaphore( 1 );
+	private int requestID = 0;
+	private ViewPostIfc view = null;
 
-	public Post( String url, PersistentStorageIfc storage, GooglePlusIfc googlePlus ) {
+	public Post( Map<DataType, String> postInfo, PersistentStorageIfc storage, GooglePlusIfc googlePlus ) {
 		this.storage = storage;
-		this.url = url;
 		this.googlePlus = googlePlus;
-		extractAuthorIDFromURL( url );
-		loadData();
+		setURL( postInfo.get( DataType.URL ) );
+		loadDataFromStorage();
+		parsePostInfo( postInfo );
 	}
 
-	private void extractAuthorIDFromURL( String url ) {
+	private void setURL( String url ) {
+		this.url = url;
 		final String gPlusURLPostsSeperator = "/posts/";
 		int authorIDEndIndex = url.indexOf( gPlusURLPostsSeperator );
 		if( authorIDEndIndex != -1 ) {
@@ -45,7 +47,7 @@ public class Post implements GooglePlusCallbackIfc {
 		}
 	}
 
-	private void loadData() {
+	private void loadDataFromStorage() {
 		this.title = storage.loadValueByKeyAndType( url, ValueType.TITLE );
 		this.summaryText = storage.loadValueByKeyAndType( url, ValueType.SUMMARY );
 		this.isFollowed = Boolean.parseBoolean( storage.loadValueByKeyAndType( url, ValueType.IS_FOLLOWED ) );
@@ -55,81 +57,110 @@ public class Post implements GooglePlusCallbackIfc {
 			this.lastViewedModificationTime = DateTime.parseRfc3339( modTime );
 	}
 
-	public void setTitle( String title ) {
-		this.title = title;
-		storage.saveValueByKeyAndType( title, url, ValueType.TITLE );
+	private void parsePostInfo( Map<DataType, String> postInfo ) {
+		if( postInfo.get( DataType.POST_ID ) != null )
+			setPostID( postInfo.get( DataType.POST_ID ) );
+		if( postInfo.get( DataType.TITLE ) != null )
+			setTitle( postInfo.get( DataType.TITLE ) );
+		if( postInfo.get( DataType.SUMMARY ) != null )
+			setSummary( postInfo.get( DataType.SUMMARY ) );
+		if( postInfo.get( DataType.MODIFICATION_TIME ) != null )
+			currentModificationTime = DateTime.parseRfc3339( postInfo.get( DataType.MODIFICATION_TIME ) );
+		if( postInfo.get( DataType.AUTHOR_ID ) != null )
+			authorID = postInfo.get( DataType.AUTHOR_ID );
+		authorName = postInfo.get( DataType.AUTHOR_NAME );
+		authorImage = postInfo.get( DataType.AUTHOR_IMAGE );
+		content = postInfo.get( DataType.POST_CONTENT );
+		comments = postInfo.get( DataType.COMMENTS );
 	}
 
-	public void setSummary( String summaryText ) {
+	private void setPostID( String postID ) {
+		this.postID = postID;
+		saveToStorage();
+	}
+
+	private void saveToStorage() {
+		if( isFollowed() ) {
+			saveValue( ValueType.POST_ID, postID );
+			saveValue( ValueType.TITLE, title );		
+			saveValue( ValueType.SUMMARY, summaryText );
+			saveValue( ValueType.IS_FOLLOWED, String.valueOf( isFollowed ) );
+			if( lastViewedModificationTime != null )
+				saveValue( ValueType.LAST_VIEWED_MODIFICATION_TIME, lastViewedModificationTime.toStringRfc3339() );
+		}
+	}
+	
+	private void saveValue( ValueType type, String value ) {
+		if( value != null )
+			storage.saveValueByKeyAndType( value, url, type );
+	}
+
+	private void setTitle( String title ) {
+		this.title = title;
+		saveToStorage();
+	}
+
+	private void setSummary( String summaryText ) {
 		this.summaryText = summaryText;
-		storage.saveValueByKeyAndType( summaryText, url, ValueType.SUMMARY );
+		saveToStorage();
 	}
 	
 	public void follow() {
 		isFollowed = true;
-		storage.saveValueByKeyAndType( String.valueOf( isFollowed ), url, ValueType.IS_FOLLOWED );
+		saveToStorage();
 	}
 
 	public void unfollow() {
 		isFollowed = false;
-		storage.saveValueByKeyAndType( String.valueOf( isFollowed ), url, ValueType.IS_FOLLOWED );
+		storage.remove( url );
 	}
 	
 	public boolean isFollowed() {
 		return isFollowed;
 	}
 
-	public void show( ViewPostIfc viewPost ) {
-		viewPost.activityStarted();
-		viewPost.setTitle( title );
-
-		protectView.acquireUninterruptibly();
-		this.viewPost = viewPost;
-		if( needsLoadingFromGooglePlus ) {
-			googlePlus.getPostInformation( this, postID, authorID, url );
-			needsLoadingFromGooglePlus = false;
-		}
-		else
-			updateViewFromPostInfo();
-	}
-
-	private void updateViewFromPostInfo() {
-		viewPost.setAuthor( postInfo.get( DataType.AUTHOR_NAME ) );
-		viewPost.setAuthorImage( postInfo.get( DataType.AUTHOR_IMAGE ) );
-		viewPost.setHTMLContent( postInfo.get( DataType.POST_CONTENT ) );
-		viewPost.setComments( postInfo.get( DataType.COMMENTS ) );
-		viewPost.setStatus( status() );
-		viewPost.setSummaryText( summaryText );
-		viewPost.activityStopped();
-		protectView.release();
-	}
-
-	private void setPostID( String newPostID ) {
-		if( newPostID.equals( postID ) == false ) {
-			postID = newPostID;
-			storage.saveValueByKeyAndType( postID, url, ValueType.POST_ID );
-		}
-	}
-
-	@Override
-	public void postInformationResults( Map<DataType, String> postInfo ) {
-		this.postInfo = postInfo;
-		setPostID( postInfo.get( DataType.POST_ID ) );
-		currentModificationTime = DateTime.parseRfc3339( postInfo.get( DataType.MODIFICATION_TIME ) );
-		updateViewFromPostInfo();
-	}
-
-	@Override
-	public void postInformationError( String errorText ) {
-		viewPost.showError( errorText );
-		viewPost.activityStopped();
-		protectView.release();
-	}
-
 	public void viewed() {
 		lastViewedModificationTime = currentModificationTime;
-		if( lastViewedModificationTime != null )
-			storage.saveValueByKeyAndType( lastViewedModificationTime.toStringRfc3339(), url, ValueType.LAST_VIEWED_MODIFICATION_TIME );
+		saveToStorage();
+	}
+
+	public void show( ViewPostIfc view ) {
+		this.view = view;
+		view.activityStarted();
+		view.setTitle( title );
+		if( postInfoIncomplete() )
+			googlePlus.getPostInformation( this, new GooglePlusQuery( postID, authorID, url ), requestID++ );
+		else
+			updateView( view );
+	}
+	
+	private boolean postInfoIncomplete() {
+		return  postID == null || postID.isEmpty() || 
+				authorID == null || authorID.isEmpty() || 
+				content == null || content.isEmpty() ||
+				authorImage == null || authorImage.isEmpty();
+	}
+
+	private void updateView( ViewPostIfc view ) {
+		view.setAuthor( authorName );
+		view.setAuthorImage( authorImage );
+		view.setHTMLContent( content );
+		view.setComments( comments );
+		view.setStatus( status() );
+		view.setSummaryText( summaryText );
+		view.activityStopped();
+	}
+
+	@Override
+	public void postInformationResults( Map<DataType, String> postInfo, int requestID ) {
+		parsePostInfo( postInfo );
+		updateView( view );
+	}
+
+	@Override
+	public void postInformationError( String errorText, int requestID ) {
+		view.showError( errorText );
+		view.activityStopped();
 	}
 
 	private boolean isPostModifiedSinceLastView() {
@@ -149,5 +180,9 @@ public class Post implements GooglePlusCallbackIfc {
 			return Post.Status.FOLLOWING_AND_NOT_CHANGED;
 		}
 		return Post.Status.NEW;
+	}
+
+	@Override
+	public void searchResults( List<Map<DataType, String>> results ) {
 	}
 }

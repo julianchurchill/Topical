@@ -16,6 +16,7 @@ public class AndroidPreferenceStorage implements PersistentStorageIfc {
 
 	private static final String allFollowedPostsKey = "AllFollowedPostURLs";
 	private static final Map<ValueType, String> typeToString = initializeTypeToStringMap();
+	private static final List<ValueType> saveableTypes = initialiseSaveableTypesList();
 
 	private SharedPreferences prefs = null;
 	
@@ -28,6 +29,16 @@ public class AndroidPreferenceStorage implements PersistentStorageIfc {
 		map.put( ValueType.SUMMARY, "Summary" );
 		map.put( ValueType.WATCHED_TOPIC, "WatchedTopic" );
 		return Collections.unmodifiableMap( map );
+	}
+	
+	private static List<ValueType> initialiseSaveableTypesList() {
+		List<ValueType> types = new ArrayList<ValueType>();
+		types.add( ValueType.IS_FOLLOWED );
+		types.add( ValueType.LAST_VIEWED_MODIFICATION_TIME );
+		types.add( ValueType.POST_ID );
+		types.add( ValueType.SUMMARY );
+		types.add( ValueType.TITLE );
+		return Collections.unmodifiableList( types );
 	}
 	
 	public AndroidPreferenceStorage( Activity activity ) {
@@ -80,5 +91,14 @@ public class AndroidPreferenceStorage implements PersistentStorageIfc {
 		for( int x = 1; x < strings.length; ++x )
 			out.append( separator ).append( strings[x] );
 		return out.toString();
+	}
+
+	@Override
+	public void remove( String url ) {
+		SharedPreferences.Editor editor = prefs.edit();
+		for( ValueType type : saveableTypes )
+			editor.remove( makeKey( url, type ) );
+		updateFollowedPostList( url, Boolean.toString( false ), editor );
+		editor.commit();
 	}
 }

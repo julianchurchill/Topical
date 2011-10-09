@@ -1,9 +1,11 @@
 package com.ChewieLouie.Topical;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Semaphore;
 
 import android.os.AsyncTask;
 
@@ -28,129 +30,185 @@ public class GooglePlus implements GooglePlusIfc {
 	private static final String collectionPublic = "public";
 
 	private Plus plus = null;
+	private Map<String, Map<DataType, String>> postInfoCache = new HashMap<String, Map<DataType, String>>();
+	private Map<String, Semaphore> queriesInProgress = new HashMap<String, Semaphore>();
+	private Semaphore queriesInProgressSema4 = new Semaphore( 1 );
 
 	private GooglePlus() {
 		plus = new Plus( appName, new NetHttpTransport(), new GsonFactory() );
 		plus.setKey( googleAPIKey );
 	}
 
-	public void getPostInformation( GooglePlusCallbackIfc callbackObj, String postID, String authorID, String url ) {
-		GetPostTask task = new GetPostTask( callbackObj );
-		task.setPostID( postID );
-		task.setAuthorID( authorID );
-		task.setURL( url );
-		task.execute();
+	public void getPostInformation( GooglePlusCallbackIfc callbackObj, GooglePlusQuery query, int requestID ) {
+		if( postInfoCache.containsKey( query.makeKeyFromAuthorAndURL() ) )
+			callCallbackObj( query.makeKeyFromAuthorAndURL(), callbackObj, null, requestID );
+		else
+			new GetPostTask( callbackObj, requestID, query ).execute();
 	}
 
-	private class GetPostTask extends AsyncTask<Void, Void, Boolean> {
+	private class GetPostTask extends AsyncTask<Void, Void, Void> {
     	private String errorText = null;
-    	private String postID = null;
-    	private String authorID = null;
-    	private String url = null;
-    	private Map<DataType, String> postInfo = new HashMap<DataType, String>();
+    	private GooglePlusQuery query = null;
     	private GooglePlusCallbackIfc callbackObj = null;
+    	private int requestID;
+    	private String queryKey = "";
     	
-    	public GetPostTask( GooglePlusCallbackIfc callbackObj ) {
+    	public GetPostTask( GooglePlusCallbackIfc callbackObj, int requestID, GooglePlusQuery query ) {
     		this.callbackObj = callbackObj;
-    	}
-
-    	public void setPostID( String postID ) {
-    		this.postID = postID;
-    	}
-    	
-    	public void setAuthorID( String authorID ) {
-    		this.authorID = authorID;
-    	}
-
-    	public void setURL( String url ) {
-    		this.url = url;
+    		this.requestID = requestID;
+    		this.query = query;
+    		queryKey = query.makeKeyFromAuthorAndURL();
     	}
 
     	@Override
-		protected Boolean doInBackground( Void... params ) {
+		protected Void doInBackground( Void... params ) {
+			queriesInProgressSema4.acquireUninterruptibly();
+			if( isQueryInProgress() ) {
+    			queriesInProgressSema4.release();
+				waitForQueryToComplete();
+			}
+    		else {
+    			queriesInProgress.put( queryKey, new Semaphore( 0 ) );
+    			queriesInProgressSema4.release();
+				postInfoCache.put( queryKey, extractDataFromActivity( findActivity( query ) ) );
+    		}
+    		return null;
+		}
+
+    	private boolean isQueryInProgress() {
+    		return queriesInProgress.containsKey( queryKey );
+    	}
+    	
+    	private void waitForQueryToComplete() {
+			queriesInProgress.get( queryKey ).acquireUninterruptibly();
+    	}
+
+    	private Activity findActivity( GooglePlusQuery query ) {
     		try {
-    			Activity activity = null;
-    			if( postID != null )
-    				activity = plus.activities.get( postID ).execute();
-    			else if( authorID != null && url != null )
-    				activity = findActivityByAuthorAndURL();
-    			if( activity != null )
-    				postInfo = extractDataFromActivity( activity );
-    			else
-    				errorText = "No Google Plus post found";
+				if( query.postIDIsValid() )
+					return plus.activities.get( query.postID ).execute();
+				else if( query.authorIDIsValid() && query.urlIsValid() )
+					return findActivityByAuthorAndURL();
 			} catch (IOException e) {
 				e.printStackTrace();
 				errorText = e.getMessage();
-				return false;
-			}
-    		return true;
-		}
-   
-    	private Activity findActivityByAuthorAndURL() throws IOException {
-			Plus.Activities.List request = plus.activities.list( authorID, collectionPublic );
-			ActivityFeed activityFeed = request.execute();
-			List<Activity> activitiesByAuthor = activityFeed.getItems();
-			while( activitiesByAuthor != null ) {
-				Activity foundActivity = findActivityByURL( url, activitiesByAuthor );
-				if( foundActivity != null )
-					return foundActivity;
-				if( moreActivitiesAvailable( activityFeed ) )
-					activitiesByAuthor = getMoreActivities( request, activityFeed );
-				else
-					break;
 			}
 			return null;
+    	}
+   
+    	private Activity findActivityByAuthorAndURL() throws IOException {
+			Plus.Activities.List request = plus.activities.list( query.authorID, collectionPublic );
+			ActivityFeed feed = null;
+			Activity foundActivity = null;
+			do {
+				feed = request.execute();
+				foundActivity = findActivityByURL( query.url, feed.getItems() );
+				request.setPageToken( feed.getNextPageToken() );
+			} while( foundActivity == null && feed.getNextPageToken() != null );
+			return foundActivity;
     	}
     	
     	private Activity findActivityByURL( String url, List<Activity> activities ) {
-			for( Activity activity : activities )
-				if( activity.getUrl().equals( url ) )
-					return activity;
+    		if( activities != null )
+    			for( Activity activity : activities )
+    				if( activity.getUrl().equals( url ) )
+    					return activity;
 			return null;
     	}
 
-		private List<Activity> getMoreActivities( Plus.Activities.List request,ActivityFeed feed )
-				throws IOException {
-			request.setPageToken( feed.getNextPageToken() );
-			return request.execute().getItems();
-		}
-		
-		private boolean moreActivitiesAvailable( ActivityFeed feed ) {
-			return feed.getNextPageToken() != null;
-		}
-
 		@Override
-		protected void onPostExecute( Boolean postPopulatedOk ) {
-			super.onPostExecute( postPopulatedOk );
-			if( errorText != null )
-				callbackObj.postInformationError( errorText );
-			else
-				callbackObj.postInformationResults( postInfo );
-		}
-
-		@Override
-		protected void onPreExecute() {
-			super.onPreExecute();
+		protected void onPostExecute( Void voidArg ) {
+			super.onPostExecute( voidArg );
+			callCallbackObj( queryKey, callbackObj, errorText, requestID );
+			queriesInProgress.get( queryKey ).release();
 		}
     }
+	
+	private void callCallbackObj( String queryKey, GooglePlusCallbackIfc callbackObj, String errorText, int requestID ) {
+		Map<DataType, String> postInfo = postInfoCache.get( queryKey );
+		if( postInfo == null && errorText == null )
+			errorText = "No Google Plus post found";
+		if( errorText != null )
+			callbackObj.postInformationError( errorText, requestID );
+		else
+			callbackObj.postInformationResults( postInfo, requestID );
+	}
 
-	private Map<DataType, String> extractDataFromActivity( Activity activity ) {
-		Map<DataType, String> values = new HashMap<DataType, String>();
+	@Override
+	public void search( String searchText, GooglePlusCallbackIfc callbackObj ) {
+		new SearchTask( callbackObj, searchText ).execute();
+	}
+
+	private class SearchTask extends AsyncTask<Void, Void, Void> {
+    	private GooglePlusCallbackIfc callbackObj = null;
+    	private String searchText;
+		private List< Map<DataType,String> > results = new ArrayList< Map<DataType,String> >();
+		private Plus.Activities.Search request = null;
+   		private ActivityFeed feed = null;
+		private final int maxResults = 20;
+
+    	public SearchTask( GooglePlusCallbackIfc callbackObj, String searchText ) {
+    		this.callbackObj = callbackObj;
+    		this.searchText = searchText;
+    	}
+
+    	@Override
+		protected Void doInBackground( Void... params ) {
+    		request = plus.activities.search();
+    		request.setQuery( searchText );
+    		try {
+    			do {
+    				processActivityFeed();
+				} while( moreResultsAvailable() );
+    		} catch (IOException e) {
+    			e.printStackTrace();
+    		}
+    		return null;
+    	}
+
+    	private void processActivityFeed() throws IOException {
+    		feed = request.execute();
+    		if( feed != null && feed.getItems() != null ) {
+				for( Activity activity : feed.getItems() )
+					results.add( extractDataFromActivity( activity ) );
+				request.setPageToken( feed.getNextPageToken() );
+    		}
+    	}
+    	
+    	private boolean moreResultsAvailable() {
+    		return results.size() < maxResults && feed != null && feed.getNextPageToken() != null;
+    	}
+
+    	@Override
+		protected void onPostExecute( Void voidArg ) {
+			super.onPostExecute( voidArg );
+			callbackObj.searchResults( results );
+		}
+	}
+
+	private static Map<DataType, String> extractDataFromActivity( Activity activity ) {
+		Map<DataType, String> values = null;
 		if( activity != null ) {
-			putString( values, DataType.AUTHOR_NAME, activity.getActor().getDisplayName() );
+			values = new HashMap<DataType, String>();
+			putString( values, DataType.AUTHOR_ID, activity.getActor().getId() );
 			putString( values, DataType.AUTHOR_IMAGE, activity.getActor().getImage().getUrl() );
-			putString( values, DataType.POST_CONTENT, activity.getPlusObject().getContent() );
+			final String authorName = activity.getActor().getDisplayName();
+			putString( values, DataType.AUTHOR_NAME, authorName );
 			putString( values, DataType.COMMENTS, activity.getPlusObject().getReplies().toString() );
-			putString( values, DataType.POST_ID, activity.getId() );
 			if( activity.getUpdated() != null )
 				putString( values, DataType.MODIFICATION_TIME, activity.getUpdated().toStringRfc3339() );
 			else
 				putString( values, DataType.MODIFICATION_TIME, activity.getPublished().toStringRfc3339() );
+			putString( values, DataType.POST_CONTENT, activity.getPlusObject().getContent() );
+			putString( values, DataType.POST_ID, activity.getId() );
+			putString( values, DataType.SUMMARY, activity.getTitle() );
+			putString( values, DataType.TITLE, authorName );
+			putString( values, DataType.URL, activity.getUrl() );
 		}
 		return values;
 	}
 
-	private void putString( Map<DataType, String> values, DataType type, String value ) {
+	private static void putString( Map<DataType, String> values, DataType type, String value ) {
 		if( value == null )
 			values.put( type, "" );
 		else

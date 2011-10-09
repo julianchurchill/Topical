@@ -14,14 +14,16 @@ public class MockPersistentStorage implements PersistentStorageIfc {
 	public List<ValueType> loadArgsType = new ArrayList<ValueType>();
 	public Map<ValueType, String> loadReturns = new HashMap<ValueType, String>();
 	public boolean saveCalled = false;
-	public ValueType saveArgsType = null;
-	public String saveArgsValue = null;
+	public List<ValueType> saveArgsType = new ArrayList<ValueType>();
+	public List<String> saveArgsValue = new ArrayList<String>();
+	public boolean removeCalled = false;
+	public String removeArg = "";
 
 	@Override
 	public void saveValueByKeyAndType( String value, String key, ValueType type ) {
 		saveCalled = true;
-		saveArgsValue = value;		
-		saveArgsType = type;
+		saveArgsType.add( type );
+		saveArgsValue.add( value );		
 	}
 
 	@Override
@@ -35,5 +37,11 @@ public class MockPersistentStorage implements PersistentStorageIfc {
 	@Override
 	public List<String> getAllPostURLsWhereFollowingIsTrue() {
 		return new ArrayList<String>();
+	}
+
+	@Override
+	public void remove( String key ) {
+		removeCalled = true;
+		removeArg = key;
 	}
 }
