@@ -47,20 +47,6 @@ public class Post implements GooglePlusCallbackIfc {
 		}
 	}
 
-	private void parsePostInfo( Map<DataType, String> postInfo ) {
-		setPostID( postInfo.get( DataType.POST_ID ) );
-		if( postInfo.get( DataType.MODIFICATION_TIME ) != null )
-			currentModificationTime = DateTime.parseRfc3339( postInfo.get( DataType.MODIFICATION_TIME ) );
-		setTitle( postInfo.get( DataType.TITLE ) );
-		setSummary( postInfo.get( DataType.SUMMARY ) );
-		if( postInfo.get( DataType.AUTHOR_ID ) != null )
-			authorID = postInfo.get( DataType.AUTHOR_ID );
-		authorName = postInfo.get( DataType.AUTHOR_NAME );
-		authorImage = postInfo.get( DataType.AUTHOR_IMAGE );
-		content = postInfo.get( DataType.POST_CONTENT );
-		comments = postInfo.get( DataType.COMMENTS );
-	}
-
 	private void loadDataFromStorage() {
 		this.title = storage.load( url, ValueType.TITLE );
 		this.summaryText = storage.load( url, ValueType.SUMMARY );
@@ -71,39 +57,71 @@ public class Post implements GooglePlusCallbackIfc {
 			this.lastViewedModificationTime = DateTime.parseRfc3339( modTime );
 	}
 
+	private void parsePostInfo( Map<DataType, String> postInfo ) {
+		if( postInfo.get( DataType.POST_ID ) != null )
+			setPostID( postInfo.get( DataType.POST_ID ) );
+		if( postInfo.get( DataType.TITLE ) != null )
+			setTitle( postInfo.get( DataType.TITLE ) );
+		if( postInfo.get( DataType.SUMMARY ) != null )
+			setSummary( postInfo.get( DataType.SUMMARY ) );
+		if( postInfo.get( DataType.MODIFICATION_TIME ) != null )
+			currentModificationTime = DateTime.parseRfc3339( postInfo.get( DataType.MODIFICATION_TIME ) );
+		if( postInfo.get( DataType.AUTHOR_ID ) != null )
+			authorID = postInfo.get( DataType.AUTHOR_ID );
+		authorName = postInfo.get( DataType.AUTHOR_NAME );
+		authorImage = postInfo.get( DataType.AUTHOR_IMAGE );
+		content = postInfo.get( DataType.POST_CONTENT );
+		comments = postInfo.get( DataType.COMMENTS );
+	}
+
 	private void setPostID( String postID ) {
-		if( postID != null ) {
-			this.postID = postID;
-			storage.save( url, ValueType.POST_ID, postID );
+		this.postID = postID;
+		saveToStorage();
+	}
+
+	private void saveToStorage() {
+		if( isFollowed() ) {
+			saveValue( ValueType.POST_ID, postID );
+			saveValue( ValueType.TITLE, title );		
+			saveValue( ValueType.SUMMARY, summaryText );
+			saveValue( ValueType.IS_FOLLOWED, String.valueOf( isFollowed ) );
+			if( lastViewedModificationTime != null )
+				saveValue( ValueType.LAST_VIEWED_MODIFICATION_TIME, lastViewedModificationTime.toStringRfc3339() );
 		}
+	}
+	
+	private void saveValue( ValueType type, String value ) {
+		if( value != null )
+			storage.save( url, type, value );
 	}
 
 	private void setTitle( String title ) {
-		if( title != null ) {
-			this.title = title;
-			storage.save( url, ValueType.TITLE, title );
-		}
+		this.title = title;
+		saveToStorage();
 	}
 
 	private void setSummary( String summaryText ) {
-		if( summaryText != null ) {
-			this.summaryText = summaryText;
-			storage.save( url, ValueType.SUMMARY, summaryText );
-		}
+		this.summaryText = summaryText;
+		saveToStorage();
 	}
 	
 	public void follow() {
 		isFollowed = true;
-		storage.save( url, ValueType.IS_FOLLOWED, String.valueOf( isFollowed ) );
+		saveToStorage();
 	}
 
 	public void unfollow() {
 		isFollowed = false;
-		storage.save( url, ValueType.IS_FOLLOWED, String.valueOf( isFollowed ) );
+		storage.remove( url );
 	}
 	
 	public boolean isFollowed() {
 		return isFollowed;
+	}
+
+	public void viewed() {
+		lastViewedModificationTime = currentModificationTime;
+		saveToStorage();
 	}
 
 	public void show( ViewPostIfc view ) {
@@ -143,12 +161,6 @@ public class Post implements GooglePlusCallbackIfc {
 	public void postInformationError( String errorText, int requestID ) {
 		view.showError( errorText );
 		view.activityStopped();
-	}
-
-	public void viewed() {
-		lastViewedModificationTime = currentModificationTime;
-		if( lastViewedModificationTime != null )
-			storage.save( url, ValueType.LAST_VIEWED_MODIFICATION_TIME, lastViewedModificationTime.toStringRfc3339() );
 	}
 
 	private boolean isPostModifiedSinceLastView() {

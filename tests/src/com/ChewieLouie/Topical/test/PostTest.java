@@ -18,6 +18,7 @@ public class PostTest extends AndroidTestCase {
 	private final String url = "startOfURL/" + authorID + "/posts/" + postID;
 	private final String lastViewedModificationTime = "1985-04-12T23:20:50.523Z";
 	private final String title = "TestTitle";
+	Map<DataType,String> postInfo = new HashMap<DataType, String>();
 
 	public PostTest() {
 		super();
@@ -33,9 +34,13 @@ public class PostTest extends AndroidTestCase {
 		mockGooglePlus = new MockGooglePlus();
 		mockGooglePlus.postInformation.put( DataType.POST_ID, postID );
 		mockGooglePlus.postInformation.put( DataType.MODIFICATION_TIME, lastViewedModificationTime );
-		Map<DataType,String> postInfo = new HashMap<DataType, String>();
 		postInfo.put( DataType.URL, url );
 		post = new Post( postInfo, mockStorage, mockGooglePlus );
+	}
+	
+	private Post createFollowedPost() {
+		mockStorage.loadReturns.put( ValueType.IS_FOLLOWED, Boolean.toString( true ) );
+		return new Post( postInfo, mockStorage, mockGooglePlus );
 	}
 
 	public void testPostLoadsSomeDataFromStorageOnConstruction() {
@@ -76,31 +81,25 @@ public class PostTest extends AndroidTestCase {
 	public void testFollowSavesIsFollowedTypeToStorage() {
 		post.follow();
 
-		assertEquals( ValueType.IS_FOLLOWED, mockStorage.saveArgsType );
+		assertTrue( mockStorage.saveArgsType.contains( ValueType.IS_FOLLOWED ) );
 	}
 
 	public void testFollowSavesTrueToStorage() {
 		post.follow();
 
-		assertEquals( String.valueOf( true ), mockStorage.saveArgsValue );
+		assertTrue( mockStorage.saveArgsValue.contains( String.valueOf( true ) ) );
 	}
 
-	public void testUnfollowSavesToStorage() {
+	public void testUnfollowRemovesFromStorage() {
 		post.unfollow();
 
-		assertTrue( mockStorage.saveCalled );
+		assertTrue( mockStorage.removeCalled );
 	}
 
-	public void testUnfollowSavesIsFollowedTypeToStorage() {
+	public void testUnfollowRemovesFromStorageWithURL() {
 		post.unfollow();
 
-		assertEquals( ValueType.IS_FOLLOWED, mockStorage.saveArgsType );
-	}
-
-	public void testUnfollowSavesFalseToStorage() {
-		post.unfollow();
-
-		assertEquals( String.valueOf( false ), mockStorage.saveArgsValue );
+		assertEquals( url, mockStorage.removeArg );
 	}
 
 	public void testFollowCausesIsFollowedToReturnTrue() {
@@ -173,27 +172,30 @@ public class PostTest extends AndroidTestCase {
 		assertTrue( mockViewPost.setAuthorCalled );
 	}
 
-	public void testViewedCausesSaveToStorage() {
-		MockViewPost mockViewPost = new MockViewPost();
-		post.show( mockViewPost );
-		post.viewed();
+	public void testViewedCausesSaveToStorageIfFollowed() {
+		Post followedPost = createFollowedPost();
+		followedPost.show( new MockViewPost() );
+
+		followedPost.viewed();
 
 		assertTrue( mockStorage.saveCalled );
 	}
 
 	public void testViewedCausesLastModificationDateTypeToBeSaved() {
-		MockViewPost mockViewPost = new MockViewPost();
-		post.show( mockViewPost );
-		post.viewed();
+		Post followedPost = createFollowedPost();
+		followedPost.show( new MockViewPost() );
+
+		followedPost.viewed();
 		
-		assertEquals( ValueType.LAST_VIEWED_MODIFICATION_TIME, mockStorage.saveArgsType );
+		assertTrue( mockStorage.saveArgsType.contains( ValueType.LAST_VIEWED_MODIFICATION_TIME ) );
 	}
 
 	public void testViewedCausesLastModificationDateValueToBeSaved() {
-		MockViewPost mockViewPost = new MockViewPost();
-		post.show( mockViewPost );
-		post.viewed();
-		
-		assertEquals( lastViewedModificationTime, mockStorage.saveArgsValue );
+		Post followedPost = createFollowedPost();
+		followedPost.show( new MockViewPost() );
+
+		followedPost.viewed();
+
+		assertTrue( mockStorage.saveArgsValue.contains( lastViewedModificationTime ) );
 	}
 }

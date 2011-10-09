@@ -6,5 +6,6 @@ public interface PersistentStorageIfc {
 	public enum ValueType { POST_ID, IS_FOLLOWED, LAST_VIEWED_MODIFICATION_TIME, TITLE, SUMMARY };
 	public abstract void save( String postURL, ValueType type, String value );
 	public abstract String load( String postURL, ValueType type );
+	public abstract void remove( String postURL );
 	public abstract List<String> getAllPostURLsWhereFollowingIsTrue();
 }
