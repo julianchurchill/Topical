@@ -1,7 +1,6 @@
 package com.ChewieLouie.Topical;
 
 import java.util.Calendar;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -27,7 +26,7 @@ public class Post implements GooglePlusCallbackIfc {
 	private PersistentStorageIfc storage = null;
 	private GooglePlusIfc googlePlus = null;
 	private int requestID = 0;
-	private Map<Integer, ViewPostIfc> views = new HashMap<Integer, ViewPostIfc>();
+	private ViewPostIfc view = null;
 
 	public Post( Map<DataType, String> postInfo, PersistentStorageIfc storage, GooglePlusIfc googlePlus ) {
 		this.storage = storage;
@@ -108,12 +107,11 @@ public class Post implements GooglePlusCallbackIfc {
 	}
 
 	public void show( ViewPostIfc view ) {
+		this.view = view;
 		view.activityStarted();
 		view.setTitle( title );
-		if( postInfoIncomplete() ) {
-			views.put( requestID, view );
+		if( postInfoIncomplete() )
 			googlePlus.getPostInformation( this, new GooglePlusQuery( postID, authorID, url ), requestID++ );
-		}
 		else
 			updateView( view );
 	}
@@ -138,16 +136,13 @@ public class Post implements GooglePlusCallbackIfc {
 	@Override
 	public void postInformationResults( Map<DataType, String> postInfo, int requestID ) {
 		parsePostInfo( postInfo );
-		updateView( views.get( requestID ) );
-		views.remove( requestID );
+		updateView( view );
 	}
 
 	@Override
 	public void postInformationError( String errorText, int requestID ) {
-		ViewPostIfc view = views.get( requestID );
 		view.showError( errorText );
 		view.activityStopped();
-		views.remove( requestID );
 	}
 
 	public void viewed() {
