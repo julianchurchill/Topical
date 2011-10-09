@@ -168,13 +168,15 @@ public class GooglePlus implements GooglePlusIfc {
 
     	private void processActivityFeed() throws IOException {
     		feed = request.execute();
-			for( Activity activity : feed.getItems() )
-				results.add( extractDataFromActivity( activity ) );
-			request.setPageToken( feed.getNextPageToken() );
+    		if( feed != null && feed.getItems() != null ) {
+				for( Activity activity : feed.getItems() )
+					results.add( extractDataFromActivity( activity ) );
+				request.setPageToken( feed.getNextPageToken() );
+    		}
     	}
     	
     	private boolean moreResultsAvailable() {
-    		return results.size() < maxResults && feed.getNextPageToken() != null;
+    		return results.size() < maxResults && feed != null && feed.getNextPageToken() != null;
     	}
 
     	@Override
