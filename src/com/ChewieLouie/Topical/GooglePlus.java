@@ -71,7 +71,6 @@ public class GooglePlus implements GooglePlusIfc {
     			queriesInProgress.put( queryKey, new Semaphore( 0 ) );
     			queriesInProgressSema4.release();
 				postInfoCache.put( queryKey, extractDataFromActivity( findActivity( query ) ) );
-				queriesInProgress.get( queryKey ).release();
     		}
     		return null;
 		}
@@ -121,6 +120,7 @@ public class GooglePlus implements GooglePlusIfc {
 		protected void onPostExecute( Void voidArg ) {
 			super.onPostExecute( voidArg );
 			callCallbackObj( queryKey, callbackObj, errorText, requestID );
+			queriesInProgress.get( queryKey ).release();
 		}
     }
 	
