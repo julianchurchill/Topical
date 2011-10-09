@@ -27,7 +27,7 @@ public class AndroidPreferenceStorage implements PersistentStorageIfc {
 		map.put( ValueType.POST_ID, "PostID" );
 		map.put( ValueType.TITLE, "Title" );
 		map.put( ValueType.SUMMARY, "Summary" );
-		map.put( ValueType.WATCHED_TOPIC, "WatchedTopic" );
+		map.put( ValueType.WATCHED_TOPICS, "WatchedTopics" );
 		return Collections.unmodifiableMap( map );
 	}
 	
@@ -80,17 +80,7 @@ public class AndroidPreferenceStorage implements PersistentStorageIfc {
 		if( setOfPostURLs.isEmpty() )
 			editor.remove( allFollowedPostsKey );
 		else
-			editor.putString( allFollowedPostsKey, join( ",", setOfPostURLs.toArray( new String[0] ) ) );
-	}
-	
-	private String join( String separator, String[] strings ) {
-		if( strings.length == 0 )
-			return null;
-		StringBuilder out = new StringBuilder();
-		out.append( strings[0] );
-		for( int x = 1; x < strings.length; ++x )
-			out.append( separator ).append( strings[x] );
-		return out.toString();
+			editor.putString( allFollowedPostsKey, StringUtils.join( ",", setOfPostURLs.toArray( new String[0] ) ) );
 	}
 
 	@Override

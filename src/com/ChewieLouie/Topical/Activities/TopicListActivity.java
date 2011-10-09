@@ -20,6 +20,7 @@ public class TopicListActivity extends ListActivity {
 
 	private TextView title = null;
 	private boolean isWatched = false;
+	private String topic = "";
 
 	@Override
     public void onCreate(Bundle savedInstanceState) {
@@ -27,6 +28,14 @@ public class TopicListActivity extends ListActivity {
         setContentView(R.layout.topic_list);
 		title = (TextView)findViewById( R.id.topicListTitle );
 	}	
+
+    @Override
+	protected void onResume() {
+		super.onResume();
+        addTopicToTitle();
+		addTopicListContents();
+		isWatched = TopicalActivity.topicWatcher.isWatched( topic );
+    }
 
     @Override
     public boolean onPrepareOptionsMenu( Menu menu )
@@ -47,22 +56,17 @@ public class TopicListActivity extends ListActivity {
         {
         	case WATCH_MENU_ITEM:
             	isWatched = true;
+            	TopicalActivity.topicWatcher.watch( topic );
         		break;
 	        case UNWATCH_MENU_ITEM:
             	isWatched = false;
+            	TopicalActivity.topicWatcher.unwatch( topic );
 	            break;
 	        default:
 	            retVal = super.onOptionsItemSelected( item );
 	            break;
         }
         return retVal;
-    }
-
-    @Override
-	protected void onResume() {
-		super.onResume();
-        addTopicToTitle();
-		addTopicListContents();
     }
 
 	@Override
@@ -75,10 +79,9 @@ public class TopicListActivity extends ListActivity {
 
 	private void addTopicToTitle()
 	{
-		String searchQuery = getIntent().getStringExtra(
-			TopicalConstants.IntentExtraKey_TopicListTopic );
+		topic = getIntent().getStringExtra( TopicalConstants.IntentExtraKey_TopicListTopic );
 		CharSequence titlePrefix = getApplicationContext().getText( R.string.topicListTitle );
-		title.setText( titlePrefix + ": \"" + searchQuery + "\"" );
+		title.setText( titlePrefix + ": \"" + topic + "\"" );
 	}
 
 	private void addTopicListContents()

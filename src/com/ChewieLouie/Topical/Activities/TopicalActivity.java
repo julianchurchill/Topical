@@ -24,17 +24,17 @@ import com.ChewieLouie.Topical.GooglePlusIfc.DataType;
 import com.ChewieLouie.Topical.PersistentStorageIfc;
 import com.ChewieLouie.Topical.Post;
 import com.ChewieLouie.Topical.R;
+import com.ChewieLouie.Topical.TopicWatcher;
 import com.ChewieLouie.Topical.TopicalConstants;
 
 public class TopicalActivity extends Activity implements GooglePlusCallbackIfc {
 
 	public static List<Post> currentPosts = null;
+	public static TopicWatcher topicWatcher = null;
 
 	private EditText searchEditText = null;	
-	private final String[] watchedTopics = { "Topic 1", "Topic 2", "Topic 3" };
 	private PersistentStorageIfc storage = null;
-
-	private String topic;
+	private String topic = null;
 
 	public TopicalActivity() {
 		super();
@@ -44,11 +44,17 @@ public class TopicalActivity extends Activity implements GooglePlusCallbackIfc {
     public void onCreate( Bundle savedInstanceState ) {
         super.onCreate( savedInstanceState );
 		storage = new AndroidPreferenceStorage( this );
+		topicWatcher = new TopicWatcher( storage );
         requestWindowFeature( Window.FEATURE_INDETERMINATE_PROGRESS );
         setContentView( R.layout.main );
-        populateTopicList();
         addTopicItemClickNotifier();
     	searchEditText = (EditText)findViewById( R.id.SearchText );
+    }
+
+    @Override
+	protected void onResume() {
+		super.onResume();
+        populateTopicList();
     }
 
 	public void showFollowedPosts( View view ) {
@@ -67,10 +73,11 @@ public class TopicalActivity extends Activity implements GooglePlusCallbackIfc {
 	}
 
     public void search( View view ) {
-    	searchForTopic( searchEditText.getText().toString() );
+    	searchForTopic( searchEditText.getText().toString().trim() );
     }
     
     private void searchForTopic( String topic ) {
+    	this.topic = topic;
     	setProgressBarIndeterminateVisibility( true );
     	GooglePlus.Make().search( topic, this );
     }
@@ -85,21 +92,21 @@ public class TopicalActivity extends Activity implements GooglePlusCallbackIfc {
     private void populateTopicList() {
     	ListView conversationList = (ListView)findViewById( R.id.topicList );
     	conversationList.setAdapter( new ArrayAdapter<String>( this, R.layout.topic_list_item, 
-        		R.id.topic_list_item_text, watchedTopics ) );
+        		R.id.topic_list_item_text, watchedTopics() ) );
+    }
+    
+    private String[] watchedTopics() {
+    	return topicWatcher.watchedTopics().toArray( new String[0] );
     }
 
     private void addTopicItemClickNotifier() {
 	    ListView lv = (ListView)findViewById( R.id.topicList );
 	    lv.setOnItemClickListener( new OnItemClickListener() {
 			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-				searchForTopic( watchedTopics[position] );
+				searchForTopic( watchedTopics()[position] );
 			}
 		});
 	}
-
-//    protected void onTopicListClicked( View view, int position ) {
-//    	showTopicList( watchedTopics[position], new ArrayList<Post>() );
-//    }
 
 	@Override
 	public void postInformationResults(Map<DataType, String> postInfo, int requestID) {

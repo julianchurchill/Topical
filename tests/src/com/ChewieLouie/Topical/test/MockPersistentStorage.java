@@ -14,16 +14,18 @@ public class MockPersistentStorage implements PersistentStorageIfc {
 	public List<ValueType> loadArgsType = new ArrayList<ValueType>();
 	public Map<ValueType, String> loadReturns = new HashMap<ValueType, String>();
 	public boolean saveCalled = false;
-	public List<ValueType> saveArgsType = new ArrayList<ValueType>();
 	public List<String> saveArgsValue = new ArrayList<String>();
+	public List<String> saveArgsKey = new ArrayList<String>();
+	public List<ValueType> saveArgsType = new ArrayList<ValueType>();
 	public boolean removeCalled = false;
 	public String removeArg = "";
 
 	@Override
 	public void saveValueByKeyAndType( String value, String key, ValueType type ) {
 		saveCalled = true;
+		saveArgsValue.add( value );
+		saveArgsKey.add( key );
 		saveArgsType.add( type );
-		saveArgsValue.add( value );		
 	}
 
 	@Override

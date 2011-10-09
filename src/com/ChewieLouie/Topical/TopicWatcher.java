@@ -1,25 +1,42 @@
 package com.ChewieLouie.Topical;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import com.ChewieLouie.Topical.PersistentStorageIfc.ValueType;
 
-
 public class TopicWatcher {
+
+	private final static String seperator = ",";
 	
-//	private String topic = "";
 	private PersistentStorageIfc storage = null;
-	private boolean isWatched = false;
+	private Set<String> watchedTopics = null;
 
-	public TopicWatcher( String topic, PersistentStorageIfc storage ) {
-//		this.topic = topic;
+	public TopicWatcher( PersistentStorageIfc storage ) {
 		this.storage = storage;
-		isWatched = Boolean.parseBoolean( storage.loadValueByKeyAndType( topic, ValueType.WATCHED_TOPIC ) );
+		watchedTopics = new HashSet<String>( StringUtils.split( 
+				storage.loadValueByKeyAndType( "", ValueType.WATCHED_TOPICS ), seperator ) );
 	}
 
-	public boolean isWatched() {
-		return isWatched;
+	public void watch( String topic ) {
+		watchedTopics.add( topic );
+		storage.saveValueByKeyAndType( watchedTopicsAsString(), "", ValueType.WATCHED_TOPICS );
+	}
+	
+	private String watchedTopicsAsString() {
+		return StringUtils.join( seperator, watchedTopics.toArray( new String[0] ) );
 	}
 
-	public void watched() {
-		storage.saveValueByKeyAndType( "", "", ValueType.WATCHED_TOPIC );
+	public void unwatch( String topic ) {
+		if( watchedTopics.remove( topic ) )
+			storage.saveValueByKeyAndType( watchedTopicsAsString(), "", ValueType.WATCHED_TOPICS );
+	}
+	
+	public boolean isWatched( String topic ) {
+		return watchedTopics.contains( topic );
+	}
+	
+	public Set<String> watchedTopics() {
+		return watchedTopics;
 	}
 }
