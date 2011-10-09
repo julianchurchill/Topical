@@ -26,7 +26,7 @@ public class Post implements GooglePlusCallbackIfc {
 	private PersistentStorageIfc storage = null;
 	private GooglePlusIfc googlePlus = null;
 	private int requestID = 0;
-	private ViewPostIfc view = null;
+	private ViewPostIfc view = new NullViewPost();
 	private boolean onNextUpdateViewSaveLastViewedTime = false;
 
 	public Post( Map<DataType, String> postInfo, PersistentStorageIfc storage, GooglePlusIfc googlePlus ) {
@@ -210,5 +210,9 @@ public class Post implements GooglePlusCallbackIfc {
 
 	@Override
 	public void searchResults( List<Map<DataType, String>> results ) {
+	}
+
+	public void viewIsNoLongerUsable() {
+		view = new NullViewPost();
 	}
 }
