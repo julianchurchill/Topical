@@ -21,7 +21,6 @@ public class ViewPostActivity extends Activity {
 	private ImageView authorImageView = null;
 	private TextView textTextView = null;
 	private TextView commentTextView = null;
-	private boolean isFollowing = true;
 	private Post post = null;
 	private AndroidViewPost androidViewPost = null;
 	
@@ -45,7 +44,7 @@ public class ViewPostActivity extends Activity {
     public boolean onPrepareOptionsMenu( Menu menu )
     {
     	menu.clear();
-    	if( isFollowing )
+    	if( post.isFollowed() )
     		menu.add( Menu.NONE, UNFOLLOW_MENU_ITEM, Menu.NONE, getText( R.string.unfollow ) );
     	else
     		menu.add( Menu.NONE, FOLLOW_MENU_ITEM, Menu.NONE, getText( R.string.follow ) );
@@ -60,11 +59,9 @@ public class ViewPostActivity extends Activity {
         {
         	case FOLLOW_MENU_ITEM:
         		post.follow();
-            	isFollowing = true;
         		break;
 	        case UNFOLLOW_MENU_ITEM:
         		post.unfollow();
-            	isFollowing = false;
 	            break;
 	        default:
 	            retVal = super.onOptionsItemSelected( item );
@@ -78,8 +75,7 @@ public class ViewPostActivity extends Activity {
 		super.onResume();
 		final int index = getIntent().getIntExtra( TopicalConstants.IntentExtraKey_ViewTopicIndex, -1 );
 		post = TopicalActivity.currentPosts.get( index );
-		isFollowing = post.isFollowed();
-		post.viewed();
-		post.show( androidViewPost );
+		post.markAsViewedBeforeShowing();
+		post.showWithForcedGooglePlusRefresh( androidViewPost );
 	}
 }

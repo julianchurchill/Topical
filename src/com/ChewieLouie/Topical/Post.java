@@ -27,6 +27,7 @@ public class Post implements GooglePlusCallbackIfc {
 	private GooglePlusIfc googlePlus = null;
 	private int requestID = 0;
 	private ViewPostIfc view = null;
+	private boolean onNextUpdateViewSaveLastViewedTime = false;
 
 	public Post( Map<DataType, String> postInfo, PersistentStorageIfc storage, GooglePlusIfc googlePlus ) {
 		this.storage = storage;
@@ -119,32 +120,67 @@ public class Post implements GooglePlusCallbackIfc {
 		return isFollowed;
 	}
 
-	public void viewed() {
-		lastViewedModificationTime = currentModificationTime;
-		saveToStorage();
+	public void markAsViewedBeforeShowing() {
+		onNextUpdateViewSaveLastViewedTime = true;
 	}
 
 	public void show( ViewPostIfc view ) {
+		startViewUpdate( view );
+		if( postInfoIncomplete() )
+			refreshFromGooglePlus();
+		else
+			finishViewUpdate();
+	}
+	
+	private void startViewUpdate( ViewPostIfc view ) {
 		this.view = view;
 		view.activityStarted();
 		view.setTitle( title );
+	}
+	
+	private boolean postInfoIncomplete() {
+		return  postID == null || postID.isEmpty() || 
+				authorID == null || authorID.isEmpty() || 
+				content == null || content.isEmpty() ||
+				authorImage == null || authorImage.isEmpty();
+	}
+
+	private void refreshFromGooglePlus() {
 		googlePlus.getPostInformation( this, new GooglePlusQuery( postID, authorID, url ), requestID++ );
 	}
 
-	@Override
-	public void postInformationResults( Map<DataType, String> postInfo, int requestID ) {
-		parsePostInfo( postInfo );
-		updateView( view );
+	private void finishViewUpdate() {
+		updateViewWithCurrentData();
+		view.activityStopped();
+		if( onNextUpdateViewSaveLastViewedTime  )
+			saveLastViewedTime();
 	}
-
-	private void updateView( ViewPostIfc view ) {
+	
+	private void updateViewWithCurrentData() {
 		view.setAuthor( authorName );
 		view.setAuthorImage( authorImage );
 		view.setHTMLContent( content );
 		view.setComments( comments );
 		view.setStatus( status() );
 		view.setSummaryText( summaryText );
-		view.activityStopped();
+	}
+
+	public void showWithForcedGooglePlusRefresh( ViewPostIfc view ) {
+		startViewUpdate( view );
+		updateViewWithCurrentData();
+		refreshFromGooglePlus();
+	}
+	
+	@Override
+	public void postInformationResults( Map<DataType, String> postInfo, int requestID ) {
+		parsePostInfo( postInfo );
+		finishViewUpdate();
+	}
+
+	private void saveLastViewedTime() {
+		lastViewedModificationTime = currentModificationTime;
+		saveToStorage();
+		onNextUpdateViewSaveLastViewedTime = false;
 	}
 
 	@Override

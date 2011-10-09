@@ -176,7 +176,7 @@ public class PostTest extends AndroidTestCase {
 		Post followedPost = createFollowedPost();
 		followedPost.show( new MockViewPost() );
 
-		followedPost.viewed();
+		followedPost.markAsViewedBeforeShowing();
 
 		assertTrue( mockStorage.saveCalled );
 	}
@@ -185,7 +185,7 @@ public class PostTest extends AndroidTestCase {
 		Post followedPost = createFollowedPost();
 		followedPost.show( new MockViewPost() );
 
-		followedPost.viewed();
+		followedPost.markAsViewedBeforeShowing();
 		
 		assertTrue( mockStorage.saveArgsType.contains( ValueType.LAST_VIEWED_MODIFICATION_TIME ) );
 	}
@@ -194,7 +194,7 @@ public class PostTest extends AndroidTestCase {
 		Post followedPost = createFollowedPost();
 		followedPost.show( new MockViewPost() );
 
-		followedPost.viewed();
+		followedPost.markAsViewedBeforeShowing();
 
 		assertTrue( mockStorage.saveArgsValue.contains( lastViewedModificationTime ) );
 	}
