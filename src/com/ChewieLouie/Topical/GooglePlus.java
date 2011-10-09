@@ -30,7 +30,7 @@ public class GooglePlus implements GooglePlusIfc {
 	private static final String collectionPublic = "public";
 
 	private Plus plus = null;
-	private Map<String, Map<DataType, String>> postInfoCache = new HashMap<String, Map<DataType, String>>();
+	private Map<String, Map<DataType, String>> queryResultCache = new HashMap<String, Map<DataType, String>>();
 	private Map<String, Semaphore> queriesInProgress = new HashMap<String, Semaphore>();
 	private Semaphore queriesInProgressSema4 = new Semaphore( 1 );
 
@@ -40,10 +40,7 @@ public class GooglePlus implements GooglePlusIfc {
 	}
 
 	public void getPostInformation( GooglePlusCallbackIfc callbackObj, GooglePlusQuery query, int requestID ) {
-		if( postInfoCache.containsKey( query.makeKeyFromAuthorAndURL() ) )
-			callCallbackObj( query.makeKeyFromAuthorAndURL(), callbackObj, null, requestID );
-		else
-			new GetPostTask( callbackObj, requestID, query ).execute();
+		new GetPostTask( callbackObj, requestID, query ).execute();
 	}
 
 	private class GetPostTask extends AsyncTask<Void, Void, Void> {
@@ -63,15 +60,10 @@ public class GooglePlus implements GooglePlusIfc {
     	@Override
 		protected Void doInBackground( Void... params ) {
 			queriesInProgressSema4.acquireUninterruptibly();
-			if( isQueryInProgress() ) {
-    			queriesInProgressSema4.release();
-				waitForQueryToComplete();
-			}
-    		else {
-    			queriesInProgress.put( queryKey, new Semaphore( 0 ) );
-    			queriesInProgressSema4.release();
-				postInfoCache.put( queryKey, extractDataFromActivity( findActivity( query ) ) );
-    		}
+			if( isQueryInProgress() )
+				waitForQueryToFinish();
+    		else
+    			startQuery();
     		return null;
 		}
 
@@ -79,10 +71,18 @@ public class GooglePlus implements GooglePlusIfc {
     		return queriesInProgress.containsKey( queryKey );
     	}
     	
-    	private void waitForQueryToComplete() {
-			queriesInProgress.get( queryKey ).acquireUninterruptibly();
+    	private void waitForQueryToFinish() {
+			Semaphore sem = queriesInProgress.get( queryKey );
+			queriesInProgressSema4.release();
+			sem.acquireUninterruptibly();
     	}
-
+    	
+    	private void startQuery() {
+			queriesInProgress.put( queryKey, new Semaphore( 0 ) );
+			queriesInProgressSema4.release();
+			queryResultCache.put( queryKey, extractDataFromActivity( findActivity( query ) ) );
+    	}
+    	
     	private Activity findActivity( GooglePlusQuery query ) {
     		try {
 				if( query.postIDIsValid() )
@@ -120,12 +120,23 @@ public class GooglePlus implements GooglePlusIfc {
 		protected void onPostExecute( Void voidArg ) {
 			super.onPostExecute( voidArg );
 			callCallbackObj( queryKey, callbackObj, errorText, requestID );
-			queriesInProgress.get( queryKey ).release();
+			notifyWaitingThreads();
+		}
+		
+		private void notifyWaitingThreads() {
+			queriesInProgressSema4.acquireUninterruptibly();
+			Semaphore sem = queriesInProgress.get( queryKey );
+			if( sem != null ) {
+				sem.release();
+				if( sem.hasQueuedThreads() == false )
+					queriesInProgress.remove( queryKey );
+			}
+			queriesInProgressSema4.release();
 		}
     }
 	
 	private void callCallbackObj( String queryKey, GooglePlusCallbackIfc callbackObj, String errorText, int requestID ) {
-		Map<DataType, String> postInfo = postInfoCache.get( queryKey );
+		Map<DataType, String> postInfo = queryResultCache.get( queryKey );
 		if( postInfo == null && errorText == null )
 			errorText = "No Google Plus post found";
 		if( errorText != null )

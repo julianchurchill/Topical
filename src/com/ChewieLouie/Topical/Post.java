@@ -128,17 +128,13 @@ public class Post implements GooglePlusCallbackIfc {
 		this.view = view;
 		view.activityStarted();
 		view.setTitle( title );
-		if( postInfoIncomplete() )
-			googlePlus.getPostInformation( this, new GooglePlusQuery( postID, authorID, url ), requestID++ );
-		else
-			updateView( view );
+		googlePlus.getPostInformation( this, new GooglePlusQuery( postID, authorID, url ), requestID++ );
 	}
-	
-	private boolean postInfoIncomplete() {
-		return  postID == null || postID.isEmpty() || 
-				authorID == null || authorID.isEmpty() || 
-				content == null || content.isEmpty() ||
-				authorImage == null || authorImage.isEmpty();
+
+	@Override
+	public void postInformationResults( Map<DataType, String> postInfo, int requestID ) {
+		parsePostInfo( postInfo );
+		updateView( view );
 	}
 
 	private void updateView( ViewPostIfc view ) {
@@ -149,12 +145,6 @@ public class Post implements GooglePlusCallbackIfc {
 		view.setStatus( status() );
 		view.setSummaryText( summaryText );
 		view.activityStopped();
-	}
-
-	@Override
-	public void postInformationResults( Map<DataType, String> postInfo, int requestID ) {
-		parsePostInfo( postInfo );
-		updateView( view );
 	}
 
 	@Override
