@@ -76,6 +76,7 @@ public class ViewPostActivity extends Activity {
 		final int index = getIntent().getIntExtra( TopicalConstants.IntentExtraKey_ViewTopicIndex, -1 );
 		post = TopicalActivity.currentPosts.get( index );
 		post.markAsViewedBeforeShowing();
-		post.showWithForcedGooglePlusRefresh( androidViewPost );
+		post.forceGooglePlusRefresh();
+		post.show( androidViewPost );
 	}
 }

@@ -28,6 +28,7 @@ public class Post implements GooglePlusCallbackIfc {
 	private int requestID = 0;
 	private ViewPostIfc view = new NullViewPost();
 	private boolean onNextUpdateViewSaveLastViewedTime = false;
+	private boolean forceGooglePlusRefresh = false;
 
 	public Post( Map<DataType, String> postInfo, PersistentStorageIfc storage, GooglePlusIfc googlePlus ) {
 		this.storage = storage;
@@ -124,18 +125,23 @@ public class Post implements GooglePlusCallbackIfc {
 		onNextUpdateViewSaveLastViewedTime = true;
 	}
 
+	public void forceGooglePlusRefresh() {
+		forceGooglePlusRefresh  = true;
+	}
+
 	public void show( ViewPostIfc view ) {
 		startViewUpdate( view );
-		if( postInfoIncomplete() )
+		if( forceGooglePlusRefresh || postInfoIncomplete() )
 			refreshFromGooglePlus();
 		else
 			finishViewUpdate();
+		forceGooglePlusRefresh = false;
 	}
 	
 	private void startViewUpdate( ViewPostIfc view ) {
 		this.view = view;
 		view.activityStarted();
-		view.setTitle( title );
+		updateViewWithCurrentData();
 	}
 	
 	private boolean postInfoIncomplete() {
@@ -157,6 +163,7 @@ public class Post implements GooglePlusCallbackIfc {
 	}
 	
 	private void updateViewWithCurrentData() {
+		view.setTitle( title );
 		view.setAuthor( authorName );
 		view.setAuthorImage( authorImage );
 		view.setHTMLContent( content );
@@ -165,12 +172,6 @@ public class Post implements GooglePlusCallbackIfc {
 		view.setSummaryText( summaryText );
 	}
 
-	public void showWithForcedGooglePlusRefresh( ViewPostIfc view ) {
-		startViewUpdate( view );
-		updateViewWithCurrentData();
-		refreshFromGooglePlus();
-	}
-	
 	@Override
 	public void postInformationResults( Map<DataType, String> postInfo, int requestID ) {
 		parsePostInfo( postInfo );
