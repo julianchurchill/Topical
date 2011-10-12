@@ -2,6 +2,7 @@ package com.ChewieLouie.Topical;
 
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import android.graphics.Color;
@@ -42,11 +43,11 @@ public class AndroidSummaryViewPost implements ViewPostIfc {
 	}
 
 	@Override
-	public void setComments(String comments) {
+	public void setComments(List<PostComment> comments) {
 	}
 
 	@Override
-	public void setStatus(  Status status ) {
+	public void setStatus( Status status ) {
     	titleTextView.setBackgroundColor( statusToColourMap.get( status ) );
 	}
 

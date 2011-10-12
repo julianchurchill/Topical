@@ -78,5 +78,6 @@ public class ViewPostActivity extends Activity {
 		post.markAsViewedBeforeShowing();
 		post.forceGooglePlusRefresh();
 		post.show( androidViewPost );
+		post.showComments( androidViewPost );
 	}
 }

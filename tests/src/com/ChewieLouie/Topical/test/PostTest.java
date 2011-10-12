@@ -1,13 +1,17 @@
 package com.ChewieLouie.Topical.test;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import android.test.AndroidTestCase;
 
+import com.ChewieLouie.Topical.PostComment;
 import com.ChewieLouie.Topical.GooglePlusIfc.DataType;
 import com.ChewieLouie.Topical.PersistentStorageIfc.ValueType;
 import com.ChewieLouie.Topical.Post;
+import com.ChewieLouie.Topical.Post.Status;
 
 public class PostTest extends AndroidTestCase {
 	private Post post = null;
@@ -18,7 +22,13 @@ public class PostTest extends AndroidTestCase {
 	private final String url = "startOfURL/" + authorID + "/posts/" + postID;
 	private final String lastViewedModificationTime = "1985-04-12T23:20:50.523Z";
 	private final String title = "TestTitle";
+	private final String authorName = "testAuthor";
+	private final String authorImage = "testAuthorImage";
+	private final String HTMLContent = "testContent";
+	private final boolean isFollowed = false;
+	private final String summary = "testSummary";
 	Map<DataType,String> postInfo = new HashMap<DataType, String>();
+	private List<PostComment> comments = new ArrayList<PostComment>();
 
 	public PostTest() {
 		super();
@@ -31,9 +41,15 @@ public class PostTest extends AndroidTestCase {
 		mockStorage.loadReturns.put( ValueType.POST_ID, postID );
 		mockStorage.loadReturns.put( ValueType.LAST_VIEWED_MODIFICATION_TIME, lastViewedModificationTime );
 		mockStorage.loadReturns.put( ValueType.TITLE, title );
+		mockStorage.loadReturns.put( ValueType.IS_FOLLOWED, Boolean.toString( isFollowed ) );
+		mockStorage.loadReturns.put( ValueType.SUMMARY, summary );
 		mockGooglePlus = new MockGooglePlus();
 		mockGooglePlus.postInformation.put( DataType.POST_ID, postID );
 		mockGooglePlus.postInformation.put( DataType.MODIFICATION_TIME, lastViewedModificationTime );
+		mockGooglePlus.postInformation.put( DataType.AUTHOR_NAME, authorName );
+		mockGooglePlus.postInformation.put( DataType.AUTHOR_IMAGE, authorImage );
+		mockGooglePlus.postInformation.put( DataType.POST_CONTENT, HTMLContent );
+		mockGooglePlus.comments = comments;
 		postInfo.put( DataType.URL, url );
 		post = new Post( postInfo, mockStorage, mockGooglePlus );
 	}
@@ -170,6 +186,101 @@ public class PostTest extends AndroidTestCase {
 		post.show( mockViewPost );
 		
 		assertTrue( mockViewPost.setAuthorCalled );
+	}
+
+	public void testShowCallsSetAuthorOnViewWithCorrectValue() {
+		MockViewPost mockViewPost = new MockViewPost();
+		post.show( mockViewPost );
+
+		assertEquals( authorName, mockViewPost.setAuthorArg );
+	}
+
+	public void testShowCallsSetAuthorImageOnView() {
+		MockViewPost mockViewPost = new MockViewPost();
+		post.show( mockViewPost );
+		
+		assertTrue( mockViewPost.setAuthorImageCalled );
+	}
+
+	public void testShowCallsSetAuthorImageOnViewWithCorrectValue() {
+		MockViewPost mockViewPost = new MockViewPost();
+		post.show( mockViewPost );
+
+		assertEquals( authorImage, mockViewPost.setAuthorImageArg );
+	}
+
+	public void testShowCallsSetHTMLContentOnView() {
+		MockViewPost mockViewPost = new MockViewPost();
+		post.show( mockViewPost );
+		
+		assertTrue( mockViewPost.setHTMLContentCalled );
+	}
+
+	public void testShowCallsSetHTMLContentOnViewWithCorrectValue() {
+		MockViewPost mockViewPost = new MockViewPost();
+		post.show( mockViewPost );
+
+		assertEquals( HTMLContent, mockViewPost.setHTMLContentArg );
+	}
+
+	public void testShowCallsSetStatusOnView() {
+		MockViewPost mockViewPost = new MockViewPost();
+		post.show( mockViewPost );
+		
+		assertTrue( mockViewPost.setStatusCalled );
+	}
+
+	public void testShowCallsSetStatusOnViewWithNewStatusForNotFollowedPost() {
+		MockViewPost mockViewPost = new MockViewPost();
+		post.show( mockViewPost );
+
+		assertEquals( Status.NEW, mockViewPost.setStatusArg );
+	}
+
+	public void testShowCallsSetSummaryTextOnView() {
+		MockViewPost mockViewPost = new MockViewPost();
+		post.show( mockViewPost );
+		
+		assertTrue( mockViewPost.setSummaryTextCalled );
+	}
+
+	public void testShowCallsSetSummaryTextOnViewWithCorrectValue() {
+		MockViewPost mockViewPost = new MockViewPost();
+		post.show( mockViewPost );
+
+		assertEquals( summary, mockViewPost.setSummaryTextArg );
+	}
+
+	public void testShowCommentsCallsGooglePlusGetComments() {
+		post.showComments( new MockViewPost() );
+
+		assertTrue( mockGooglePlus.getCommentsCalled );
+	}
+
+	public void testShowCommentsCallsGooglePlusGetCommentsWithPostAsCallbackObj() {
+		post.showComments( new MockViewPost() );
+
+		assertEquals( post, mockGooglePlus.getCommentsArgsCallbackObj );
+	}
+
+	public void testShowCommentsCallsGooglePlusGetCommentsWithPostID() {
+		post.showComments( new MockViewPost() );
+
+		assertEquals( postID, mockGooglePlus.getCommentsArgsPostID );
+	}
+
+	public void testShowCommentsCallsSetCommentsOnView() {
+		MockViewPost mockViewPost = new MockViewPost();
+		post.showComments( mockViewPost );
+		
+		assertTrue( mockViewPost.setCommentsCalled );
+	}
+
+	public void testShowCommentsCallsSetCommentsOnViewWithCommentsArgFromGooglePlus() {
+		MockViewPost mockViewPost = new MockViewPost();
+		post.showComments( mockViewPost );
+		
+		assertEquals( comments, mockViewPost.setCommentsArg );
 	}
 
 	public void testViewedCausesSaveToStorageIfFollowed() {

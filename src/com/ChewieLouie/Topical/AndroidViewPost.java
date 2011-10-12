@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.List;
 
 import com.ChewieLouie.Topical.Post.Status;
 
@@ -47,8 +48,9 @@ public class AndroidViewPost implements ViewPostIfc {
 	}
 
 	@Override
-	public void setComments( String comments ) {
-		commentTextView.setText( "Comments: " + comments );
+	public void setComments(List<PostComment> comments) {
+		commentTextView.setText( comments.get(0).author + " " + comments.get(0).updatedTime + 
+				" " + comments.get(0).content );
 	}
 
 	@Override

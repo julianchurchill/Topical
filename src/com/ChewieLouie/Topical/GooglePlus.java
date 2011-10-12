@@ -14,6 +14,8 @@ import com.google.api.client.json.gson.GsonFactory;
 import com.google.api.services.plus.Plus;
 import com.google.api.services.plus.model.Activity;
 import com.google.api.services.plus.model.ActivityFeed;
+import com.google.api.services.plus.model.Comment;
+import com.google.api.services.plus.model.CommentFeed;
 
 public class GooglePlus implements GooglePlusIfc {
 
@@ -143,6 +145,55 @@ public class GooglePlus implements GooglePlusIfc {
 			callbackObj.postInformationError( errorText, requestID );
 		else
 			callbackObj.postInformationResults( postInfo, requestID );
+	}
+
+	@Override
+	public void getComments(GooglePlusCallbackIfc callbackObj, String postID) {
+		new GetCommentsTask( callbackObj, postID ).execute();
+	}
+
+	private class GetCommentsTask extends AsyncTask<Void, Void, Void> {
+    	private String errorText = null;
+    	private String postID = null;
+    	private GooglePlusCallbackIfc callbackObj = null;
+    	private List<PostComment> postComments = new ArrayList<PostComment>();
+
+    	public GetCommentsTask( GooglePlusCallbackIfc callbackObj, String postID ) {
+    		this.callbackObj = callbackObj;
+    		this.postID = postID;
+    	}
+
+    	@Override
+		protected Void doInBackground( Void... params ) {
+    		Plus.Comments.List request = plus.comments.list( postID );
+			CommentFeed feed = null;
+			try {
+				do {
+					feed = request.execute();
+					addToPostComments( feed.getItems() );
+					request.setPageToken( feed.getNextPageToken() );
+				} while( feed.getNextPageToken() != null );
+			} catch (IOException e) {
+				e.printStackTrace();
+				errorText = e.getMessage();
+			}
+    		return null;
+		}
+
+		private void addToPostComments(List<Comment> comments) {
+			for( Comment comment : comments )
+				postComments.add( new PostComment( comment.getActor().getDisplayName(), 
+						comment.getUpdated(), comment.getPlusObject().getContent() ) );
+		}
+
+		@Override
+		protected void onPostExecute( Void voidArg ) {
+			super.onPostExecute( voidArg );
+			if( errorText != null )
+				callbackObj.commentsError( errorText );
+			else
+				callbackObj.commentResults( postComments );
+		}
 	}
 
 	@Override

@@ -1,5 +1,7 @@
 package com.ChewieLouie.Topical;
 
+import java.util.List;
+
 import com.ChewieLouie.Topical.Post.Status;
 
 public class NullViewPost implements ViewPostIfc {
@@ -17,7 +19,7 @@ public class NullViewPost implements ViewPostIfc {
 	}
 
 	@Override
-	public void setComments(String comments) {
+	public void setComments(List<PostComment> comments) {
 	}
 
 	@Override

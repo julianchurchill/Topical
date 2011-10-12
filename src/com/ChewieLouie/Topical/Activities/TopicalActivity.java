@@ -18,6 +18,7 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 import com.ChewieLouie.Topical.AndroidPreferenceStorage;
+import com.ChewieLouie.Topical.PostComment;
 import com.ChewieLouie.Topical.GooglePlus;
 import com.ChewieLouie.Topical.GooglePlusCallbackIfc;
 import com.ChewieLouie.Topical.GooglePlusIfc.DataType;
@@ -114,6 +115,14 @@ public class TopicalActivity extends Activity implements GooglePlusCallbackIfc {
 
 	@Override
 	public void postInformationError(String errorText, int requestID) {
+	}
+
+	@Override
+	public void commentResults(List<PostComment> comments) {
+	}
+
+	@Override
+	public void commentsError(String errorText) {
 	}
 
 	@Override

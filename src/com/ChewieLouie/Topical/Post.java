@@ -21,7 +21,6 @@ public class Post implements GooglePlusCallbackIfc {
 	private String authorName = "";
 	private String authorImage = "";
 	private String content = "";
-	private String comments = "";
 	private boolean isFollowed = false;
 	private PersistentStorageIfc storage = null;
 	private GooglePlusIfc googlePlus = null;
@@ -29,6 +28,8 @@ public class Post implements GooglePlusCallbackIfc {
 	private ViewPostIfc view = new NullViewPost();
 	private boolean onNextUpdateViewSaveLastViewedTime = false;
 	private boolean forceGooglePlusRefresh = false;
+	private boolean waitingForComments = false;
+	private boolean waitingForPostInfo = false;
 
 	public Post( Map<DataType, String> postInfo, PersistentStorageIfc storage, GooglePlusIfc googlePlus ) {
 		this.storage = storage;
@@ -73,7 +74,6 @@ public class Post implements GooglePlusCallbackIfc {
 		authorName = postInfo.get( DataType.AUTHOR_NAME );
 		authorImage = postInfo.get( DataType.AUTHOR_IMAGE );
 		content = postInfo.get( DataType.POST_CONTENT );
-		comments = postInfo.get( DataType.COMMENTS );
 	}
 
 	private void setPostID( String postID ) {
@@ -126,7 +126,7 @@ public class Post implements GooglePlusCallbackIfc {
 	}
 
 	public void forceGooglePlusRefresh() {
-		forceGooglePlusRefresh  = true;
+		forceGooglePlusRefresh = true;
 	}
 
 	public void show( ViewPostIfc view ) {
@@ -138,6 +138,31 @@ public class Post implements GooglePlusCallbackIfc {
 		forceGooglePlusRefresh = false;
 	}
 	
+	public void showComments( ViewPostIfc view ) {
+		this.view = view;
+		waitingForComments = true;
+		googlePlus.getComments( this, postID );
+	}
+
+	@Override
+	public void commentResults( List<PostComment> comments ) {
+		view.setComments( comments );
+		waitingForComments = false;
+		updateViewActivity();
+	}
+	
+	private void updateViewActivity() {
+		if( waitingForPostInfo == false && waitingForComments == false )
+			view.activityStopped();
+	}
+
+	@Override
+	public void commentsError( String errorText ) {
+		waitingForComments = false;
+		view.showError( errorText );
+		updateViewActivity();
+	}
+
 	private void startViewUpdate( ViewPostIfc view ) {
 		this.view = view;
 		view.activityStarted();
@@ -152,12 +177,13 @@ public class Post implements GooglePlusCallbackIfc {
 	}
 
 	private void refreshFromGooglePlus() {
+		waitingForPostInfo = true;
 		googlePlus.getPostInformation( this, new GooglePlusQuery( postID, authorID, url ), requestID++ );
 	}
 
 	private void finishViewUpdate() {
 		updateViewWithCurrentData();
-		view.activityStopped();
+		updateViewActivity();
 		if( onNextUpdateViewSaveLastViewedTime  )
 			saveLastViewedTime();
 	}
@@ -167,13 +193,13 @@ public class Post implements GooglePlusCallbackIfc {
 		view.setAuthor( authorName );
 		view.setAuthorImage( authorImage );
 		view.setHTMLContent( content );
-		view.setComments( comments );
 		view.setStatus( status() );
 		view.setSummaryText( summaryText );
 	}
 
 	@Override
 	public void postInformationResults( Map<DataType, String> postInfo, int requestID ) {
+		waitingForPostInfo = false;
 		parsePostInfo( postInfo );
 		finishViewUpdate();
 	}
@@ -186,8 +212,9 @@ public class Post implements GooglePlusCallbackIfc {
 
 	@Override
 	public void postInformationError( String errorText, int requestID ) {
+		waitingForPostInfo = false;
 		view.showError( errorText );
-		view.activityStopped();
+		updateViewActivity();
 	}
 
 	private boolean isPostModifiedSinceLastView() {
