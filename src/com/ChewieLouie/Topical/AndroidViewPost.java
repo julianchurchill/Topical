@@ -49,8 +49,13 @@ public class AndroidViewPost implements ViewPostIfc {
 
 	@Override
 	public void setComments(List<PostComment> comments) {
-		commentTextView.setText( comments.get(0).author + " " + comments.get(0).updatedTime + 
-				" " + comments.get(0).content );
+		String commentText = "";
+		for( PostComment comment : comments )
+			commentText += ">> " + comment.author + " " + comment.updatedTime + " " + comment.content + "\n";
+		if( commentText.isEmpty() )
+			commentTextView.setText( "No comments" );
+		else
+			commentTextView.setText( Html.fromHtml( commentText ) );
 	}
 
 	@Override
