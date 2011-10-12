@@ -181,9 +181,10 @@ public class GooglePlus implements GooglePlusIfc {
 		}
 
 		private void addToPostComments(List<Comment> comments) {
-			for( Comment comment : comments )
-				postComments.add( new PostComment( comment.getActor().getDisplayName(), 
-						comment.getUpdated(), comment.getPlusObject().getContent() ) );
+			if( comments != null )
+				for( Comment comment : comments )
+					postComments.add( new PostComment( comment.getActor().getDisplayName(), 
+							comment.getUpdated(), comment.getPlusObject().getContent() ) );
 		}
 
 		@Override
