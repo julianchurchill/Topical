@@ -32,11 +32,10 @@
     	android:layout_width="match_parent" 
    	    android:layout_height="wrap_content" 
   	    android:textSize="14sp"/>
-	<TextView android:id="@+id/comments"
-        android:background="#c4c4c4"
-        android:textColor="#343434"
-    	android:layout_width="match_parent" 
-   	    android:layout_height="wrap_content" 
-  	    android:textSize="14sp"/>
+	<LinearLayout android:id="@+id/commentsLayout"
+	    android:orientation="vertical"
+	    android:layout_width="match_parent"
+	    android:layout_height="match_parent">
+	</LinearLayout>
 </LinearLayout>
 </ScrollView>

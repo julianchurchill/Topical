@@ -71,9 +71,12 @@ public class Post implements GooglePlusCallbackIfc {
 			currentModificationTime = DateTime.parseRfc3339( postInfo.get( DataType.MODIFICATION_TIME ) );
 		if( postInfo.get( DataType.AUTHOR_ID ) != null )
 			authorID = postInfo.get( DataType.AUTHOR_ID );
-		authorName = postInfo.get( DataType.AUTHOR_NAME );
-		authorImage = postInfo.get( DataType.AUTHOR_IMAGE );
-		content = postInfo.get( DataType.POST_CONTENT );
+		if( postInfo.get( DataType.AUTHOR_NAME ) != null )
+			authorName = postInfo.get( DataType.AUTHOR_NAME );
+		if( postInfo.get( DataType.AUTHOR_IMAGE ) != null )
+			authorImage = postInfo.get( DataType.AUTHOR_IMAGE );
+		if( postInfo.get( DataType.POST_CONTENT ) != null )
+			content = postInfo.get( DataType.POST_CONTENT );
 	}
 
 	private void setPostID( String postID ) {

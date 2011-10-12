@@ -6,14 +6,18 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
 
-import com.ChewieLouie.Topical.Post.Status;
-
 import android.app.Activity;
+import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.text.Html;
+import android.view.LayoutInflater;
+import android.view.View;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.ChewieLouie.Topical.Post.Status;
 
 public class AndroidViewPost implements ViewPostIfc {
 
@@ -21,15 +25,15 @@ public class AndroidViewPost implements ViewPostIfc {
 	private TextView authorTextView = null;
 	private ImageView authorImageView = null;
 	private TextView textTextView = null;
-	private TextView commentTextView = null;
+	private LayoutInflater layoutInflater = null;
 
 	public AndroidViewPost( Activity activity, TextView authorTextView, ImageView authorImageView,
-			TextView textTextView, TextView commentTextView ) {
+			TextView textTextView ) {
 		this.activity = activity;
 		this.authorTextView = authorTextView;
 		this.authorImageView = authorImageView;
 		this.textTextView = textTextView;
-		this.commentTextView = commentTextView;
+		layoutInflater = (LayoutInflater)activity.getSystemService( Context.LAYOUT_INFLATER_SERVICE );
 	}
 	
 	@Override
@@ -48,14 +52,23 @@ public class AndroidViewPost implements ViewPostIfc {
 	}
 
 	@Override
-	public void setComments(List<PostComment> comments) {
-		String commentText = "";
+	public void setComments( List<PostComment> comments ) {
+		LinearLayout commentsLayout = (LinearLayout)activity.findViewById( R.id.commentsLayout );
 		for( PostComment comment : comments )
-			commentText += ">> " + comment.author + " " + comment.updatedTime + " " + comment.content + "\n";
-		if( commentText.isEmpty() )
-			commentTextView.setText( "No comments" );
-		else
-			commentTextView.setText( Html.fromHtml( commentText ) );
+			commentsLayout.addView( createCommentView( createCommentText( comment ) ) );
+		if( comments.isEmpty() )
+			commentsLayout.addView( createCommentView( "No comments" ) );
+	}
+	
+	private String createCommentText( PostComment comment ) {
+		return ">> " + comment.author + " " + comment.updatedTime + " " + comment.content + "\n";
+	}
+	
+	private View createCommentView( String content ) {
+		View v = layoutInflater.inflate( R.layout.comment_item, null );
+		TextView textView = (TextView)v.findViewById( R.id.comments_text );
+		textView.setText( Html.fromHtml( content ) );
+		return v;
 	}
 
 	@Override

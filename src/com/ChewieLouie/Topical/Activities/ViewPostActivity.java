@@ -20,7 +20,6 @@ public class ViewPostActivity extends Activity {
 	private TextView authorTextView = null;
 	private ImageView authorImageView = null;
 	private TextView textTextView = null;
-	private TextView commentTextView = null;
 	private Post post = null;
 	private AndroidViewPost androidViewPost = null;
 	
@@ -30,14 +29,13 @@ public class ViewPostActivity extends Activity {
         requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
         setContentView( R.layout.view_post );
         findViews();
-		androidViewPost = new AndroidViewPost( this, authorTextView, authorImageView, textTextView, commentTextView );
+		androidViewPost = new AndroidViewPost( this, authorTextView, authorImageView, textTextView );
     }
 
 	private void findViews() {
 		authorImageView = (ImageView)findViewById( R.id.authorImage );
 		authorTextView = (TextView)findViewById( R.id.author );
 		textTextView = (TextView)findViewById( R.id.text );
-		commentTextView = (TextView)findViewById( R.id.comments );
 	}
 
     @Override
