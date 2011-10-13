@@ -13,20 +13,23 @@ import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Toast;
 
 import com.ChewieLouie.Topical.AndroidPreferenceStorage;
-import com.ChewieLouie.Topical.PostComment;
+import com.ChewieLouie.Topical.FollowedPostsStatusView;
 import com.ChewieLouie.Topical.GooglePlus;
 import com.ChewieLouie.Topical.GooglePlusCallbackIfc;
 import com.ChewieLouie.Topical.GooglePlusIfc.DataType;
 import com.ChewieLouie.Topical.PersistentStorageIfc;
 import com.ChewieLouie.Topical.Post;
+import com.ChewieLouie.Topical.PostComment;
 import com.ChewieLouie.Topical.R;
 import com.ChewieLouie.Topical.TopicWatcher;
 import com.ChewieLouie.Topical.TopicalConstants;
+import com.ChewieLouie.Topical.ViewPostIfc;
 
 public class TopicalActivity extends Activity implements GooglePlusCallbackIfc {
 
@@ -36,6 +39,8 @@ public class TopicalActivity extends Activity implements GooglePlusCallbackIfc {
 	private EditText searchEditText = null;	
 	private PersistentStorageIfc storage = null;
 	private String topic = null;
+	private List<Post> followedPosts = new ArrayList<Post>();
+	private ViewPostIfc followedPostsView = null;
 
 	public TopicalActivity() {
 		super();
@@ -50,6 +55,21 @@ public class TopicalActivity extends Activity implements GooglePlusCallbackIfc {
         setContentView( R.layout.main );
         addTopicItemClickNotifier();
     	searchEditText = (EditText)findViewById( R.id.SearchText );
+    	followedPostsView = new FollowedPostsStatusView( (Button)findViewById( R.id.ShowFollowedPostsButton ) );
+    	followedPosts = findFollowedPosts();
+    	updateFollowedPostsStatus();
+	}
+
+	private List<Post> findFollowedPosts() {
+    	List<Post> posts = new ArrayList<Post>();
+    	for( String url : storage.getAllPostURLsWhereFollowingIsTrue() )
+    		posts.add( createPostWithURL( url ) );
+    	return posts;
+    }
+
+	private void updateFollowedPostsStatus() {
+    	for( Post post : followedPosts )
+    		post.show( followedPostsView  );
     }
 
     @Override
@@ -59,14 +79,21 @@ public class TopicalActivity extends Activity implements GooglePlusCallbackIfc {
     }
 
 	public void showFollowedPosts( View view ) {
-    	currentPosts = new ArrayList<Post>();
-    	for( String url : storage.getAllPostURLsWhereFollowingIsTrue() )
-    		currentPosts.add( createPostWithURL( url ) );
-    	Intent intent = new Intent().setClass( getApplicationContext(), TopicListActivity.class );
-    	intent.putExtra( TopicalConstants.IntentExtraKey_TopicListTopic, "Followed Posts" );
-    	startActivity( intent );
+    	currentPosts = findFollowedPosts();
+    	startTopicListActivityWithTitle( "Followed Posts" );
 	}
 
+	private void startTopicListActivityWithTitle( String title ) {
+		cancelFollowedPostsViewUpdate();
+		Intent intent = new Intent().setClass( getApplicationContext(), TopicListActivity.class );
+		intent.putExtra( TopicalConstants.IntentExtraKey_TopicListTopic, "Followed Posts" );
+		startActivity( intent );
+	}
+
+	private void cancelFollowedPostsViewUpdate() {
+    	for( Post post : followedPosts )
+    		post.viewIsNoLongerUsable();
+    }
 	private Post createPostWithURL( String url ) {
 		Map<DataType,String> postInfo = new HashMap<DataType, String>();
 		postInfo.put( DataType.URL, url );
@@ -85,9 +112,7 @@ public class TopicalActivity extends Activity implements GooglePlusCallbackIfc {
 
     private void showTopicList( String topic, List<Post> posts ) {
     	currentPosts = posts;
-    	Intent intent = new Intent().setClass( getApplicationContext(), TopicListActivity.class );
-    	intent.putExtra( TopicalConstants.IntentExtraKey_TopicListTopic, topic );
-    	startActivity( intent );
+    	startTopicListActivityWithTitle( topic );
     }
     
     private void populateTopicList() {
