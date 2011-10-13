@@ -8,6 +8,8 @@ import java.util.Map;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
 import android.widget.AdapterView;
@@ -35,6 +37,8 @@ public class TopicalActivity extends Activity implements GooglePlusCallbackIfc {
 
 	public static List<Post> currentPosts = null;
 	public static TopicWatcher topicWatcher = null;
+	
+	private static final int EXIT_MENU_ITEM = 0;
 
 	private EditText searchEditText = null;	
 	private PersistentStorageIfc storage = null;
@@ -76,6 +80,30 @@ public class TopicalActivity extends Activity implements GooglePlusCallbackIfc {
 	protected void onResume() {
 		super.onResume();
         populateTopicList();
+    }
+
+    @Override
+    public boolean onPrepareOptionsMenu( Menu menu )
+    {
+    	menu.clear();
+		menu.add( Menu.NONE, EXIT_MENU_ITEM, Menu.NONE, getText( R.string.exit ) );
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected( MenuItem item )
+    {
+    	boolean retVal = true;
+        switch( item.getItemId() )
+        {
+        	case EXIT_MENU_ITEM:
+        		finish();
+        		break;
+	        default:
+	            retVal = super.onOptionsItemSelected( item );
+	            break;
+        }
+        return retVal;
     }
 
 	public void showFollowedPosts( View view ) {
