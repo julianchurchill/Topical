@@ -6,6 +6,8 @@ import java.util.Map;
 
 import com.ChewieLouie.Topical.GooglePlusIfc.DataType;
 import com.ChewieLouie.Topical.PersistentStorageIfc.ValueType;
+import com.ChewieLouie.Topical.View.NullViewPost;
+import com.ChewieLouie.Topical.View.ViewPostIfc;
 import com.google.api.client.util.DateTime;
 
 public class Post implements GooglePlusCallbackIfc {
@@ -237,10 +239,6 @@ public class Post implements GooglePlusCallbackIfc {
 			return Post.Status.FOLLOWING_AND_NOT_CHANGED;
 		}
 		return Post.Status.NEW;
-	}
-
-	@Override
-	public void searchResults( List<Map<DataType, String>> results ) {
 	}
 
 	public void viewIsNoLongerUsable() {

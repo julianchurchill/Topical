@@ -198,19 +198,19 @@ public class GooglePlus implements GooglePlusIfc {
 	}
 
 	@Override
-	public void search( String searchText, GooglePlusCallbackIfc callbackObj ) {
+	public void search( String searchText, GooglePlusSearchCallbackIfc callbackObj ) {
 		new SearchTask( callbackObj, searchText ).execute();
 	}
 
 	private class SearchTask extends AsyncTask<Void, Void, Void> {
-    	private GooglePlusCallbackIfc callbackObj = null;
+    	private GooglePlusSearchCallbackIfc callbackObj = null;
     	private String searchText;
 		private List< Map<DataType,String> > results = new ArrayList< Map<DataType,String> >();
 		private Plus.Activities.Search request = null;
    		private ActivityFeed feed = null;
 		private final int maxResults = 20;
 
-    	public SearchTask( GooglePlusCallbackIfc callbackObj, String searchText ) {
+    	public SearchTask( GooglePlusSearchCallbackIfc callbackObj, String searchText ) {
     		this.callbackObj = callbackObj;
     		this.searchText = searchText;
     	}

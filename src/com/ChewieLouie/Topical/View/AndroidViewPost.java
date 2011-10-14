@@ -1,4 +1,4 @@
-package com.ChewieLouie.Topical;
+package com.ChewieLouie.Topical.View;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -18,6 +18,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.ChewieLouie.Topical.Post.Status;
+import com.ChewieLouie.Topical.PostComment;
+import com.ChewieLouie.Topical.R;
 
 public class AndroidViewPost implements ViewPostIfc {
 

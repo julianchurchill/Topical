@@ -10,5 +10,4 @@ public interface GooglePlusCallbackIfc {
 	public abstract void postInformationError( String errorText, int requestID );
 	public abstract void commentResults(List<PostComment> comments);
 	public abstract void commentsError(String errorText);
-	public abstract void searchResults(List<Map<DataType, String>> results);
 }

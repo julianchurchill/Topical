@@ -14,26 +14,26 @@ import android.view.View;
 import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Toast;
 
 import com.ChewieLouie.Topical.AndroidPreferenceStorage;
-import com.ChewieLouie.Topical.FollowedPostsStatusView;
 import com.ChewieLouie.Topical.GooglePlus;
-import com.ChewieLouie.Topical.GooglePlusCallbackIfc;
 import com.ChewieLouie.Topical.GooglePlusIfc.DataType;
+import com.ChewieLouie.Topical.GooglePlusSearchCallbackIfc;
 import com.ChewieLouie.Topical.PersistentStorageIfc;
 import com.ChewieLouie.Topical.Post;
-import com.ChewieLouie.Topical.PostComment;
 import com.ChewieLouie.Topical.R;
 import com.ChewieLouie.Topical.TopicWatcher;
 import com.ChewieLouie.Topical.TopicalConstants;
-import com.ChewieLouie.Topical.ViewPostIfc;
+import com.ChewieLouie.Topical.View.FollowedPostsStatusView;
+import com.ChewieLouie.Topical.View.ViewPostIfc;
+import com.ChewieLouie.Topical.View.ViewTopicListIfc;
+import com.ChewieLouie.Topical.View.WatchedTopicsListView;
 
-public class TopicalActivity extends Activity implements GooglePlusCallbackIfc {
+public class TopicalActivity extends Activity implements GooglePlusSearchCallbackIfc {
 
 	public static List<Post> currentPosts = null;
 	public static TopicWatcher topicWatcher = null;
@@ -45,6 +45,7 @@ public class TopicalActivity extends Activity implements GooglePlusCallbackIfc {
 	private String topic = null;
 	private List<Post> followedPosts = new ArrayList<Post>();
 	private ViewPostIfc followedPostsView = null;
+	private ViewTopicListIfc watchedTopicsStatusView = null;
 
 	public TopicalActivity() {
 		super();
@@ -62,6 +63,8 @@ public class TopicalActivity extends Activity implements GooglePlusCallbackIfc {
     	followedPostsView = new FollowedPostsStatusView( (Button)findViewById( R.id.ShowFollowedPostsButton ) );
     	followedPosts = findFollowedPosts();
     	updateFollowedPostsStatus();
+    	watchedTopicsStatusView = new WatchedTopicsListView( this, (ListView)findViewById( R.id.topicList ) );
+    	topicWatcher.updateStatuses();
 	}
 
 	private List<Post> findFollowedPosts() {
@@ -79,7 +82,7 @@ public class TopicalActivity extends Activity implements GooglePlusCallbackIfc {
     @Override
 	protected void onResume() {
 		super.onResume();
-        populateTopicList();
+    	topicWatcher.populateTopicList( watchedTopicsStatusView  );
     }
 
     @Override
@@ -114,10 +117,10 @@ public class TopicalActivity extends Activity implements GooglePlusCallbackIfc {
 	private void startTopicListActivityWithTitle( String title ) {
 		cancelFollowedPostsViewUpdate();
 		Intent intent = new Intent().setClass( getApplicationContext(), TopicListActivity.class );
-		intent.putExtra( TopicalConstants.IntentExtraKey_TopicListTopic, "Followed Posts" );
+		intent.putExtra( TopicalConstants.IntentExtraKey_TopicListTopic, title );
 		startActivity( intent );
 	}
-
+	
 	private void cancelFollowedPostsViewUpdate() {
     	for( Post post : followedPosts )
     		post.viewIsNoLongerUsable();
@@ -142,40 +145,14 @@ public class TopicalActivity extends Activity implements GooglePlusCallbackIfc {
     	currentPosts = posts;
     	startTopicListActivityWithTitle( topic );
     }
-    
-    private void populateTopicList() {
-    	ListView conversationList = (ListView)findViewById( R.id.topicList );
-    	conversationList.setAdapter( new ArrayAdapter<String>( this, R.layout.topic_list_item, 
-        		R.id.topic_list_item_text, watchedTopics() ) );
-    }
-    
-    private String[] watchedTopics() {
-    	return topicWatcher.watchedTopics().toArray( new String[0] );
-    }
 
     private void addTopicItemClickNotifier() {
 	    ListView lv = (ListView)findViewById( R.id.topicList );
 	    lv.setOnItemClickListener( new OnItemClickListener() {
 			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-				searchForTopic( watchedTopics()[position] );
+				searchForTopic( topicWatcher.topicAtPosition( position ) );
 			}
 		});
-	}
-
-	@Override
-	public void postInformationResults(Map<DataType, String> postInfo, int requestID) {
-	}
-
-	@Override
-	public void postInformationError(String errorText, int requestID) {
-	}
-
-	@Override
-	public void commentResults(List<PostComment> comments) {
-	}
-
-	@Override
-	public void commentsError(String errorText) {
 	}
 
 	@Override

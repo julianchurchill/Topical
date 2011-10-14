@@ -1,8 +1,9 @@
-package com.ChewieLouie.Topical;
+package com.ChewieLouie.Topical.View;
 
 import java.util.List;
 
 import com.ChewieLouie.Topical.Post.Status;
+import com.ChewieLouie.Topical.PostComment;
 
 public class NullViewPost implements ViewPostIfc {
 

@@ -8,10 +8,10 @@ import android.view.Window;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.ChewieLouie.Topical.AndroidViewPost;
 import com.ChewieLouie.Topical.Post;
 import com.ChewieLouie.Topical.R;
 import com.ChewieLouie.Topical.TopicalConstants;
+import com.ChewieLouie.Topical.View.AndroidViewPost;
 
 public class ViewPostActivity extends Activity {
 

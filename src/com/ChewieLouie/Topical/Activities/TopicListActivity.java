@@ -19,7 +19,6 @@ public class TopicListActivity extends ListActivity {
 	private static final int UNWATCH_MENU_ITEM = 1;
 
 	private TextView title = null;
-	private boolean isWatched = false;
 	private String topic = "";
 
 	@Override
@@ -34,14 +33,13 @@ public class TopicListActivity extends ListActivity {
 		super.onResume();
         addTopicToTitle();
 		addTopicListContents();
-		isWatched = TopicalActivity.topicWatcher.isWatched( topic );
     }
 
     @Override
     public boolean onPrepareOptionsMenu( Menu menu )
     {
     	menu.clear();
-    	if( isWatched )
+    	if( TopicalActivity.topicWatcher.isWatched( topic ) )
     		menu.add( Menu.NONE, UNWATCH_MENU_ITEM, Menu.NONE, getText( R.string.unwatch ) );
     	else
     		menu.add( Menu.NONE, WATCH_MENU_ITEM, Menu.NONE, getText( R.string.watch ) );
@@ -55,11 +53,9 @@ public class TopicListActivity extends ListActivity {
         switch( item.getItemId() )
         {
         	case WATCH_MENU_ITEM:
-            	isWatched = true;
             	TopicalActivity.topicWatcher.watch( topic );
         		break;
 	        case UNWATCH_MENU_ITEM:
-            	isWatched = false;
             	TopicalActivity.topicWatcher.unwatch( topic );
 	            break;
 	        default:

@@ -1,4 +1,4 @@
-package com.ChewieLouie.Topical;
+package com.ChewieLouie.Topical.View;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -8,6 +8,8 @@ import java.util.Map;
 import android.graphics.Color;
 import android.widget.TextView;
 
+import com.ChewieLouie.Topical.Post;
+import com.ChewieLouie.Topical.PostComment;
 import com.ChewieLouie.Topical.Post.Status;
 
 public class AndroidSummaryViewPost implements ViewPostIfc {

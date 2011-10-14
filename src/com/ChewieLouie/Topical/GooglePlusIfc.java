@@ -8,6 +8,6 @@ public interface GooglePlusIfc {
 	public abstract void getPostInformation( GooglePlusCallbackIfc callbackObj,
 			GooglePlusQuery query, int requestID );
 	public abstract void getComments( GooglePlusCallbackIfc callbackObj, String postID );
-	public abstract void search( String searchText, GooglePlusCallbackIfc callbackObj );
+	public abstract void search( String searchText, GooglePlusSearchCallbackIfc callbackObj );
 
 }

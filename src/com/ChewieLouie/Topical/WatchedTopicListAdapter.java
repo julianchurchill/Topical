@@ -4,8 +4,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.ChewieLouie.Topical.View.AndroidSummaryViewPost;
-
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,14 +11,18 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
-public class TopicListAdapter extends ArrayAdapter<Post> {
+import com.ChewieLouie.Topical.View.WatchedTopicView;
 
-    private List<Post> items = null;
+public class WatchedTopicListAdapter extends ArrayAdapter<Topic> {
+
+    private static final int layoutResource = R.layout.topic_list_item;
+
+    private List<Topic> items = null;
     private Context myContext = null;
-    private Map<View, Post> viewsBeingUpdated = new HashMap<View, Post>();
+    private Map<View, Topic> viewsBeingUpdated = new HashMap<View, Topic>();
 
-    public TopicListAdapter(Context context, int textViewResourceId, List<Post> items) {
-    	super(context, textViewResourceId, items);
+    public WatchedTopicListAdapter(Context context, List<Topic> items) {
+    	super(context, layoutResource, items);
     	this.items = items;
     	this.myContext = context;
     }
@@ -30,16 +32,15 @@ public class TopicListAdapter extends ArrayAdapter<Post> {
     	View v = convertView;
     	if( v == null ) {
     		LayoutInflater vi = (LayoutInflater)myContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-    		v = vi.inflate(R.layout.topic_list_item, null);
+    		v = vi.inflate(layoutResource, null);
     	}
-    	Post p = items.get(position);
-    	if( p != null ) {
+    	Topic topic = items.get(position);
+    	if( topic != null ) {
     		if( viewsBeingUpdated.containsKey( v ) )
     			viewsBeingUpdated.get( v ).viewIsNoLongerUsable();
-    		viewsBeingUpdated.put( v, p );
-    		TextView titleTextView = (TextView) v.findViewById( R.id.topic_list_item_title );
+    		viewsBeingUpdated.put( v, topic );
     		TextView textView = (TextView) v.findViewById( R.id.topic_list_item_text );
-    		p.show( new AndroidSummaryViewPost( titleTextView, textView ) );
+    		topic.show( new WatchedTopicView( textView ) );
         }
         return v;
     }

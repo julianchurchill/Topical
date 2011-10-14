@@ -4,7 +4,7 @@ import java.util.List;
 
 import com.ChewieLouie.Topical.PostComment;
 import com.ChewieLouie.Topical.Post.Status;
-import com.ChewieLouie.Topical.ViewPostIfc;
+import com.ChewieLouie.Topical.View.ViewPostIfc;
 
 public class MockViewPost implements ViewPostIfc {
 
