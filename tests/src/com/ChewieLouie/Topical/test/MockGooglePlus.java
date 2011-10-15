@@ -21,6 +21,9 @@ public class MockGooglePlus implements GooglePlusIfc {
 	public boolean getCommentsCalled = false;
 	public GooglePlusCallbackIfc getCommentsArgsCallbackObj = null;
 	public String getCommentsArgsPostID = null;
+	public boolean searchCalled = false;
+	public String searchArgSearchText = "";
+	public GooglePlusSearchCallbackIfc searchArgCallbackObj = null;
 
 	@Override
 	public void getPostInformation( GooglePlusCallbackIfc callbackObj, GooglePlusQuery query, int requestID ) {
@@ -40,5 +43,8 @@ public class MockGooglePlus implements GooglePlusIfc {
 
 	@Override
 	public void search( String searchText, GooglePlusSearchCallbackIfc callbackObj ) {
+		searchCalled = true;
+		searchArgSearchText = searchText;
+		searchArgCallbackObj = callbackObj;
 	}
 }

@@ -13,9 +13,11 @@ public class Topic implements GooglePlusSearchCallbackIfc {
 	
 	private ViewWatchedTopicIfc view = new NullViewWatchedTopic();
 	private String topicName = "";
+	private GooglePlusIfc googlePlus = null;
 
-	public Topic( String topicName ) {
+	public Topic( String topicName, GooglePlusIfc googlePlus ) {
 		this.topicName = topicName;
+		this.googlePlus = googlePlus;
 	}
 
 	public void viewIsNoLongerUsable() {
@@ -41,7 +43,7 @@ public class Topic implements GooglePlusSearchCallbackIfc {
 
 	public void updateStatus() {
 		view.activityStarted();
-   		GooglePlus.Make().search( topicName, this );
+   		googlePlus.search( topicName, this );
 	}
 
 	@Override

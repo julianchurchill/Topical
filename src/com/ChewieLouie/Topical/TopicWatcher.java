@@ -13,9 +13,11 @@ public class TopicWatcher {
 	
 	private PersistentStorageIfc storage = null;
 	private Map<String, Topic> watchedTopics = new HashMap<String, Topic>();
+	private GooglePlusIfc googlePlus = null;
 
-	public TopicWatcher( PersistentStorageIfc storage ) {
+	public TopicWatcher( PersistentStorageIfc storage, GooglePlusIfc googlePlus ) {
 		this.storage = storage;
+		this.googlePlus = googlePlus;
 		populateWatchedTopicsSet();
 	}
 
@@ -23,11 +25,11 @@ public class TopicWatcher {
 		List<String> topicStrings = StringUtils.split( 
 				storage.loadValueByKeyAndType( "", ValueType.WATCHED_TOPICS ), seperator );
 		for( String topic : topicStrings )
-			watchedTopics.put( topic, new Topic( topic ) );
+			watchedTopics.put( topic, new Topic( topic, googlePlus ) );
 	}
 
 	public void watch( String topic ) {
-		watchedTopics.put( topic, new Topic( topic ) );
+		watchedTopics.put( topic, new Topic( topic, googlePlus ) );
 		storage.saveValueByKeyAndType( watchedTopicsAsString(), "", ValueType.WATCHED_TOPICS );
 	}
 
