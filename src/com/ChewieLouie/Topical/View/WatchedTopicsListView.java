@@ -1,7 +1,7 @@
 package com.ChewieLouie.Topical.View;
 
 import java.util.ArrayList;
-import java.util.Set;
+import java.util.Collection;
 
 import android.app.Activity;
 import android.content.Context;
@@ -21,7 +21,7 @@ public class WatchedTopicsListView implements ViewTopicListIfc {
 	}
 
 	@Override
-	public void populateTopicList( Set<Topic> topics ) {
+	public void populateTopicList( Collection<Topic> topics ) {
     	topicList.setAdapter( new WatchedTopicListAdapter( (Context)activity, new ArrayList<Topic>( topics ) ) );
 	}
 }

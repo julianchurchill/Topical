@@ -37,15 +37,14 @@ public class TopicWatcherTests extends AndroidTestCase {
 	}
 
 	public void testTopicWatchedTopicsReturnsListOfTopicsAsLoadedFromStorage() {
-		assertEquals( expectedTopics.size(), topicWatcher.watchedTopics().size() );
-		for( String topic : topicWatcher.watchedTopics() )
-			assertTrue( expectedTopics.contains( topic ) );
+		for( String topic : expectedTopics )
+			assertTrue( topicWatcher.isWatched( topic ) );
 	}
 	
 	public void testCallingWatchCausesTopicToBeAddedToWatchedTopicsList() {
 		topicWatcher.watch( "newTopic" );
 
-		assertTrue( topicWatcher.watchedTopics().contains( "newTopic" ) );
+		assertTrue( topicWatcher.isWatched( "newTopic" ) );
 	}
 
 	public void testCallingWatchCausesSaveToStorage() {
@@ -60,36 +59,37 @@ public class TopicWatcherTests extends AndroidTestCase {
 		assertTrue( mockStorage.saveArgsType.contains( ValueType.WATCHED_TOPICS ) );
 	}
 
-	public void testCallingWatchCausesTopicListToBeSavedToStorage() {
+	public void testCallingWatchCausesTopicListToBeSavedToStorageIncludingWatchedTopic() {
 		topicWatcher.watch( "newTopic" );
 
-		String expectedString = StringUtils.join( ",", topicWatcher.watchedTopics().toArray( new String[0] ) );
-		assertTrue( mockStorage.saveArgsValue.contains( expectedString ) );
+		boolean topicSavedToStorage = false;
+		for( String saveValue : mockStorage.saveArgsValue )
+			topicSavedToStorage = saveValue.contains( "newTopic" );
+		assertTrue( topicSavedToStorage );
 	}
 
-	public void testCallingUnwatchCausesRemovalFoTopicFromWatchedTopicsList() {
+	public void testCallingUnwatchOnWatchedTopicCausesRemovalOfTopicFromWatchedTopicsList() {
 		topicWatcher.unwatch( "topic1" );
 
-		assertFalse( topicWatcher.watchedTopics().contains( "topic1" ) );
+		assertFalse( topicWatcher.isWatched( "topic1" ) );
 	}
 
-	public void testCallingUnwatchCausesSaveToStorage() {
+	public void testCallingUnwatchOnWatchedTopicCausesSaveToStorage() {
 		topicWatcher.unwatch( "topic1" );
 
 		assertTrue( mockStorage.saveCalled );
 	}
 
-	public void testCallingUnwatchCausesTopicListToBeSavedAsWatchedTopicsType() {
+	public void testCallingUnwatchOnWatchedTopicCausesTopicListToBeSavedAsWatchedTopicsType() {
 		topicWatcher.unwatch( "topic1" );
 
 		assertTrue( mockStorage.saveArgsType.contains( ValueType.WATCHED_TOPICS ) );
 	}
 
-	public void testCallingUnwatchCausesTopicListToBeSavedToStorage() {
+	public void testCallingUnwatchOnWatchedTopicCausesTopicListToBeSavedToStorageWithoutUnwatchedTopic() {
 		topicWatcher.unwatch( "topic1" );
 
-		String expectedString = StringUtils.join( ",", topicWatcher.watchedTopics().toArray( new String[0] ) );
-		assertTrue( mockStorage.saveArgsValue.contains( expectedString ) );
+		assertFalse( mockStorage.saveArgsValue.contains( "topic1" ) );
 	}
 
 	public void testCallingUnwatchForNotWatchedTopicDoesNotCauseSaveToStorage() {
