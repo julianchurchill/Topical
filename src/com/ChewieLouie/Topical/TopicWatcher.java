@@ -25,11 +25,11 @@ public class TopicWatcher {
 		List<String> topicStrings = StringUtils.split( 
 				storage.loadValueByKeyAndType( "", ValueType.WATCHED_TOPICS ), seperator );
 		for( String topic : topicStrings )
-			watchedTopics.put( topic, new Topic( topic, googlePlus ) );
+			watchedTopics.put( topic, new Topic( topic, googlePlus, storage ) );
 	}
 
 	public void watch( String topic ) {
-		watchedTopics.put( topic, new Topic( topic, googlePlus ) );
+		watchedTopics.put( topic, new Topic( topic, googlePlus, storage ) );
 		storage.saveValueByKeyAndType( watchedTopicsAsString(), "", ValueType.WATCHED_TOPICS );
 	}
 

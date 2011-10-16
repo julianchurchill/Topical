@@ -6,6 +6,8 @@ import android.widget.TextView;
 public class WatchedTopicView implements ViewWatchedTopicIfc {
 
 	private TextView textView = null;
+	private int resultColour = Color.BLACK;
+	private boolean activityStarted = false;
 
 	public WatchedTopicView(TextView textView) {
 		this.textView = textView;
@@ -18,20 +20,28 @@ public class WatchedTopicView implements ViewWatchedTopicIfc {
 
 	@Override
 	public void setTopicResultsHaveChanged() {
-		textView.setBackgroundColor( Color.MAGENTA );
+		if( activityStarted )
+			resultColour = Color.MAGENTA;
+		if( activityStarted == false )
+			textView.setBackgroundColor( resultColour );
 	}
 
 	@Override
 	public void setTopicResultsHaveNotChanged() {
-		textView.setBackgroundColor( Color.GREEN );
+		resultColour = Color.GREEN;
+		if( activityStarted == false )
+			textView.setBackgroundColor( resultColour );
 	}
 
 	@Override
 	public void activityStarted() {
+		activityStarted = true;
 		textView.setBackgroundColor( Color.BLACK );
 	}
 
 	@Override
 	public void activityStopped() {
+		textView.setBackgroundColor( resultColour );
+		activityStarted = false;
 	}
 }

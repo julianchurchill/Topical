@@ -64,7 +64,6 @@ public class TopicalActivity extends Activity implements GooglePlusSearchCallbac
     	followedPosts = findFollowedPosts();
     	updateFollowedPostsStatus();
     	watchedTopicsStatusView = new WatchedTopicsListView( this, (ListView)findViewById( R.id.topicList ) );
-    	topicWatcher.updateStatuses();
 	}
 
 	private List<Post> findFollowedPosts() {
@@ -83,6 +82,7 @@ public class TopicalActivity extends Activity implements GooglePlusSearchCallbac
 	protected void onResume() {
 		super.onResume();
     	topicWatcher.populateTopicList( watchedTopicsStatusView  );
+    	topicWatcher.updateStatuses();
     }
 
     @Override

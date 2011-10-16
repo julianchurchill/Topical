@@ -1,9 +1,12 @@
 package com.ChewieLouie.Topical;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import com.ChewieLouie.Topical.GooglePlusIfc.DataType;
+import com.ChewieLouie.Topical.PersistentStorageIfc.ValueType;
 import com.ChewieLouie.Topical.View.NullViewWatchedTopic;
 import com.ChewieLouie.Topical.View.ViewWatchedTopicIfc;
 
@@ -14,10 +17,17 @@ public class Topic implements GooglePlusSearchCallbackIfc {
 	private ViewWatchedTopicIfc view = new NullViewWatchedTopic();
 	private String topicName = "";
 	private GooglePlusIfc googlePlus = null;
+	private PersistentStorageIfc storage = null;
+	private Set<String> currentPostIDs = null;
+	private boolean updating = false;
 
-	public Topic( String topicName, GooglePlusIfc googlePlus ) {
+	public Topic( String topicName, GooglePlusIfc googlePlus, PersistentStorageIfc storage ) {
 		this.topicName = topicName;
 		this.googlePlus = googlePlus;
+		this.storage = storage;
+		String postIDsList = storage.loadValueByKeyAndType( topicName, ValueType.POST_ID_LIST );
+		if( postIDsList != null )
+			currentPostIDs = new HashSet<String>( StringUtils.split( postIDsList, "," ) );
 	}
 
 	public void viewIsNoLongerUsable() {
@@ -26,6 +36,8 @@ public class Topic implements GooglePlusSearchCallbackIfc {
 
 	public void show( ViewWatchedTopicIfc view ) {
 		this.view = view;
+		if( updating )
+			view.activityStarted();
 		view.setText( topicName );
 		updateViewWithStatus();
 	}
@@ -42,18 +54,42 @@ public class Topic implements GooglePlusSearchCallbackIfc {
 	}
 
 	public void updateStatus() {
+		updating = true;
 		view.activityStarted();
    		googlePlus.search( topicName, this );
 	}
 
 	@Override
 	public void searchResults( List<Map<DataType, String>> results ) {
-		hasChanged = topicResultsHaveChanged( results );
+		if( results != null )
+			if( haveTopicResultsChanged( results ) )
+				savePostIDs( results );
 		updateViewWithStatus();
 		view.activityStopped();
+		updating = false;
 	}
 
-	private boolean topicResultsHaveChanged( List<Map<DataType, String>> results ) {
-		return true;
+	private void savePostIDs( List<Map<DataType, String>> results ) {
+		currentPostIDs = extractPostIDs( results );
+		storage.saveValueByKeyAndType( createPostIDsString( currentPostIDs ), topicName, ValueType.POST_ID_LIST );
+	}
+
+	private Set<String> extractPostIDs( List<Map<DataType, String>> results ) {
+		Set<String> extractedPostIDs = new HashSet<String>();
+		for( Map<DataType, String> result : results )
+			extractedPostIDs.add( result.get( DataType.POST_ID ) );
+		return extractedPostIDs;
+	}
+
+	private String createPostIDsString( Set<String> postIDsList ) {
+		return StringUtils.join( ",", postIDsList.toArray( new String[0] ) );
+	}
+
+	private boolean haveTopicResultsChanged( List<Map<DataType, String>> results ) {
+		if( extractPostIDs( results ).equals( currentPostIDs ) )
+			hasChanged = false;
+		else
+			hasChanged = true;
+		return hasChanged;
 	}
 }

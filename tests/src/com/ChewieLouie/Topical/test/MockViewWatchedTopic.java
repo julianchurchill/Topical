@@ -6,10 +6,11 @@ public class MockViewWatchedTopic implements ViewWatchedTopicIfc {
 
 	public boolean setTextCalled = false;
 	public String setTextArg = "";
+	public boolean setTopicResultsHaveChangedCalled = false;
 	public boolean setTopicResultsHaveNotChangedCalled = false;
 	public boolean activityStartedCalled = false;
 	public boolean activityStoppedCalled = false;
-	
+
 	@Override
 	public void setText( String text ) {
 		setTextCalled = true;
@@ -18,6 +19,7 @@ public class MockViewWatchedTopic implements ViewWatchedTopicIfc {
 
 	@Override
 	public void setTopicResultsHaveChanged() {
+		setTopicResultsHaveChangedCalled = true;
 	}
 
 	@Override
