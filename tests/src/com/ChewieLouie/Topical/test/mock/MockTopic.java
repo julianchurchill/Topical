@@ -1,4 +1,4 @@
-package com.ChewieLouie.Topical.test;
+package com.ChewieLouie.Topical.test.mock;
 
 import com.ChewieLouie.Topical.TopicIfc;
 import com.ChewieLouie.Topical.View.ViewWatchedTopicIfc;

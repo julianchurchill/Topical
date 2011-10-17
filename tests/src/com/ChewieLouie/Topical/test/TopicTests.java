@@ -9,6 +9,9 @@ import android.test.AndroidTestCase;
 
 import com.ChewieLouie.Topical.GooglePlusIfc.DataType;
 import com.ChewieLouie.Topical.PersistentStorageIfc.ValueType;
+import com.ChewieLouie.Topical.test.mock.MockGooglePlus;
+import com.ChewieLouie.Topical.test.mock.MockPersistentStorage;
+import com.ChewieLouie.Topical.test.mock.MockViewWatchedTopic;
 import com.ChewieLouie.Topical.StringUtils;
 import com.ChewieLouie.Topical.Topic;
 

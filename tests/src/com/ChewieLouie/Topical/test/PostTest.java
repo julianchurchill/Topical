@@ -12,6 +12,9 @@ import com.ChewieLouie.Topical.GooglePlusIfc.DataType;
 import com.ChewieLouie.Topical.PersistentStorageIfc.ValueType;
 import com.ChewieLouie.Topical.Post;
 import com.ChewieLouie.Topical.Post.Status;
+import com.ChewieLouie.Topical.test.mock.MockGooglePlus;
+import com.ChewieLouie.Topical.test.mock.MockPersistentStorage;
+import com.ChewieLouie.Topical.test.mock.MockViewPost;
 
 public class PostTest extends AndroidTestCase {
 	private Post post = null;

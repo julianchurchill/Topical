@@ -1,4 +1,4 @@
-package com.ChewieLouie.Topical.test;
+package com.ChewieLouie.Topical.test.mock;
 
 import java.util.HashMap;
 import java.util.Map;

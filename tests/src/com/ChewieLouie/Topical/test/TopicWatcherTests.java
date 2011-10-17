@@ -5,6 +5,8 @@ import java.util.List;
 import android.test.AndroidTestCase;
 
 import com.ChewieLouie.Topical.PersistentStorageIfc.ValueType;
+import com.ChewieLouie.Topical.test.mock.MockPersistentStorage;
+import com.ChewieLouie.Topical.test.mock.MockTopicFactory;
 import com.ChewieLouie.Topical.StringUtils;
 import com.ChewieLouie.Topical.TopicWatcher;
 
