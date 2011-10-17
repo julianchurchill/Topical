@@ -132,39 +132,57 @@ public class TopicTests extends AndroidTestCase {
 	}
 
 	public void testSearchResultsUnchangedDoesNotSaveToStorage() {
-		topic.show( mockView );
 		topic.searchResults( resultsList );
 
 		assertFalse( mockStorage.saveCalled );
 	}
 
-	public void testSearchResultsChangedSavesToStorage() {
-		topic.show( mockView );
+	public void testDoNotRepeatSearchIfTopicKnowsItHasNewPosts() {
 		topic.searchResults( createNewResults() );
+		mockGooglePlus.searchCalled = false;
+
+		topic.updateStatus();
+
+		assertFalse( mockGooglePlus.searchCalled );
+	}
+
+	public void testSearchResultsChangedDoesNotSaveToStorage() {
+		topic.searchResults( createNewResults() );
+
+		assertFalse( mockStorage.saveCalled );
+	}
+	
+	public void testOnViewedSavesToStorage() {
+		topic.searchResults( createNewResults() );
+		topic.viewed();
 
 		assertTrue( mockStorage.saveCalled );
 	}
 
-	public void testSearchResultsChangedSavesNewPostIDListTypeToStorage() {
-		topic.show( mockView );
+	public void testOnViewedSavesUsingTopicNameAsKeyToStorage() {
 		topic.searchResults( createNewResults() );
 
-		assertTrue( mockStorage.saveArgsType.contains( ValueType.POST_ID_LIST ) );
-	}
-
-	public void testSearchResultsChangedSavesUsingTopicNameAsKeyToStorage() {
-		topic.show( mockView );
-		topic.searchResults( createNewResults() );
+		topic.viewed();
 
 		assertTrue( mockStorage.saveArgsKey.contains( topicName ) );
 	}
 
-	public void testSearchResultsChangedSavesPostIDsToStorage() {
+	public void testOnViewedSavesCurrentPostIDsToStorage() {
 		final List<Map<DataType, String>> newResults = createNewResults();
 		final String postIDsList = createPostIDsList( newResults );
-		topic.show( mockView );
 		topic.searchResults( newResults );
 
+		topic.viewed();
+
 		assertTrue( mockStorage.saveArgsValue.contains( postIDsList ) );
+	}
+	
+	public void testNewGoogleSearchIsRunOnUpdateStatusAfterTopicViewedWithNewResults() {
+		topic.searchResults( createNewResults() );
+		topic.viewed();
+
+		topic.updateStatus();
+		
+		assertTrue( mockGooglePlus.searchCalled );
 	}
 }

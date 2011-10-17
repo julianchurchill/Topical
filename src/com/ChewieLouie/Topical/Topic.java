@@ -10,7 +10,7 @@ import com.ChewieLouie.Topical.PersistentStorageIfc.ValueType;
 import com.ChewieLouie.Topical.View.NullViewWatchedTopic;
 import com.ChewieLouie.Topical.View.ViewWatchedTopicIfc;
 
-public class Topic implements GooglePlusSearchCallbackIfc {
+public class Topic implements GooglePlusSearchCallbackIfc, TopicIfc {
 
 	public boolean hasChanged = false;
 	
@@ -19,6 +19,7 @@ public class Topic implements GooglePlusSearchCallbackIfc {
 	private GooglePlusIfc googlePlus = null;
 	private PersistentStorageIfc storage = null;
 	private Set<String> currentPostIDs = null;
+	private Set<String> newPostIDs = null;
 	private boolean updating = false;
 
 	public Topic( String topicName, GooglePlusIfc googlePlus, PersistentStorageIfc storage ) {
@@ -30,10 +31,12 @@ public class Topic implements GooglePlusSearchCallbackIfc {
 			currentPostIDs = new HashSet<String>( StringUtils.split( postIDsList, "," ) );
 	}
 
+	@Override
 	public void viewIsNoLongerUsable() {
 		view = new NullViewWatchedTopic();
 	}
 
+	@Override
 	public void show( ViewWatchedTopicIfc view ) {
 		this.view = view;
 		if( updating )
@@ -49,29 +52,43 @@ public class Topic implements GooglePlusSearchCallbackIfc {
 			view.setTopicResultsHaveNotChanged();
 	}
 
+	@Override
 	public String topicName() {
 		return this.topicName;
 	}
 
+	@Override
 	public void updateStatus() {
-		updating = true;
-		view.activityStarted();
-   		googlePlus.search( topicName, this );
+		if( hasChanged == false ) {
+			updating = true;
+			view.activityStarted();
+	   		googlePlus.search( topicName, this );
+		}
 	}
 
 	@Override
 	public void searchResults( List<Map<DataType, String>> results ) {
 		if( results != null )
 			if( haveTopicResultsChanged( results ) )
-				savePostIDs( results );
+				cacheNewPostIDs( results );
 		updateViewWithStatus();
 		view.activityStopped();
 		updating = false;
 	}
 
-	private void savePostIDs( List<Map<DataType, String>> results ) {
-		currentPostIDs = extractPostIDs( results );
+	private void cacheNewPostIDs( List<Map<DataType, String>> results ) {
+		newPostIDs = extractPostIDs( results );
+	}
+
+	@Override
+	public void viewed() {
+		savePostIDs();
+	}
+
+	private void savePostIDs() {
+		currentPostIDs = newPostIDs;
 		storage.saveValueByKeyAndType( createPostIDsString( currentPostIDs ), topicName, ValueType.POST_ID_LIST );
+		hasChanged = false;
 	}
 
 	private Set<String> extractPostIDs( List<Map<DataType, String>> results ) {

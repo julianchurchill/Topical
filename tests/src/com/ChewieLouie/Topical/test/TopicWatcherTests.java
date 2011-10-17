@@ -21,7 +21,7 @@ public class TopicWatcherTests extends AndroidTestCase {
 		super.setUp();
 		mockStorage = new MockPersistentStorage();
 		mockStorage.loadReturns.put( ValueType.WATCHED_TOPICS, topicsList );
-		topicWatcher = new TopicWatcher( mockStorage, null );
+		topicWatcher = new TopicWatcher( mockStorage, null, new MockTopicFactory() );
 	}
 
 	public void testTopicWatcherLoadsFromStorageOnCreation() {
@@ -105,5 +105,11 @@ public class TopicWatcherTests extends AndroidTestCase {
 
 	public void testIsWatchedReturnsFalseForNotWatchedTopics() {
 		assertFalse( topicWatcher.isWatched( "notwatchedtopic" ) );
+	}
+
+	public void testOnViewedCallsViewedOnCorrectTopic() {
+		topicWatcher.viewed( "topic1" );
+
+		assertTrue( MockTopicFactory.mockTopics.get( "topic1" ).viewedCalled );
 	}
 }

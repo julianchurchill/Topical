@@ -7,7 +7,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.widget.ListView;
 
-import com.ChewieLouie.Topical.Topic;
+import com.ChewieLouie.Topical.TopicIfc;
 import com.ChewieLouie.Topical.WatchedTopicListAdapter;
 
 public class WatchedTopicsListView implements ViewTopicListIfc {
@@ -21,7 +21,7 @@ public class WatchedTopicsListView implements ViewTopicListIfc {
 	}
 
 	@Override
-	public void populateTopicList( Collection<Topic> topics ) {
-    	topicList.setAdapter( new WatchedTopicListAdapter( (Context)activity, new ArrayList<Topic>( topics ) ) );
+	public void populateTopicList( Collection<TopicIfc> topics ) {
+    	topicList.setAdapter( new WatchedTopicListAdapter( (Context)activity, new ArrayList<TopicIfc>( topics ) ) );
 	}
 }

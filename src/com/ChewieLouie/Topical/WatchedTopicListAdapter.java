@@ -1,5 +1,6 @@
 package com.ChewieLouie.Topical;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -13,17 +14,17 @@ import android.widget.TextView;
 
 import com.ChewieLouie.Topical.View.WatchedTopicView;
 
-public class WatchedTopicListAdapter extends ArrayAdapter<Topic> {
+public class WatchedTopicListAdapter extends ArrayAdapter<TopicIfc> {
 
     private static final int layoutResource = R.layout.topic_list_item;
 
-    private List<Topic> items = null;
+    private List<TopicIfc> items = null;
     private Context myContext = null;
-    private Map<View, Topic> viewsBeingUpdated = new HashMap<View, Topic>();
+    private Map<View, TopicIfc> viewsBeingUpdated = new HashMap<View, TopicIfc>();
 
-    public WatchedTopicListAdapter(Context context, List<Topic> items) {
-    	super(context, layoutResource, items);
-    	this.items = items;
+    public WatchedTopicListAdapter(Context context, ArrayList<TopicIfc> arrayList) {
+    	super(context, layoutResource, arrayList);
+    	this.items = arrayList;
     	this.myContext = context;
     }
 
@@ -34,7 +35,7 @@ public class WatchedTopicListAdapter extends ArrayAdapter<Topic> {
     		LayoutInflater vi = (LayoutInflater)myContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
     		v = vi.inflate(layoutResource, null);
     	}
-    	Topic topic = items.get(position);
+    	TopicIfc topic = items.get(position);
     	if( topic != null ) {
     		if( viewsBeingUpdated.containsKey( v ) )
     			viewsBeingUpdated.get( v ).viewIsNoLongerUsable();

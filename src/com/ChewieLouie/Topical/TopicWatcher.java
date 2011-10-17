@@ -12,12 +12,14 @@ public class TopicWatcher {
 	private final static String seperator = ",";
 	
 	private PersistentStorageIfc storage = null;
-	private Map<String, Topic> watchedTopics = new HashMap<String, Topic>();
+	private Map<String, TopicIfc> watchedTopics = new HashMap<String, TopicIfc>();
 	private GooglePlusIfc googlePlus = null;
+	private TopicFactoryIfc topicFactory = null;
 
-	public TopicWatcher( PersistentStorageIfc storage, GooglePlusIfc googlePlus ) {
+	public TopicWatcher( PersistentStorageIfc storage, GooglePlusIfc googlePlus, TopicFactoryIfc topicFactory ) {
 		this.storage = storage;
 		this.googlePlus = googlePlus;
+		this.topicFactory = topicFactory;
 		populateWatchedTopicsSet();
 	}
 
@@ -25,11 +27,11 @@ public class TopicWatcher {
 		List<String> topicStrings = StringUtils.split( 
 				storage.loadValueByKeyAndType( "", ValueType.WATCHED_TOPICS ), seperator );
 		for( String topic : topicStrings )
-			watchedTopics.put( topic, new Topic( topic, googlePlus, storage ) );
+			watchedTopics.put( topic, topicFactory.create( topic, googlePlus, storage ) );
 	}
 
 	public void watch( String topic ) {
-		watchedTopics.put( topic, new Topic( topic, googlePlus, storage ) );
+		watchedTopics.put( topic, topicFactory.create( topic, googlePlus, storage ) );
 		storage.saveValueByKeyAndType( watchedTopicsAsString(), "", ValueType.WATCHED_TOPICS );
 	}
 
@@ -55,7 +57,11 @@ public class TopicWatcher {
 	}
 	
 	public void updateStatuses() {
-		for( Topic topic : watchedTopics.values() )
+		for( TopicIfc topic : watchedTopics.values() )
 			topic.updateStatus();
+	}
+
+	public void viewed( String topic ) {
+		watchedTopics.get( topic ).viewed();
 	}
 }

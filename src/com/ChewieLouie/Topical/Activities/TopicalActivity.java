@@ -55,7 +55,7 @@ public class TopicalActivity extends Activity implements GooglePlusSearchCallbac
     public void onCreate( Bundle savedInstanceState ) {
         super.onCreate( savedInstanceState );
 		storage = new AndroidPreferenceStorage( this );
-		topicWatcher = new TopicWatcher( storage, GooglePlus.Make() );
+		topicWatcher = new TopicWatcher( storage, GooglePlus.Make(), new TopicFactory() );
         requestWindowFeature( Window.FEATURE_INDETERMINATE_PROGRESS );
         setContentView( R.layout.main );
         addTopicItemClickNotifier();
@@ -143,6 +143,7 @@ public class TopicalActivity extends Activity implements GooglePlusSearchCallbac
 
     private void showTopicList( String topic, List<Post> posts ) {
     	currentPosts = posts;
+		topicWatcher.viewed( topic );
     	startTopicListActivityWithTitle( topic );
     }
 
