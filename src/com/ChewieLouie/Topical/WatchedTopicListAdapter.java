@@ -41,7 +41,7 @@ public class WatchedTopicListAdapter extends ArrayAdapter<TopicIfc> {
     			viewsBeingUpdated.get( v ).viewIsNoLongerUsable();
     		viewsBeingUpdated.put( v, topic );
     		TextView textView = (TextView) v.findViewById( R.id.topic_list_item_text );
-    		topic.show( new WatchedTopicView( textView ) );
+    		topic.showStatus( new WatchedTopicView( textView ) );
         }
         return v;
     }

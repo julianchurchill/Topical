@@ -15,7 +15,7 @@ public class MockTopic implements TopicIfc {
 	}
 
 	@Override
-	public void show(ViewWatchedTopicIfc view) {
+	public void showStatus(ViewWatchedTopicIfc view) {
 	}
 
 	@Override

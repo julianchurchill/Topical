@@ -37,7 +37,7 @@ public class Topic implements GooglePlusSearchCallbackIfc, TopicIfc {
 	}
 
 	@Override
-	public void show( ViewWatchedTopicIfc view ) {
+	public void showStatus( ViewWatchedTopicIfc view ) {
 		this.view = view;
 		if( updating )
 			view.activityStarted();
@@ -54,12 +54,14 @@ public class Topic implements GooglePlusSearchCallbackIfc, TopicIfc {
 
 	@Override
 	public String topicName() {
-		return this.topicName;
+		return topicName;
 	}
 
 	@Override
 	public void updateStatus() {
-		if( hasChanged == false ) {
+		if( hasChanged )
+			updateViewWithStatus();
+		else {
 			updating = true;
 			view.activityStarted();
 	   		googlePlus.search( topicName, this );

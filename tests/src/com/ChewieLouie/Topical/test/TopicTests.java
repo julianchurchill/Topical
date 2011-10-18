@@ -53,13 +53,13 @@ public class TopicTests extends AndroidTestCase {
 	}
 
 	public void testShowCallsSetTextOnView() {
-		topic.show( mockView );
+		topic.showStatus( mockView );
 
 		assertTrue( mockView.setTextCalled );
 	}
 
 	public void testShowCallsSetTextOnViewWithTopicName() {
-		topic.show( mockView );
+		topic.showStatus( mockView );
 
 		assertEquals( topicName, mockView.setTextArg );
 	}
@@ -69,7 +69,7 @@ public class TopicTests extends AndroidTestCase {
 	}
 
 	public void testShowThenUpdateStatusCallsActivityStartedOnView() {
-		topic.show( mockView );
+		topic.showStatus( mockView );
 		topic.updateStatus();
 
 		assertTrue( mockView.activityStartedCalled );
@@ -94,14 +94,14 @@ public class TopicTests extends AndroidTestCase {
 	}
 
 	public void testShowThenSearchResultsCallsSetTopicResultsHaveNotChangedOnView() {
-		topic.show( mockView );
+		topic.showStatus( mockView );
 		topic.searchResults( null );
 
 		assertTrue( mockView.setTopicResultsHaveNotChangedCalled );
 	}
 
 	public void testShowThenSearchResultsCallsActivityStoppedOnView() {
-		topic.show( mockView );
+		topic.showStatus( mockView );
 		topic.searchResults( null );
 
 		assertTrue( mockView.activityStoppedCalled );
@@ -120,7 +120,7 @@ public class TopicTests extends AndroidTestCase {
 	}
 
 	public void testSearchResultsChangedCallsSetTopicResultsHaveChangedOnView() {
-		topic.show( mockView );
+		topic.showStatus( mockView );
 		topic.searchResults( createNewResults() );
 
 		assertTrue( mockView.setTopicResultsHaveChangedCalled );
@@ -140,13 +140,23 @@ public class TopicTests extends AndroidTestCase {
 		assertFalse( mockStorage.saveCalled );
 	}
 
-	public void testDoNotRepeatSearchIfTopicKnowsItHasNewPosts() {
+	public void testOnUpdateStatusDoNotRepeatSearchIfTopicKnowsItHasNewPosts() {
 		topic.searchResults( createNewResults() );
 		mockGooglePlus.searchCalled = false;
 
 		topic.updateStatus();
 
 		assertFalse( mockGooglePlus.searchCalled );
+	}
+
+	public void testOnUpdateStatusIfTopicKnowsItHasNewPostsStillUpdateTheView() {
+		topic.showStatus( mockView );
+		topic.searchResults( createNewResults() );
+		mockView.setTopicResultsHaveChangedCalled = false;
+
+		topic.updateStatus();
+
+		assertTrue( mockView.setTopicResultsHaveChangedCalled );
 	}
 
 	public void testSearchResultsChangedDoesNotSaveToStorage() {

@@ -6,7 +6,7 @@ public interface TopicIfc {
 
 	public abstract void viewIsNoLongerUsable();
 
-	public abstract void show(ViewWatchedTopicIfc view);
+	public abstract void showStatus(ViewWatchedTopicIfc view);
 
 	public abstract String topicName();
 
