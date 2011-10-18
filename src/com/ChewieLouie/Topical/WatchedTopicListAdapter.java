@@ -20,7 +20,7 @@ public class WatchedTopicListAdapter extends ArrayAdapter<TopicIfc> {
 
     private List<TopicIfc> items = null;
     private Context myContext = null;
-    private Map<View, TopicIfc> viewsBeingUpdated = new HashMap<View, TopicIfc>();
+    private Map<Integer, View> viewCache = new HashMap<Integer, View>();
 
     public WatchedTopicListAdapter(Context context, ArrayList<TopicIfc> arrayList) {
     	super(context, layoutResource, arrayList);
@@ -30,16 +30,14 @@ public class WatchedTopicListAdapter extends ArrayAdapter<TopicIfc> {
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-    	View v = convertView;
+    	View v = viewCache.get( position );
     	if( v == null ) {
     		LayoutInflater vi = (LayoutInflater)myContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
     		v = vi.inflate(layoutResource, null);
+    	  	viewCache.put( position, v );
     	}
     	TopicIfc topic = items.get(position);
     	if( topic != null ) {
-    		if( viewsBeingUpdated.containsKey( v ) && viewsBeingUpdated.get( v ) != topic )
-    			viewsBeingUpdated.get( v ).viewIsNoLongerUsable();
-    		viewsBeingUpdated.put( v, topic );
     		TextView textView = (TextView) v.findViewById( R.id.topic_list_item_text );
     		topic.showStatus( new WatchedTopicView( textView ) );
         }

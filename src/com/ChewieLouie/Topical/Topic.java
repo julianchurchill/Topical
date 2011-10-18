@@ -32,11 +32,6 @@ public class Topic implements GooglePlusSearchCallbackIfc, TopicIfc {
 	}
 
 	@Override
-	public void viewIsNoLongerUsable() {
-		view = new NullViewWatchedTopic();
-	}
-
-	@Override
 	public void showStatus( ViewWatchedTopicIfc view ) {
 		this.view = view;
 		if( updating )

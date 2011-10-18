@@ -11,10 +11,6 @@ public class MockTopic implements TopicIfc {
 	}
 
 	@Override
-	public void viewIsNoLongerUsable() {
-	}
-
-	@Override
 	public void showStatus(ViewWatchedTopicIfc view) {
 	}
 
