@@ -37,7 +37,7 @@ public class WatchedTopicListAdapter extends ArrayAdapter<TopicIfc> {
     	}
     	TopicIfc topic = items.get(position);
     	if( topic != null ) {
-    		if( viewsBeingUpdated.containsKey( v ) )
+    		if( viewsBeingUpdated.containsKey( v ) && viewsBeingUpdated.get( v ) != topic )
     			viewsBeingUpdated.get( v ).viewIsNoLongerUsable();
     		viewsBeingUpdated.put( v, topic );
     		TextView textView = (TextView) v.findViewById( R.id.topic_list_item_text );
