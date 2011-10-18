@@ -88,8 +88,10 @@ public class Topic implements GooglePlusSearchCallbackIfc, TopicIfc {
 	}
 
 	private void savePostIDs() {
-		currentPostIDs = newPostIDs;
-		storage.saveValueByKeyAndType( createPostIDsString( currentPostIDs ), topicName, ValueType.POST_ID_LIST );
+		if( newPostIDs != null ) {
+			currentPostIDs = newPostIDs;
+			storage.saveValueByKeyAndType( createPostIDsString( currentPostIDs ), topicName, ValueType.POST_ID_LIST );
+		}
 		hasChanged = false;
 	}
 
