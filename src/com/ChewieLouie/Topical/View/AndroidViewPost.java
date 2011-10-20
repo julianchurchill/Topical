@@ -28,6 +28,7 @@ public class AndroidViewPost implements ViewPostIfc {
 	private ImageView authorImageView = null;
 	private TextView textTextView = null;
 	private LayoutInflater layoutInflater = null;
+	private String reshareAuthorName = "";
 
 	public AndroidViewPost( Activity activity, TextView authorTextView, ImageView authorImageView,
 			TextView textTextView ) {
@@ -50,7 +51,13 @@ public class AndroidViewPost implements ViewPostIfc {
 
 	@Override
 	public void setHTMLContent( String content ) {
-		textTextView.setText( Html.fromHtml( content ) );
+		textTextView.setText( Html.fromHtml( makeReshareString() + content ) );
+	}
+	
+	private String makeReshareString() {
+		if( reshareAuthorName.isEmpty() )
+			return "";
+		return "Reshared post from " + reshareAuthorName + "<br/><br/>";
 	}
 
 	@Override
@@ -114,4 +121,9 @@ public class AndroidViewPost implements ViewPostIfc {
             return null;
         }
     }
+
+	@Override
+	public void setReshareAuthorName( String author ) {
+		reshareAuthorName = author;
+	}
 }

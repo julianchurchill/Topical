@@ -32,6 +32,7 @@ public class Post implements GooglePlusCallbackIfc {
 	private boolean forceGooglePlusRefresh = false;
 	private boolean waitingForComments = false;
 	private boolean waitingForPostInfo = false;
+	private String reshareAuthorName = "";
 
 	public Post( Map<DataType, String> postInfo, PersistentStorageIfc storage, GooglePlusIfc googlePlus ) {
 		this.storage = storage;
@@ -57,6 +58,7 @@ public class Post implements GooglePlusCallbackIfc {
 		this.summaryText = storage.loadValueByKeyAndType( url, ValueType.SUMMARY );
 		this.isFollowed = Boolean.parseBoolean( storage.loadValueByKeyAndType( url, ValueType.IS_FOLLOWED ) );
 		this.postID = storage.loadValueByKeyAndType( url, ValueType.POST_ID );
+		this.reshareAuthorName = storage.loadValueByKeyAndType( url, ValueType.RESHARE_AUTHOR_NAME );
 		String modTime = storage.loadValueByKeyAndType( url, ValueType.LAST_VIEWED_MODIFICATION_TIME );
 		if( modTime.equals( "" ) == false )
 			this.lastViewedModificationTime = DateTime.parseRfc3339( modTime );
@@ -79,6 +81,13 @@ public class Post implements GooglePlusCallbackIfc {
 			authorImage = postInfo.get( DataType.AUTHOR_IMAGE );
 		if( postInfo.get( DataType.POST_CONTENT ) != null )
 			content = postInfo.get( DataType.POST_CONTENT );
+		if( postInfo.get( DataType.RESHARE_AUTHOR_NAME ) != null )
+			setReshareAuthorName( postInfo.get( DataType.RESHARE_AUTHOR_NAME ) );
+	}
+	
+	private void setReshareAuthorName( String name ) {
+		this.reshareAuthorName = name;
+		saveToStorage();
 	}
 
 	private void setPostID( String postID ) {
@@ -92,6 +101,7 @@ public class Post implements GooglePlusCallbackIfc {
 			saveValue( ValueType.TITLE, title );		
 			saveValue( ValueType.SUMMARY, summaryText );
 			saveValue( ValueType.IS_FOLLOWED, String.valueOf( isFollowed ) );
+			saveValue( ValueType.RESHARE_AUTHOR_NAME, reshareAuthorName  );
 			if( lastViewedModificationTime != null )
 				saveValue( ValueType.LAST_VIEWED_MODIFICATION_TIME, lastViewedModificationTime.toStringRfc3339() );
 		}
@@ -200,6 +210,7 @@ public class Post implements GooglePlusCallbackIfc {
 		view.setHTMLContent( content );
 		view.setStatus( status() );
 		view.setSummaryText( summaryText );
+		view.setReshareAuthorName( reshareAuthorName );
 	}
 
 	@Override

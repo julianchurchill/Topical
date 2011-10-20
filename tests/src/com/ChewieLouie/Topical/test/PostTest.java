@@ -30,6 +30,7 @@ public class PostTest extends AndroidTestCase {
 	private final String HTMLContent = "testContent";
 	private final boolean isFollowed = false;
 	private final String summary = "testSummary";
+	private final String reshareAuthorName = "test reshare author name";
 	Map<DataType,String> postInfo = new HashMap<DataType, String>();
 	private List<PostComment> comments = new ArrayList<PostComment>();
 
@@ -46,6 +47,7 @@ public class PostTest extends AndroidTestCase {
 		mockStorage.loadReturns.put( ValueType.TITLE, title );
 		mockStorage.loadReturns.put( ValueType.IS_FOLLOWED, Boolean.toString( isFollowed ) );
 		mockStorage.loadReturns.put( ValueType.SUMMARY, summary );
+		mockStorage.loadReturns.put( ValueType.RESHARE_AUTHOR_NAME, reshareAuthorName );
 		mockGooglePlus = new MockGooglePlus();
 		mockGooglePlus.postInformation.put( DataType.POST_ID, postID );
 		mockGooglePlus.postInformation.put( DataType.MODIFICATION_TIME, lastViewedModificationTime );
@@ -77,6 +79,10 @@ public class PostTest extends AndroidTestCase {
 
 	public void testPostLoadsSummaryTextFromStorageOnConstruction() {
 		assertTrue( mockStorage.loadArgsType.contains( ValueType.SUMMARY ) );
+	}
+
+	public void testPostLoadsReshareAuthorNameFromStorageOnConstruction() {
+		assertTrue( mockStorage.loadArgsType.contains( ValueType.RESHARE_AUTHOR_NAME ) );
 	}
 
 	public void testPostLoadsIsFollowedFromStorageOnConstruction() {
@@ -131,6 +137,86 @@ public class PostTest extends AndroidTestCase {
 		post.unfollow();
 		
 		assertFalse( post.isFollowed() );
+	}
+	
+	public void testPostInfoResultsForFollowedPostCausesSaveToStorage() {
+		post.follow();
+
+		post.postInformationResults( postInfo, 0 );
+
+		assertTrue( mockStorage.saveCalled );
+	}
+
+	public void testPostInfoResultsForFollowedPostCausesSaveToStorageForPostID() {
+		postInfo.put( DataType.POST_ID, "postID" );
+		post.follow();
+
+		post.postInformationResults( postInfo, 0 );
+
+		assertTrue( mockStorage.saveArgsType.contains( ValueType.POST_ID ) );
+	}
+
+	public void testPostInfoResultsForFollowedPostCausesSaveToStorageForPostIDValue() {
+		postInfo.put( DataType.POST_ID, "postID" );
+		post.follow();
+
+		post.postInformationResults( postInfo, 0 );
+
+		assertTrue( mockStorage.saveArgsValue.contains( postInfo.get( DataType.POST_ID ) ) );
+	}
+
+	public void testPostInfoResultsForFollowedPostCausesSaveToStorageForTitle() {
+		postInfo.put( DataType.TITLE, "title" );
+		post.follow();
+
+		post.postInformationResults( postInfo, 0 );
+
+		assertTrue( mockStorage.saveArgsType.contains( ValueType.TITLE ) );
+	}
+
+	public void testPostInfoResultsForFollowedPostCausesSaveToStorageForTitleValue() {
+		postInfo.put( DataType.TITLE, "postID" );
+		post.follow();
+
+		post.postInformationResults( postInfo, 0 );
+
+		assertTrue( mockStorage.saveArgsValue.contains( postInfo.get( DataType.TITLE ) ) );
+	}
+
+	public void testPostInfoResultsForFollowedPostCausesSaveToStorageForSummary() {
+		postInfo.put( DataType.SUMMARY, "summary" );
+		post.follow();
+
+		post.postInformationResults( postInfo, 0 );
+
+		assertTrue( mockStorage.saveArgsType.contains( ValueType.SUMMARY ) );
+	}
+
+	public void testPostInfoResultsForFollowedPostCausesSaveToStorageForSummaryValue() {
+		postInfo.put( DataType.SUMMARY, "summary" );
+		post.follow();
+
+		post.postInformationResults( postInfo, 0 );
+
+		assertTrue( mockStorage.saveArgsValue.contains( postInfo.get( DataType.SUMMARY ) ) );
+	}
+
+	public void testPostInfoResultsForFollowedPostCausesSaveToStorageForReshareAuthorName() {
+		postInfo.put( DataType.RESHARE_AUTHOR_NAME, "ReshareAuthorName" );
+		post.follow();
+
+		post.postInformationResults( postInfo, 0 );
+
+		assertTrue( mockStorage.saveArgsType.contains( ValueType.RESHARE_AUTHOR_NAME ) );
+	}
+
+	public void testPostInfoResultsForFollowedPostCausesSaveToStorageForReshareAuthorNameValue() {
+		postInfo.put( DataType.RESHARE_AUTHOR_NAME, "ReshareAuthorName" );
+		post.follow();
+
+		post.postInformationResults( postInfo, 0 );
+
+		assertTrue( mockStorage.saveArgsValue.contains( postInfo.get( DataType.RESHARE_AUTHOR_NAME ) ) );
 	}
 
 	public void testShowCallsActivityStartedOnView() {
@@ -258,6 +344,20 @@ public class PostTest extends AndroidTestCase {
 		post.showComments( new MockViewPost() );
 
 		assertTrue( mockGooglePlus.getCommentsCalled );
+	}
+
+	public void testShowCallsSetReshareAuthorNameOnView() {
+		MockViewPost mockViewPost = new MockViewPost();
+		post.show( mockViewPost );
+
+		assertTrue( mockViewPost.setReshareAuthorNameCalled );
+	}
+
+	public void testShowCallsSetReshareAuthorNameOnViewWithCorrectValue() {
+		MockViewPost mockViewPost = new MockViewPost();
+		post.show( mockViewPost );
+
+		assertEquals( reshareAuthorName, mockViewPost.setReshareAuthorNameArg );
 	}
 
 	public void testShowCommentsCallsGooglePlusGetCommentsWithPostAsCallbackObj() {

@@ -23,6 +23,8 @@ public class MockViewPost implements ViewPostIfc {
 	public Status setStatusArg = null;
 	public boolean setSummaryTextCalled = false;
 	public String setSummaryTextArg = null;
+	public boolean setReshareAuthorNameCalled = false;
+	public String setReshareAuthorNameArg = null;
 	
 	@Override
 	public void setAuthor( String author ) {
@@ -77,5 +79,11 @@ public class MockViewPost implements ViewPostIfc {
 
 	@Override
 	public void activityStopped() {
+	}
+
+	@Override
+	public void setReshareAuthorName(String author) {
+		setReshareAuthorNameCalled = true;
+		setReshareAuthorNameArg = author;
 	}
 }

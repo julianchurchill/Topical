@@ -17,4 +17,5 @@ public interface ViewPostIfc {
 	public abstract void showError( String errorText );
 	public abstract void activityStarted();
 	public abstract void activityStopped();
+	public abstract void setReshareAuthorName( String author );
 }

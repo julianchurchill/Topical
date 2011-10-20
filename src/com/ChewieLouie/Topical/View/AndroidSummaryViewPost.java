@@ -77,4 +77,8 @@ public class AndroidSummaryViewPost implements ViewPostIfc {
 	@Override
 	public void activityStopped() {
 	}
+
+	@Override
+	public void setReshareAuthorName(String author) {
+	}
 }

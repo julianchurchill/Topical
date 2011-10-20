@@ -46,4 +46,8 @@ public class NullViewPost implements ViewPostIfc {
 	@Override
 	public void activityStopped() {
 	}
+
+	@Override
+	public void setReshareAuthorName(String author) {
+	}
 }
