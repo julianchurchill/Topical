@@ -6,42 +6,53 @@ import android.widget.TextView;
 public class WatchedTopicView implements ViewWatchedTopicIfc {
 
 	private static final int pendingColour = Color.BLACK;
-	private TextView textView = null;
+	private TextView topicTextView = null;
+	private TextView statusTextView = null;
 	private int resultColour = pendingColour;
 	private boolean activityStarted = false;
+	private String statusText = "---";
 
-	public WatchedTopicView(TextView textView) {
-		this.textView = textView;
+	public WatchedTopicView( TextView topicTextView, TextView statusTextView ) {
+		this.topicTextView = topicTextView;
+		this.statusTextView = statusTextView;
 	}
 
 	@Override
 	public void setText( String text ) {
-		textView.setText( text );
+		topicTextView.setText( text );
 	}
 
 	@Override
 	public void setTopicResultsHaveChanged() {
 		resultColour = Color.MAGENTA;
+		statusText = "New!";
 		if( activityStarted == false )
-			textView.setBackgroundColor( resultColour );
+			updateStatusTextView( resultColour );
 	}
 
 	@Override
 	public void setTopicResultsHaveNotChanged() {
 		resultColour = Color.GREEN;
+		statusText = "No new posts";
 		if( activityStarted == false )
-			textView.setBackgroundColor( resultColour );
+			updateStatusTextView( resultColour );
 	}
 
 	@Override
 	public void activityStarted() {
 		activityStarted = true;
-		textView.setBackgroundColor( pendingColour );
+		statusText = "---";
+		updateStatusTextView( pendingColour );
 	}
 
 	@Override
 	public void activityStopped() {
-		textView.setBackgroundColor( resultColour );
+		updateStatusTextView( resultColour );
 		activityStarted = false;
+	}
+	
+	private void updateStatusTextView( int colour ) {
+		statusTextView.setBackgroundColor( colour );
+		statusTextView.setText( statusText );
 	}
 }

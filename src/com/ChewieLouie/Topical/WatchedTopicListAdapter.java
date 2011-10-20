@@ -16,7 +16,7 @@ import com.ChewieLouie.Topical.View.WatchedTopicView;
 
 public class WatchedTopicListAdapter extends ArrayAdapter<TopicIfc> {
 
-    private static final int layoutResource = R.layout.topic_list_item;
+    private static final int layoutResource = R.layout.watched_topic_list_item;
 
     private List<TopicIfc> items = null;
     private Context myContext = null;
@@ -39,7 +39,8 @@ public class WatchedTopicListAdapter extends ArrayAdapter<TopicIfc> {
     	TopicIfc topic = items.get(position);
     	if( topic != null ) {
     		TextView textView = (TextView) v.findViewById( R.id.topic_list_item_text );
-    		topic.showStatus( new WatchedTopicView( textView ) );
+    		TextView statusTextView = (TextView) v.findViewById( R.id.topic_list_item_status );
+    		topic.showStatus( new WatchedTopicView( textView, statusTextView ) );
         }
         return v;
     }
