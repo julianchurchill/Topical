@@ -12,6 +12,7 @@ import com.ChewieLouie.Topical.GooglePlusIfc.DataType;
 import com.ChewieLouie.Topical.PersistentStorageIfc.ValueType;
 import com.ChewieLouie.Topical.Post;
 import com.ChewieLouie.Topical.Post.Status;
+import com.ChewieLouie.Topical.TopicListStatus;
 import com.ChewieLouie.Topical.test.mock.MockGooglePlus;
 import com.ChewieLouie.Topical.test.mock.MockPersistentStorage;
 import com.ChewieLouie.Topical.test.mock.MockViewPost;
@@ -137,6 +138,10 @@ public class PostTest extends AndroidTestCase {
 		post.unfollow();
 		
 		assertFalse( post.isFollowed() );
+	}
+	
+	public void testTopicListStatusIsSetToOldOnCreation() {
+		assertEquals( TopicListStatus.OLD, post.topicListStatus() );
 	}
 	
 	public void testPostInfoResultsForFollowedPostCausesSaveToStorage() {
@@ -358,6 +363,21 @@ public class PostTest extends AndroidTestCase {
 		post.show( mockViewPost );
 
 		assertEquals( reshareAuthorName, mockViewPost.setReshareAuthorNameArg );
+	}
+
+	public void testShowCallsSetTopicListStatusOnView() {
+		MockViewPost mockViewPost = new MockViewPost();
+		post.show( mockViewPost );
+
+		assertTrue( mockViewPost.setTopicListStatusCalled );
+	}
+
+	public void testShowCallsSetTopicListStatusOnViewWithCorrectValue() {
+		MockViewPost mockViewPost = new MockViewPost();
+		post.setTopicListStatus( TopicListStatus.NEW );
+		post.show( mockViewPost );
+
+		assertEquals( TopicListStatus.NEW, mockViewPost.setTopicListStatusArg );
 	}
 
 	public void testShowCommentsCallsGooglePlusGetCommentsWithPostAsCallbackObj() {

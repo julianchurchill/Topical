@@ -66,6 +66,21 @@ public class TopicalActivity extends Activity implements GooglePlusSearchCallbac
     	watchedTopicsStatusView = new WatchedTopicsListView( this, (ListView)findViewById( R.id.topicList ) );
 	}
 
+    private void addTopicItemClickNotifier() {
+	    ListView lv = (ListView)findViewById( R.id.topicList );
+	    lv.setOnItemClickListener( new OnItemClickListener() {
+			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+				searchForTopic( topicWatcher.topicAtPosition( position ) );
+			}
+		});
+	}
+    
+    private void searchForTopic( String topic ) {
+    	this.topic = topic;
+    	setProgressBarIndeterminateVisibility( true );
+    	GooglePlus.Make().search( topic, this );
+    }
+
 	private List<Post> findFollowedPosts() {
     	List<Post> posts = new ArrayList<Post>();
     	for( String url : storage.getAllPostURLsWhereFollowingIsTrue() )
@@ -125,6 +140,7 @@ public class TopicalActivity extends Activity implements GooglePlusSearchCallbac
     	for( Post post : followedPosts )
     		post.viewIsNoLongerUsable();
     }
+
 	private Post createPostWithURL( String url ) {
 		Map<DataType,String> postInfo = new HashMap<DataType, String>();
 		postInfo.put( DataType.URL, url );
@@ -134,27 +150,6 @@ public class TopicalActivity extends Activity implements GooglePlusSearchCallbac
     public void search( View view ) {
     	searchForTopic( searchEditText.getText().toString().trim() );
     }
-    
-    private void searchForTopic( String topic ) {
-    	this.topic = topic;
-    	setProgressBarIndeterminateVisibility( true );
-    	GooglePlus.Make().search( topic, this );
-    }
-
-    private void showTopicList( String topic, List<Post> posts ) {
-    	currentPosts = posts;
-		topicWatcher.viewed( topic );
-    	startTopicListActivityWithTitle( topic );
-    }
-
-    private void addTopicItemClickNotifier() {
-	    ListView lv = (ListView)findViewById( R.id.topicList );
-	    lv.setOnItemClickListener( new OnItemClickListener() {
-			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-				searchForTopic( topicWatcher.topicAtPosition( position ) );
-			}
-		});
-	}
 
 	@Override
 	public void searchResults(List<Map<DataType, String>> results) {
@@ -167,4 +162,12 @@ public class TopicalActivity extends Activity implements GooglePlusSearchCallbac
     	else
     		Toast.makeText( TopicalActivity.this, "No results found", Toast.LENGTH_LONG ).show();
 	}
+
+    private void showTopicList( String topic, List<Post> posts ) {
+    	currentPosts = posts;
+		topicWatcher.updatePostsForTopicListStatus( topic, posts );
+		topicWatcher.orderPostsByTopicListStatus( topic, posts );
+		topicWatcher.viewed( topic );
+    	startTopicListActivityWithTitle( topic );
+    }
 }

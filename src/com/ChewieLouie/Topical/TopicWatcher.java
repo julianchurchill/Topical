@@ -64,4 +64,14 @@ public class TopicWatcher {
 	public void viewed( String topic ) {
 		watchedTopics.get( topic ).viewed();
 	}
+
+	public void updatePostsForTopicListStatus( String topic, List<Post> posts ) {
+		if( watchedTopics.containsKey( topic ) )
+			watchedTopics.get( topic ).updatePostsForTopicListStatus( posts );				
+	}
+
+	public void orderPostsByTopicListStatus( String topic, List<Post> posts ) {
+		if( watchedTopics.containsKey( topic ) )
+			posts = watchedTopics.get( topic ).orderPostsByTopicListStatus( posts );
+	}
 }

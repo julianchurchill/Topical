@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.ChewieLouie.Topical.PostComment;
 import com.ChewieLouie.Topical.Post.Status;
+import com.ChewieLouie.Topical.TopicListStatus;
 import com.ChewieLouie.Topical.View.ViewPostIfc;
 
 public class MockViewPost implements ViewPostIfc {
@@ -25,6 +26,8 @@ public class MockViewPost implements ViewPostIfc {
 	public String setSummaryTextArg = null;
 	public boolean setReshareAuthorNameCalled = false;
 	public String setReshareAuthorNameArg = null;
+	public boolean setTopicListStatusCalled = false;
+	public TopicListStatus setTopicListStatusArg = TopicListStatus.OLD;
 	
 	@Override
 	public void setAuthor( String author ) {
@@ -85,5 +88,11 @@ public class MockViewPost implements ViewPostIfc {
 	public void setReshareAuthorName(String author) {
 		setReshareAuthorNameCalled = true;
 		setReshareAuthorNameArg = author;
+	}
+
+	@Override
+	public void setTopicListStatus( TopicListStatus status ) {
+		setTopicListStatusCalled = true;
+		setTopicListStatusArg = status;
 	}
 }

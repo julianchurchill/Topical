@@ -33,6 +33,7 @@ public class Post implements GooglePlusCallbackIfc {
 	private boolean waitingForComments = false;
 	private boolean waitingForPostInfo = false;
 	private String reshareAuthorName = "";
+	private TopicListStatus topicListStatus = TopicListStatus.OLD;
 
 	public Post( Map<DataType, String> postInfo, PersistentStorageIfc storage, GooglePlusIfc googlePlus ) {
 		this.storage = storage;
@@ -211,6 +212,11 @@ public class Post implements GooglePlusCallbackIfc {
 		view.setStatus( status() );
 		view.setSummaryText( summaryText );
 		view.setReshareAuthorName( reshareAuthorName );
+		view.setTopicListStatus( topicListStatus );
+	}
+	
+	public void setTopicListStatus( TopicListStatus status ) {
+		topicListStatus = status;
 	}
 
 	@Override
@@ -254,5 +260,13 @@ public class Post implements GooglePlusCallbackIfc {
 
 	public void viewIsNoLongerUsable() {
 		view = new NullViewPost();
+	}
+
+	public String postID() {
+		return postID;
+	}
+
+	public TopicListStatus topicListStatus() {
+		return topicListStatus;
 	}
 }

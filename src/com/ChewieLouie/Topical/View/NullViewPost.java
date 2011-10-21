@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.ChewieLouie.Topical.Post.Status;
 import com.ChewieLouie.Topical.PostComment;
+import com.ChewieLouie.Topical.TopicListStatus;
 
 public class NullViewPost implements ViewPostIfc {
 
@@ -48,6 +49,10 @@ public class NullViewPost implements ViewPostIfc {
 	}
 
 	@Override
-	public void setReshareAuthorName(String author) {
+	public void setReshareAuthorName( String author ) {
+	}
+
+	@Override
+	public void setTopicListStatus( TopicListStatus status ) {
 	}
 }

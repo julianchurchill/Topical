@@ -7,6 +7,7 @@ import android.widget.Button;
 
 import com.ChewieLouie.Topical.Post.Status;
 import com.ChewieLouie.Topical.PostComment;
+import com.ChewieLouie.Topical.TopicListStatus;
 
 
 public class FollowedPostsStatusView implements ViewPostIfc {
@@ -61,5 +62,9 @@ public class FollowedPostsStatusView implements ViewPostIfc {
 
 	@Override
 	public void setReshareAuthorName(String author) {
+	}
+
+	@Override
+	public void setTopicListStatus( TopicListStatus status ) {
 	}
 }

@@ -20,6 +20,7 @@ import android.widget.Toast;
 import com.ChewieLouie.Topical.Post.Status;
 import com.ChewieLouie.Topical.PostComment;
 import com.ChewieLouie.Topical.R;
+import com.ChewieLouie.Topical.TopicListStatus;
 
 public class AndroidViewPost implements ViewPostIfc {
 
@@ -125,5 +126,9 @@ public class AndroidViewPost implements ViewPostIfc {
 	@Override
 	public void setReshareAuthorName( String author ) {
 		reshareAuthorName = author;
+	}
+
+	@Override
+	public void setTopicListStatus( TopicListStatus status ) {
 	}
 }

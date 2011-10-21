@@ -11,15 +11,13 @@ import android.widget.TextView;
 import com.ChewieLouie.Topical.Post;
 import com.ChewieLouie.Topical.PostComment;
 import com.ChewieLouie.Topical.Post.Status;
+import com.ChewieLouie.Topical.TopicListStatus;
 
 public class AndroidSummaryViewPost implements ViewPostIfc {
 
-	private TextView titleTextView = null;
-	private TextView summaryTextView = null;
-    // Key is post status, value is color int (see android.graphics.Color class)
-	private static final Map<Post.Status, Integer> statusToColourMap = initializeMap();
-	
-	private static Map<Post.Status, Integer> initializeMap() {
+	// Key is post status, value is color int (see android.graphics.Color class)
+	private static final Map<Post.Status, Integer> statusToColourMap = initializeStatusMap();
+	private static Map<Post.Status, Integer> initializeStatusMap() {
 		Map<Post.Status, Integer> map = new HashMap<Post.Status, Integer>();
 		map.put( Post.Status.NEW, Color.GRAY );
 		map.put( Post.Status.FOLLOWING_AND_NOT_CHANGED, Color.BLUE );
@@ -27,6 +25,18 @@ public class AndroidSummaryViewPost implements ViewPostIfc {
 		return Collections.unmodifiableMap( map );
 	}
 	
+    // Key is topic status, value is color int (see android.graphics.Color class)
+	private static final Map<TopicListStatus, Integer> topicListStatusToColourMap = initializeTopicListMap();
+	private static Map<TopicListStatus, Integer> initializeTopicListMap() {
+		Map<TopicListStatus, Integer> map = new HashMap<TopicListStatus, Integer>();
+		map.put( TopicListStatus.NEW, Color.MAGENTA );
+		map.put( TopicListStatus.OLD, Color.GRAY );
+		return Collections.unmodifiableMap( map );
+	}
+
+	private TextView titleTextView = null;
+	private TextView summaryTextView = null;
+
 	public AndroidSummaryViewPost( TextView titleTextView, TextView summaryTextView ) {
 		this.titleTextView = titleTextView;
 		this.summaryTextView = summaryTextView;
@@ -79,6 +89,11 @@ public class AndroidSummaryViewPost implements ViewPostIfc {
 	}
 
 	@Override
-	public void setReshareAuthorName(String author) {
+	public void setReshareAuthorName( String author ) {
+	}
+
+	@Override
+	public void setTopicListStatus( TopicListStatus status ) {
+    	titleTextView.setBackgroundColor( topicListStatusToColourMap.get( status ) );
 	}
 }

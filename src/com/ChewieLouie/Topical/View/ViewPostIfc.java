@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.ChewieLouie.Topical.Post;
 import com.ChewieLouie.Topical.PostComment;
+import com.ChewieLouie.Topical.TopicListStatus;
 
 public interface ViewPostIfc {
 
@@ -18,4 +19,5 @@ public interface ViewPostIfc {
 	public abstract void activityStarted();
 	public abstract void activityStopped();
 	public abstract void setReshareAuthorName( String author );
+	public abstract void setTopicListStatus( TopicListStatus status );
 }
