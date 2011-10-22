@@ -5,7 +5,7 @@ import android.widget.TextView;
 
 public class WatchedTopicView implements ViewWatchedTopicIfc {
 
-	private static final int pendingColour = Color.BLACK;
+	private static final int pendingColour = Color.WHITE;
 	private TextView topicTextView = null;
 	private TextView statusTextView = null;
 	private int resultColour = pendingColour;
@@ -32,7 +32,6 @@ public class WatchedTopicView implements ViewWatchedTopicIfc {
 
 	@Override
 	public void setTopicResultsHaveNotChanged() {
-		resultColour = Color.GREEN;
 		statusText = "No new posts";
 		if( activityStarted == false )
 			updateStatusTextView( resultColour );
@@ -52,7 +51,7 @@ public class WatchedTopicView implements ViewWatchedTopicIfc {
 	}
 	
 	private void updateStatusTextView( int colour ) {
-		statusTextView.setBackgroundColor( colour );
+		statusTextView.setTextColor( colour );
 		statusTextView.setText( statusText );
 	}
 }
