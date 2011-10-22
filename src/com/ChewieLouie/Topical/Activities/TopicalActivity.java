@@ -15,7 +15,6 @@ import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -37,11 +36,10 @@ public class TopicalActivity extends Activity implements GooglePlusSearchCallbac
 
 	public static List<Post> currentPosts = null;
 	public static TopicWatcher topicWatcher = null;
+	public static PersistentStorageIfc storage = null;
 	
 	private static final int EXIT_MENU_ITEM = 0;
 
-	private EditText searchEditText = null;	
-	private PersistentStorageIfc storage = null;
 	private String topic = null;
 	private List<Post> followedPosts = new ArrayList<Post>();
 	private ViewPostIfc followedPostsView = null;
@@ -59,7 +57,6 @@ public class TopicalActivity extends Activity implements GooglePlusSearchCallbac
         requestWindowFeature( Window.FEATURE_INDETERMINATE_PROGRESS );
         setContentView( R.layout.main );
         addTopicItemClickNotifier();
-    	searchEditText = (EditText)findViewById( R.id.SearchText );
     	followedPostsView = new FollowedPostsStatusView( (Button)findViewById( R.id.ShowFollowedPostsButton ) );
     	followedPosts = findFollowedPosts();
     	updateFollowedPostsStatus();
@@ -148,7 +145,7 @@ public class TopicalActivity extends Activity implements GooglePlusSearchCallbac
 	}
 
     public void search( View view ) {
-    	searchForTopic( searchEditText.getText().toString().trim() );
+    	startActivity( new Intent().setClass( getApplicationContext(), SearchActivity.class ) );
     }
 
 	@Override
