@@ -38,8 +38,9 @@ public class TopicListAdapter extends ArrayAdapter<Post> {
     			viewsBeingUpdated.get( v ).viewIsNoLongerUsable();
     		viewsBeingUpdated.put( v, p );
     		TextView titleTextView = (TextView) v.findViewById( R.id.topic_list_item_title );
+    		TextView listStatusTextView = (TextView) v.findViewById( R.id.topic_list_item_list_status );
     		TextView textView = (TextView) v.findViewById( R.id.topic_list_item_text );
-    		p.show( new AndroidSummaryViewPost( titleTextView, textView ) );
+    		p.show( new AndroidSummaryViewPost( titleTextView, textView, listStatusTextView ) );
         }
         return v;
     }

@@ -26,20 +26,22 @@ public class AndroidSummaryViewPost implements ViewPostIfc {
 	}
 	
     // Key is topic status, value is color int (see android.graphics.Color class)
-	private static final Map<TopicListStatus, Integer> topicListStatusToColourMap = initializeTopicListMap();
-	private static Map<TopicListStatus, Integer> initializeTopicListMap() {
-		Map<TopicListStatus, Integer> map = new HashMap<TopicListStatus, Integer>();
-		map.put( TopicListStatus.NEW, Color.MAGENTA );
-		map.put( TopicListStatus.OLD, Color.GRAY );
-		return Collections.unmodifiableMap( map );
-	}
+//	private static final Map<TopicListStatus, Integer> topicListStatusToColourMap = initializeTopicListMap();
+//	private static Map<TopicListStatus, Integer> initializeTopicListMap() {
+//		Map<TopicListStatus, Integer> map = new HashMap<TopicListStatus, Integer>();
+//		map.put( TopicListStatus.NEW, Color.MAGENTA );
+//		map.put( TopicListStatus.OLD, Color.GRAY );
+//		return Collections.unmodifiableMap( map );
+//	}
 
 	private TextView titleTextView = null;
 	private TextView summaryTextView = null;
+	private TextView listStatusTextView = null;
 
-	public AndroidSummaryViewPost( TextView titleTextView, TextView summaryTextView ) {
+	public AndroidSummaryViewPost( TextView titleTextView, TextView summaryTextView, TextView listStatusTextView ) {
 		this.titleTextView = titleTextView;
 		this.summaryTextView = summaryTextView;
+		this.listStatusTextView = listStatusTextView;
 	}
 
 	@Override
@@ -94,6 +96,12 @@ public class AndroidSummaryViewPost implements ViewPostIfc {
 
 	@Override
 	public void setTopicListStatus( TopicListStatus status ) {
-    	titleTextView.setBackgroundColor( topicListStatusToColourMap.get( status ) );
+		if( status == TopicListStatus.NEW ) {
+			listStatusTextView.setText( "New!" );
+			listStatusTextView.setTextColor( Color.MAGENTA );
+		}
+		else if( status == TopicListStatus.OLD )
+			listStatusTextView.setText( "" );
+//    	titleTextView.setBackgroundColor( topicListStatusToColourMap.get( status ) );
 	}
 }
