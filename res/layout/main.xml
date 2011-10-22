@@ -22,18 +22,9 @@
             android:layout_height="wrap_content"
             android:text="Followed Posts"
             android:onClick="showFollowedPosts"/>
-	<TextView
-        android:background="#c4c4c4"
-        android:textColor="#343434"
-    	android:layout_width="fill_parent" 
-   	    android:layout_height="wrap_content" 
-  	    android:text="@string/myTopics"
-  	    android:textSize="20sp"
-  	    android:textStyle="bold"
-  	    android:gravity="center_horizontal"/>
-    <ListView android:id="@+id/topicList"
-		android:layout_width="fill_parent"
-		android:layout_height="match_parent"
-		android:layout_weight="1"
-		android:drawSelectorOnTop="false"/>
+    <Button android:id="@+id/ShowWatchedTopicListButton"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:text="Watched Topics"
+            android:onClick="showWatchedTopics"/>
 </LinearLayout>

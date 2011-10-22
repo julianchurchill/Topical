@@ -16,6 +16,7 @@
             </intent-filter>
         </activity>
         <activity android:name=".Activities.SearchActivity"/>
+        <activity android:name=".Activities.WatchedTopicsActivity"/>
         <activity android:name=".Activities.TopicListActivity"/>
         <activity android:name=".Activities.ViewPostActivity"/>
     </application>
