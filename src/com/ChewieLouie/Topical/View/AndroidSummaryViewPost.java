@@ -24,15 +24,6 @@ public class AndroidSummaryViewPost implements ViewPostIfc {
 		map.put( Post.Status.FOLLOWING_AND_HAS_CHANGED, Color.CYAN );
 		return Collections.unmodifiableMap( map );
 	}
-	
-    // Key is topic status, value is color int (see android.graphics.Color class)
-//	private static final Map<TopicListStatus, Integer> topicListStatusToColourMap = initializeTopicListMap();
-//	private static Map<TopicListStatus, Integer> initializeTopicListMap() {
-//		Map<TopicListStatus, Integer> map = new HashMap<TopicListStatus, Integer>();
-//		map.put( TopicListStatus.NEW, Color.MAGENTA );
-//		map.put( TopicListStatus.OLD, Color.GRAY );
-//		return Collections.unmodifiableMap( map );
-//	}
 
 	private TextView titleTextView = null;
 	private TextView summaryTextView = null;
@@ -102,6 +93,5 @@ public class AndroidSummaryViewPost implements ViewPostIfc {
 		}
 		else if( status == TopicListStatus.OLD )
 			listStatusTextView.setText( "" );
-//    	titleTextView.setBackgroundColor( topicListStatusToColourMap.get( status ) );
 	}
 }
