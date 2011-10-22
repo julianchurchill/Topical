@@ -23,7 +23,7 @@
 	        android:textColor="#343434"
 	    	android:layout_width="match_parent" 
 	   	    android:layout_height="wrap_content" 
-	  	    android:text="@string/myTopics"
+	  	    android:text="@string/watchedTopicsListTitle"
 	  	    android:textSize="30sp"
 	  	    android:textStyle="bold"
 	  	    android:gravity="center_horizontal"/>  

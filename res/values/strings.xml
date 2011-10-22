@@ -2,7 +2,7 @@
 <resources>
     <string name="app_name">Topical</string>
     <string name="topicalTitle">TopicaL</string>
-    <string name="myTopics">My Topics</string>
+    <string name="watchedTopicsListTitle">Watched Topics</string>
     <string name="topicListTitle">Topic</string>
     <string name="follow">Follow</string>
     <string name="unfollow">Unfollow</string>
