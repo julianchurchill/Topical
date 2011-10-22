@@ -16,10 +16,10 @@ import com.ChewieLouie.Topical.TopicListStatus;
 public class AndroidSummaryViewPost implements ViewPostIfc {
 
 	// Key is post status, value is color int (see android.graphics.Color class)
-	private static final Map<Post.Status, Integer> statusToColourMap = initializeStatusMap();
+	private static final Map<Post.Status, Integer> statusToBackgroundColourMap = initializeStatusMap();
 	private static Map<Post.Status, Integer> initializeStatusMap() {
 		Map<Post.Status, Integer> map = new HashMap<Post.Status, Integer>();
-		map.put( Post.Status.NEW, Color.GRAY );
+		map.put( Post.Status.NEW, Color.BLACK );
 		map.put( Post.Status.FOLLOWING_AND_NOT_CHANGED, Color.BLUE );
 		map.put( Post.Status.FOLLOWING_AND_HAS_CHANGED, Color.CYAN );
 		return Collections.unmodifiableMap( map );
@@ -53,7 +53,7 @@ public class AndroidSummaryViewPost implements ViewPostIfc {
 
 	@Override
 	public void setStatus( Status status ) {
-    	titleTextView.setBackgroundColor( statusToColourMap.get( status ) );
+    	titleTextView.setBackgroundColor( statusToBackgroundColourMap.get( status ) );
 	}
 
 	@Override
