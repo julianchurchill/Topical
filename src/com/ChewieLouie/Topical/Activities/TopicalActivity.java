@@ -14,7 +14,6 @@ import android.view.View;
 import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
-import android.widget.Button;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -27,8 +26,6 @@ import com.ChewieLouie.Topical.Post;
 import com.ChewieLouie.Topical.R;
 import com.ChewieLouie.Topical.TopicWatcher;
 import com.ChewieLouie.Topical.TopicalConstants;
-import com.ChewieLouie.Topical.View.FollowedPostsStatusView;
-import com.ChewieLouie.Topical.View.ViewPostIfc;
 import com.ChewieLouie.Topical.View.ViewTopicListIfc;
 import com.ChewieLouie.Topical.View.WatchedTopicsListView;
 
@@ -41,8 +38,6 @@ public class TopicalActivity extends Activity implements GooglePlusSearchCallbac
 	private static final int EXIT_MENU_ITEM = 0;
 
 	private String topic = null;
-	private List<Post> followedPosts = new ArrayList<Post>();
-	private ViewPostIfc followedPostsView = null;
 	private ViewTopicListIfc watchedTopicsStatusView = null;
 
 	public TopicalActivity() {
@@ -57,9 +52,6 @@ public class TopicalActivity extends Activity implements GooglePlusSearchCallbac
         requestWindowFeature( Window.FEATURE_INDETERMINATE_PROGRESS );
         setContentView( R.layout.main );
         addTopicItemClickNotifier();
-    	followedPostsView = new FollowedPostsStatusView( (Button)findViewById( R.id.ShowFollowedPostsButton ) );
-    	followedPosts = findFollowedPosts();
-    	updateFollowedPostsStatus();
     	watchedTopicsStatusView = new WatchedTopicsListView( this, (ListView)findViewById( R.id.topicList ) );
 	}
 
@@ -76,18 +68,6 @@ public class TopicalActivity extends Activity implements GooglePlusSearchCallbac
     	this.topic = topic;
     	setProgressBarIndeterminateVisibility( true );
     	GooglePlus.Make().search( topic, this );
-    }
-
-	private List<Post> findFollowedPosts() {
-    	List<Post> posts = new ArrayList<Post>();
-    	for( String url : storage.getAllPostURLsWhereFollowingIsTrue() )
-    		posts.add( createPostWithURL( url ) );
-    	return posts;
-    }
-
-	private void updateFollowedPostsStatus() {
-    	for( Post post : followedPosts )
-    		post.show( followedPostsView  );
     }
 
     @Override
@@ -126,22 +106,23 @@ public class TopicalActivity extends Activity implements GooglePlusSearchCallbac
     	startTopicListActivityWithTitle( "Followed Posts" );
 	}
 
-	private void startTopicListActivityWithTitle( String title ) {
-		cancelFollowedPostsViewUpdate();
-		Intent intent = new Intent().setClass( getApplicationContext(), TopicListActivity.class );
-		intent.putExtra( TopicalConstants.IntentExtraKey_TopicListTopic, title );
-		startActivity( intent );
-	}
-	
-	private void cancelFollowedPostsViewUpdate() {
-    	for( Post post : followedPosts )
-    		post.viewIsNoLongerUsable();
+	private List<Post> findFollowedPosts() {
+    	List<Post> posts = new ArrayList<Post>();
+    	for( String url : storage.getAllPostURLsWhereFollowingIsTrue() )
+    		posts.add( createPostWithURL( url ) );
+    	return posts;
     }
 
 	private Post createPostWithURL( String url ) {
 		Map<DataType,String> postInfo = new HashMap<DataType, String>();
 		postInfo.put( DataType.URL, url );
 		return new Post( postInfo, storage, GooglePlus.Make() );
+	}
+
+	private void startTopicListActivityWithTitle( String title ) {
+		Intent intent = new Intent().setClass( getApplicationContext(), TopicListActivity.class );
+		intent.putExtra( TopicalConstants.IntentExtraKey_TopicListTopic, title );
+		startActivity( intent );
 	}
 
     public void search( View view ) {

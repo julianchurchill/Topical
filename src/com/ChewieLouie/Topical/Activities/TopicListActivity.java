@@ -82,6 +82,6 @@ public class TopicListActivity extends ListActivity {
 
 	private void addTopicListContents()
 	{
-        setListAdapter( new TopicListAdapter( this, R.layout.topic_list_item, SearchActivity.currentPosts ) );
+        setListAdapter( new TopicListAdapter( this, R.layout.topic_list_item, TopicalActivity.currentPosts ) );
 	}
 }

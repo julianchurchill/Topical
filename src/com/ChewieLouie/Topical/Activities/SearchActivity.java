@@ -21,7 +21,6 @@ import com.ChewieLouie.Topical.TopicalConstants;
 
 public class SearchActivity extends Activity implements GooglePlusSearchCallbackIfc {
 
-	public static List<Post> currentPosts = null;
 	private EditText searchEditText = null;
 	private String topic = "";
 
@@ -60,7 +59,7 @@ public class SearchActivity extends Activity implements GooglePlusSearchCallback
 	}
 
     private void showTopicList( List<Post> posts ) {
-    	currentPosts = posts;
+    	TopicalActivity.currentPosts = posts;
     	startTopicListActivityWithTitle( topic );
     }
 
