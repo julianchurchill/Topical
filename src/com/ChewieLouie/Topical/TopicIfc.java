@@ -11,5 +11,4 @@ public interface TopicIfc {
 	public abstract void updateStatus();
 	public abstract void viewed();
 	public abstract void updatePostsForTopicListStatus( List<Post> posts );
-	public abstract List<Post> orderPostsByTopicListStatus( List<Post> posts );
 }

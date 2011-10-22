@@ -1,6 +1,5 @@
 package com.ChewieLouie.Topical;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -118,25 +117,5 @@ public class Topic implements GooglePlusSearchCallbackIfc, TopicIfc {
 			else
 				post.setTopicListStatus( TopicListStatus.NEW );
 		}
-	}
-
-	@Override
-	public List<Post> orderPostsByTopicListStatus( List<Post> posts ) {
-		List<Post> orderedPosts = new ArrayList<Post>();
-		copyNewTopicListPosts( posts, orderedPosts );
-		copyOldTopicListPosts( posts, orderedPosts );
-		return orderedPosts;
-	}
-	
-	private void copyNewTopicListPosts( List<Post> originalPosts, List<Post> copyOfPosts ) {
-		for( Post post : originalPosts )
-			if( post.topicListStatus() == TopicListStatus.NEW )
-				copyOfPosts.add( post );
-	}
-	
-	private void copyOldTopicListPosts( List<Post> originalPosts, List<Post> copyOfPosts ) {
-		for( Post post : originalPosts )
-			if( post.topicListStatus() == TopicListStatus.OLD )
-				copyOfPosts.add( post );
 	}
 }

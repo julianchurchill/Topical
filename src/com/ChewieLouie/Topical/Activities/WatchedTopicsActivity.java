@@ -19,6 +19,7 @@ import com.ChewieLouie.Topical.GooglePlusIfc.DataType;
 import com.ChewieLouie.Topical.GooglePlusSearchCallbackIfc;
 import com.ChewieLouie.Topical.Post;
 import com.ChewieLouie.Topical.R;
+import com.ChewieLouie.Topical.TopicListStatus;
 import com.ChewieLouie.Topical.TopicalConstants;
 import com.ChewieLouie.Topical.View.ViewTopicListIfc;
 import com.ChewieLouie.Topical.View.WatchedTopicsListView;
@@ -62,19 +63,40 @@ public class WatchedTopicsActivity extends Activity implements GooglePlusSearchC
 		for( Map<DataType,String> result : results )
 			posts.add( new Post( result, TopicalActivity.storage, GooglePlus.Make() ) );
     	setProgressBarIndeterminateVisibility( false );
+    	TopicalActivity.currentPosts = posts;
     	if( posts.size() > 0 )
-    		showTopicList( topic, posts );
+    		showTopicList();
     	else
     		Toast.makeText( this, "No results found", Toast.LENGTH_LONG ).show();
 	}
 
-    private void showTopicList( String topic, List<Post> posts ) {
-    	TopicalActivity.currentPosts = posts;
-    	TopicalActivity.topicWatcher.updatePostsForTopicListStatus( topic, posts );
-    	TopicalActivity.topicWatcher.orderPostsByTopicListStatus( topic, posts );
+    private void showTopicList() {
+    	TopicalActivity.topicWatcher.updatePostsForTopicListStatus( topic, TopicalActivity.currentPosts );
+    	orderPostsByTopicListStatus();
     	TopicalActivity.topicWatcher.viewed( topic );
     	startTopicListActivityWithTitle( topic );
     }
+
+    private void orderPostsByTopicListStatus() {
+    	if( TopicalActivity.topicWatcher.isWatched( topic ) ) {
+			List<Post> orderedPosts = new ArrayList<Post>();
+			copyNewTopicListPosts( TopicalActivity.currentPosts, orderedPosts );
+			copyOldTopicListPosts( TopicalActivity.currentPosts, orderedPosts );
+			TopicalActivity.currentPosts = orderedPosts;
+    	}
+    }
+
+	private void copyNewTopicListPosts( List<Post> originalPosts, List<Post> copyOfPosts ) {
+		for( Post post : originalPosts )
+			if( post.topicListStatus() == TopicListStatus.NEW )
+				copyOfPosts.add( post );
+	}
+	
+	private void copyOldTopicListPosts( List<Post> originalPosts, List<Post> copyOfPosts ) {
+		for( Post post : originalPosts )
+			if( post.topicListStatus() == TopicListStatus.OLD )
+				copyOfPosts.add( post );
+	}
 
 	private void startTopicListActivityWithTitle( String title ) {
 		Intent intent = new Intent().setClass( getApplicationContext(), TopicListActivity.class );
