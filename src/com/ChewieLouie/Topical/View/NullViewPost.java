@@ -51,4 +51,8 @@ public class NullViewPost implements ViewPostIfc {
 	@Override
 	public void setTopicListStatus( TopicListStatus status ) {
 	}
+
+	@Override
+	public void setModificationTime( String modTime ) {
+	}
 }

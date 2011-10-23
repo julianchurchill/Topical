@@ -28,6 +28,8 @@ public class AndroidSummaryViewPost implements ViewPostIfc {
 	private TextView titleTextView = null;
 	private TextView summaryTextView = null;
 	private TextView listStatusTextView = null;
+	private String author = "";
+	private String modificationTime = "";
 
 	public AndroidSummaryViewPost( TextView titleTextView, TextView summaryTextView, TextView listStatusTextView ) {
 		this.titleTextView = titleTextView;
@@ -37,6 +39,11 @@ public class AndroidSummaryViewPost implements ViewPostIfc {
 
 	@Override
 	public void setAuthor(String author) {
+		this.author = author;
+		updateTitle();
+	}
+	
+	private void updateTitle() {
 		titleTextView.setText( author );
 	}
 
@@ -89,5 +96,10 @@ public class AndroidSummaryViewPost implements ViewPostIfc {
 		}
 		else if( status == TopicListStatus.OLD )
 			listStatusTextView.setText( "" );
+	}
+
+	@Override
+	public void setModificationTime( String modificationTime ) {
+		this.modificationTime = modificationTime;
 	}
 }

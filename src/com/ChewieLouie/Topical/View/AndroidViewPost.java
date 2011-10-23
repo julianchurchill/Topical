@@ -127,4 +127,8 @@ public class AndroidViewPost implements ViewPostIfc {
 	@Override
 	public void setTopicListStatus( TopicListStatus status ) {
 	}
+
+	@Override
+	public void setModificationTime( String modTime ) {
+	}
 }

@@ -59,8 +59,11 @@ public class Post implements GooglePlusCallbackIfc {
 		this.isFollowed = Boolean.parseBoolean( storage.loadValueByKeyAndType( url, ValueType.IS_FOLLOWED ) );
 		this.postID = storage.loadValueByKeyAndType( url, ValueType.POST_ID );
 		this.reshareAuthorName = storage.loadValueByKeyAndType( url, ValueType.RESHARE_AUTHOR_NAME );
-		String modTime = storage.loadValueByKeyAndType( url, ValueType.LAST_VIEWED_MODIFICATION_TIME );
-		if( modTime.equals( "" ) == false )
+		String modTime = storage.loadValueByKeyAndType( url, ValueType.MODIFICATION_TIME );
+		if( modTime != null && modTime.equals( "" ) == false )
+			this.currentModificationTime = DateTime.parseRfc3339( modTime );
+		modTime = storage.loadValueByKeyAndType( url, ValueType.LAST_VIEWED_MODIFICATION_TIME );
+		if( modTime != null && modTime.equals( "" ) == false )
 			this.lastViewedModificationTime = DateTime.parseRfc3339( modTime );
 	}
 
@@ -70,7 +73,7 @@ public class Post implements GooglePlusCallbackIfc {
 		if( postInfo.get( DataType.SUMMARY ) != null )
 			setSummary( postInfo.get( DataType.SUMMARY ) );
 		if( postInfo.get( DataType.MODIFICATION_TIME ) != null )
-			currentModificationTime = DateTime.parseRfc3339( postInfo.get( DataType.MODIFICATION_TIME ) );
+			setModificationTime( postInfo.get( DataType.MODIFICATION_TIME ) );
 		if( postInfo.get( DataType.AUTHOR_ID ) != null )
 			authorID = postInfo.get( DataType.AUTHOR_ID );
 		if( postInfo.get( DataType.AUTHOR_NAME ) != null )
@@ -81,16 +84,6 @@ public class Post implements GooglePlusCallbackIfc {
 			content = postInfo.get( DataType.POST_CONTENT );
 		if( postInfo.get( DataType.RESHARE_AUTHOR_NAME ) != null )
 			setReshareAuthorName( postInfo.get( DataType.RESHARE_AUTHOR_NAME ) );
-	}
-
-	private void setAuthorName( String name ) {
-		this.authorName = name;
-		saveToStorage();
-	}
-
-	private void setReshareAuthorName( String name ) {
-		this.reshareAuthorName = name;
-		saveToStorage();
 	}
 
 	private void setPostID( String postID ) {
@@ -105,6 +98,8 @@ public class Post implements GooglePlusCallbackIfc {
 			saveValue( ValueType.SUMMARY, summaryText );
 			saveValue( ValueType.IS_FOLLOWED, String.valueOf( isFollowed ) );
 			saveValue( ValueType.RESHARE_AUTHOR_NAME, reshareAuthorName  );
+			if( currentModificationTime != null )
+				saveValue( ValueType.MODIFICATION_TIME, currentModificationTime.toStringRfc3339() );
 			if( lastViewedModificationTime != null )
 				saveValue( ValueType.LAST_VIEWED_MODIFICATION_TIME, lastViewedModificationTime.toStringRfc3339() );
 		}
@@ -117,6 +112,21 @@ public class Post implements GooglePlusCallbackIfc {
 
 	private void setSummary( String summaryText ) {
 		this.summaryText = summaryText;
+		saveToStorage();
+	}
+
+	private void setModificationTime( String modificationTime ) {
+		currentModificationTime = DateTime.parseRfc3339( modificationTime );
+		saveToStorage();
+	}
+
+	private void setAuthorName( String name ) {
+		this.authorName = name;
+		saveToStorage();
+	}
+
+	private void setReshareAuthorName( String name ) {
+		this.reshareAuthorName = name;
 		saveToStorage();
 	}
 	
@@ -210,6 +220,12 @@ public class Post implements GooglePlusCallbackIfc {
 		view.setSummaryText( summaryText );
 		view.setReshareAuthorName( reshareAuthorName );
 		view.setTopicListStatus( topicListStatus );
+		if( currentModificationTime != null )
+			view.setModificationTime( convertModificationTimeToDisplayableString() );
+	}
+	
+	private String convertModificationTimeToDisplayableString() {
+		return currentModificationTime.toStringRfc3339();
 	}
 	
 	public void setTopicListStatus( TopicListStatus status ) {

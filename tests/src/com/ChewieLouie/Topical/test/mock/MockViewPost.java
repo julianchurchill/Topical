@@ -2,8 +2,8 @@ package com.ChewieLouie.Topical.test.mock;
 
 import java.util.List;
 
-import com.ChewieLouie.Topical.PostComment;
 import com.ChewieLouie.Topical.Post.Status;
+import com.ChewieLouie.Topical.PostComment;
 import com.ChewieLouie.Topical.TopicListStatus;
 import com.ChewieLouie.Topical.View.ViewPostIfc;
 
@@ -26,6 +26,8 @@ public class MockViewPost implements ViewPostIfc {
 	public String setReshareAuthorNameArg = null;
 	public boolean setTopicListStatusCalled = false;
 	public TopicListStatus setTopicListStatusArg = TopicListStatus.OLD;
+	public boolean setModificationTimeCalled = false;
+	public String setModificationTimeArg = null;
 	
 	@Override
 	public void setAuthor( String author ) {
@@ -86,5 +88,11 @@ public class MockViewPost implements ViewPostIfc {
 	public void setTopicListStatus( TopicListStatus status ) {
 		setTopicListStatusCalled = true;
 		setTopicListStatusArg = status;
+	}
+
+	@Override
+	public void setModificationTime( String modTime ) {
+		setModificationTimeCalled = true;
+		setModificationTimeArg = modTime;
 	}
 }

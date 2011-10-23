@@ -24,6 +24,7 @@ public class AndroidPreferenceStorage implements PersistentStorageIfc {
 		Map<ValueType, String> map = new HashMap<ValueType, String>();
 		map.put( ValueType.IS_FOLLOWED, "IsFollowed" );
 		map.put( ValueType.LAST_VIEWED_MODIFICATION_TIME, "LastViewedModificationTime" );
+		map.put( ValueType.MODIFICATION_TIME, "ModificationTime" );
 		map.put( ValueType.POST_ID, "PostID" );
 		map.put( ValueType.SUMMARY, "Summary" );
 		map.put( ValueType.AUTHOR_NAME, "AuthorName" );
@@ -35,6 +36,7 @@ public class AndroidPreferenceStorage implements PersistentStorageIfc {
 		List<ValueType> types = new ArrayList<ValueType>();
 		types.add( ValueType.IS_FOLLOWED );
 		types.add( ValueType.LAST_VIEWED_MODIFICATION_TIME );
+		types.add( ValueType.MODIFICATION_TIME );
 		types.add( ValueType.POST_ID );
 		types.add( ValueType.SUMMARY );
 		types.add( ValueType.AUTHOR_NAME );

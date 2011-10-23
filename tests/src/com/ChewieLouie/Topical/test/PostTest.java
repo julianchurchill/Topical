@@ -25,6 +25,7 @@ public class PostTest extends AndroidTestCase {
 	private final String authorID = "9876543210";
 	private final String url = "startOfURL/" + authorID + "/posts/" + postID;
 	private final String lastViewedModificationTime = "1985-04-12T23:20:50.523Z";
+	private final String modificationTime = "1985-04-12T23:20:50.523Z";
 	private final String authorName = "testAuthor";
 	private final String authorImage = "testAuthorImage";
 	private final String HTMLContent = "testContent";
@@ -73,12 +74,16 @@ public class PostTest extends AndroidTestCase {
 			assertEquals( url, key );
 	}
 
+	public void testPostLoadsSummaryTextFromStorageOnConstruction() {
+		assertTrue( mockStorage.loadArgsType.contains( ValueType.SUMMARY ) );
+	}
+
 	public void testPostLoadsAuthorNameFromStorageOnConstruction() {
 		assertTrue( mockStorage.loadArgsType.contains( ValueType.AUTHOR_NAME) );
 	}
 
-	public void testPostLoadsSummaryTextFromStorageOnConstruction() {
-		assertTrue( mockStorage.loadArgsType.contains( ValueType.SUMMARY ) );
+	public void testPostLoadsModificationTimeFromStorageOnConstruction() {
+		assertTrue( mockStorage.loadArgsType.contains( ValueType.MODIFICATION_TIME ) );
 	}
 
 	public void testPostLoadsReshareAuthorNameFromStorageOnConstruction() {
@@ -223,6 +228,24 @@ public class PostTest extends AndroidTestCase {
 		assertTrue( mockStorage.saveArgsValue.contains( postInfo.get( DataType.RESHARE_AUTHOR_NAME ) ) );
 	}
 
+	public void testPostInfoResultsForFollowedPostCausesSaveToStorageForModificationTime() {
+		postInfo.put( DataType.MODIFICATION_TIME, modificationTime );
+		post.follow();
+
+		post.postInformationResults( postInfo, 0 );
+
+		assertTrue( mockStorage.saveArgsType.contains( ValueType.MODIFICATION_TIME ) );
+	}
+
+	public void testPostInfoResultsForFollowedPostCausesSaveToStorageForModificationTimeValue() {
+		postInfo.put( DataType.MODIFICATION_TIME, modificationTime );
+		post.follow();
+
+		post.postInformationResults( postInfo, 0 );
+
+		assertTrue( mockStorage.saveArgsValue.contains( postInfo.get( DataType.MODIFICATION_TIME ) ) );
+	}
+
 	public void testShowCallsActivityStartedOnView() {
 		MockViewPost mockViewPost = new MockViewPost();
 		post.show( mockViewPost );
@@ -258,6 +281,20 @@ public class PostTest extends AndroidTestCase {
 		post.show( new MockViewPost() );
 
 		assertEquals( url, mockGooglePlus.getPostInformationArgsQuery.url );
+	}
+
+	public void testShowCallsModificationTimeOnView() {
+		MockViewPost mockViewPost = new MockViewPost();
+		post.show( mockViewPost );
+		
+		assertTrue( mockViewPost.setModificationTimeCalled );
+	}
+
+	public void testShowCallsModificationTimeOnViewWithCorrectValue() {
+		MockViewPost mockViewPost = new MockViewPost();
+		post.show( mockViewPost );
+
+		assertEquals( modificationTime, mockViewPost.setModificationTimeArg );
 	}
 
 	public void testShowCallsSetAuthorOnView() {
