@@ -6,7 +6,9 @@ import java.util.List;
 import java.util.Map;
 
 import android.app.Activity;
+import android.app.Dialog;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -27,7 +29,8 @@ public class TopicalActivity extends Activity {
 	public static TopicWatcher topicWatcher = null;
 	public static PersistentStorageIfc storage = null;
 	
-	private static final int EXIT_MENU_ITEM = 0;
+	private static final int ABOUT_MENU_ITEM = 0;
+	private static final int EXIT_MENU_ITEM = 1;
 
 	public TopicalActivity() {
 		super();
@@ -45,6 +48,7 @@ public class TopicalActivity extends Activity {
     public boolean onPrepareOptionsMenu( Menu menu )
     {
     	menu.clear();
+		menu.add( Menu.NONE, ABOUT_MENU_ITEM, Menu.NONE, getText( R.string.about ) );
 		menu.add( Menu.NONE, EXIT_MENU_ITEM, Menu.NONE, getText( R.string.exit ) );
         return true;
     }
@@ -55,6 +59,9 @@ public class TopicalActivity extends Activity {
     	boolean retVal = true;
         switch( item.getItemId() )
         {
+			case ABOUT_MENU_ITEM:
+				showAboutDialog();
+				break;
         	case EXIT_MENU_ITEM:
         		finish();
         		break;
@@ -63,6 +70,21 @@ public class TopicalActivity extends Activity {
 	            break;
         }
         return retVal;
+    }
+    
+    private void showAboutDialog() {
+    	Dialog dialog = new Dialog( this );
+    	dialog.setContentView( R.layout.about_dialog );
+
+        String versionName = "";
+    	try {
+            versionName = getPackageManager().getPackageInfo( getPackageName(), 0 ).versionName;
+        } 
+        catch ( PackageManager.NameNotFoundException e ) {
+        }
+        dialog.setTitle( getResources().getString( R.string.app_name ) + " " + versionName );
+
+        dialog.show();
     }
 
     public void search( View view ) {

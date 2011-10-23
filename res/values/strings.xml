@@ -10,4 +10,8 @@
     <string name="unwatch">Unwatch</string>
     <string name="exit">Exit</string>
     <string name="searchTitle">Search</string>
+    <string name="about">About</string>
+    <string name="aboutDialogText">For any support issues please use the email address below. Thanks for using Topical!</string>
+    <string name="email">chewielouie+topical@gmail.com</string>
+    <string name="copyright">Copyright 2011 Julian Churchill</string>
 </resources>
