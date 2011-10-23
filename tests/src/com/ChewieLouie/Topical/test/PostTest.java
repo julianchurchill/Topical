@@ -7,11 +7,11 @@ import java.util.Map;
 
 import android.test.AndroidTestCase;
 
-import com.ChewieLouie.Topical.PostComment;
 import com.ChewieLouie.Topical.GooglePlusIfc.DataType;
 import com.ChewieLouie.Topical.PersistentStorageIfc.ValueType;
 import com.ChewieLouie.Topical.Post;
 import com.ChewieLouie.Topical.Post.Status;
+import com.ChewieLouie.Topical.PostComment;
 import com.ChewieLouie.Topical.TopicListStatus;
 import com.ChewieLouie.Topical.test.mock.MockGooglePlus;
 import com.ChewieLouie.Topical.test.mock.MockPersistentStorage;
@@ -25,7 +25,6 @@ public class PostTest extends AndroidTestCase {
 	private final String authorID = "9876543210";
 	private final String url = "startOfURL/" + authorID + "/posts/" + postID;
 	private final String lastViewedModificationTime = "1985-04-12T23:20:50.523Z";
-	private final String title = "TestTitle";
 	private final String authorName = "testAuthor";
 	private final String authorImage = "testAuthorImage";
 	private final String HTMLContent = "testContent";
@@ -45,8 +44,8 @@ public class PostTest extends AndroidTestCase {
 		mockStorage = new MockPersistentStorage();
 		mockStorage.loadReturns.put( ValueType.POST_ID, postID );
 		mockStorage.loadReturns.put( ValueType.LAST_VIEWED_MODIFICATION_TIME, lastViewedModificationTime );
-		mockStorage.loadReturns.put( ValueType.TITLE, title );
 		mockStorage.loadReturns.put( ValueType.IS_FOLLOWED, Boolean.toString( isFollowed ) );
+		mockStorage.loadReturns.put( ValueType.AUTHOR_NAME, authorName );
 		mockStorage.loadReturns.put( ValueType.SUMMARY, summary );
 		mockStorage.loadReturns.put( ValueType.RESHARE_AUTHOR_NAME, reshareAuthorName );
 		mockGooglePlus = new MockGooglePlus();
@@ -74,8 +73,8 @@ public class PostTest extends AndroidTestCase {
 			assertEquals( url, key );
 	}
 
-	public void testPostLoadsTitleFromStorageOnConstruction() {
-		assertTrue( mockStorage.loadArgsType.contains( ValueType.TITLE ) );
+	public void testPostLoadsAuthorNameFromStorageOnConstruction() {
+		assertTrue( mockStorage.loadArgsType.contains( ValueType.AUTHOR_NAME) );
 	}
 
 	public void testPostLoadsSummaryTextFromStorageOnConstruction() {
@@ -170,22 +169,22 @@ public class PostTest extends AndroidTestCase {
 		assertTrue( mockStorage.saveArgsValue.contains( postInfo.get( DataType.POST_ID ) ) );
 	}
 
-	public void testPostInfoResultsForFollowedPostCausesSaveToStorageForTitle() {
-		postInfo.put( DataType.TITLE, "title" );
+	public void testPostInfoResultsForFollowedPostCausesSaveToStorageForAuthorName() {
+		postInfo.put( DataType.AUTHOR_NAME, "authorName" );
 		post.follow();
 
 		post.postInformationResults( postInfo, 0 );
 
-		assertTrue( mockStorage.saveArgsType.contains( ValueType.TITLE ) );
+		assertTrue( mockStorage.saveArgsType.contains( ValueType.AUTHOR_NAME ) );
 	}
 
-	public void testPostInfoResultsForFollowedPostCausesSaveToStorageForTitleValue() {
-		postInfo.put( DataType.TITLE, "postID" );
+	public void testPostInfoResultsForFollowedPostCausesSaveToStorageForAuthorNameValue() {
+		postInfo.put( DataType.AUTHOR_NAME, "authorName" );
 		post.follow();
 
 		post.postInformationResults( postInfo, 0 );
 
-		assertTrue( mockStorage.saveArgsValue.contains( postInfo.get( DataType.TITLE ) ) );
+		assertTrue( mockStorage.saveArgsValue.contains( postInfo.get( DataType.AUTHOR_NAME ) ) );
 	}
 
 	public void testPostInfoResultsForFollowedPostCausesSaveToStorageForSummary() {
@@ -229,20 +228,6 @@ public class PostTest extends AndroidTestCase {
 		post.show( mockViewPost );
 		
 		assertTrue( mockViewPost.activityStartedCalled );
-	}
-
-	public void testShowCallsSetTitleOnView() {
-		MockViewPost mockViewPost = new MockViewPost();
-		post.show( mockViewPost );
-
-		assertTrue( mockViewPost.setTitleCalled );
-	}
-
-	public void testShowCallsSetTitleOnViewWithSavedTitle() {
-		MockViewPost mockViewPost = new MockViewPost();
-		post.show( mockViewPost );
-
-		assertEquals( title, mockViewPost.setTitleArg );
 	}
 
 	public void testShowCallsGooglePlusGetPostInformation() {

@@ -16,7 +16,6 @@ public class Post implements GooglePlusCallbackIfc {
 	private String url = "";
 	private String authorID = null;
 	private String postID = null;
-	private String title = "";
 	private String summaryText = "";
 	private DateTime lastViewedModificationTime = null;
 	private DateTime currentModificationTime = null;
@@ -55,8 +54,8 @@ public class Post implements GooglePlusCallbackIfc {
 	}
 
 	private void loadDataFromStorage() {
-		this.title = storage.loadValueByKeyAndType( url, ValueType.TITLE );
 		this.summaryText = storage.loadValueByKeyAndType( url, ValueType.SUMMARY );
+		this.authorName = storage.loadValueByKeyAndType( url, ValueType.AUTHOR_NAME );
 		this.isFollowed = Boolean.parseBoolean( storage.loadValueByKeyAndType( url, ValueType.IS_FOLLOWED ) );
 		this.postID = storage.loadValueByKeyAndType( url, ValueType.POST_ID );
 		this.reshareAuthorName = storage.loadValueByKeyAndType( url, ValueType.RESHARE_AUTHOR_NAME );
@@ -68,8 +67,6 @@ public class Post implements GooglePlusCallbackIfc {
 	private void parsePostInfo( Map<DataType, String> postInfo ) {
 		if( postInfo.get( DataType.POST_ID ) != null )
 			setPostID( postInfo.get( DataType.POST_ID ) );
-		if( postInfo.get( DataType.TITLE ) != null )
-			setTitle( postInfo.get( DataType.TITLE ) );
 		if( postInfo.get( DataType.SUMMARY ) != null )
 			setSummary( postInfo.get( DataType.SUMMARY ) );
 		if( postInfo.get( DataType.MODIFICATION_TIME ) != null )
@@ -77,7 +74,7 @@ public class Post implements GooglePlusCallbackIfc {
 		if( postInfo.get( DataType.AUTHOR_ID ) != null )
 			authorID = postInfo.get( DataType.AUTHOR_ID );
 		if( postInfo.get( DataType.AUTHOR_NAME ) != null )
-			authorName = postInfo.get( DataType.AUTHOR_NAME );
+			setAuthorName( postInfo.get( DataType.AUTHOR_NAME ) );
 		if( postInfo.get( DataType.AUTHOR_IMAGE ) != null )
 			authorImage = postInfo.get( DataType.AUTHOR_IMAGE );
 		if( postInfo.get( DataType.POST_CONTENT ) != null )
@@ -85,7 +82,12 @@ public class Post implements GooglePlusCallbackIfc {
 		if( postInfo.get( DataType.RESHARE_AUTHOR_NAME ) != null )
 			setReshareAuthorName( postInfo.get( DataType.RESHARE_AUTHOR_NAME ) );
 	}
-	
+
+	private void setAuthorName( String name ) {
+		this.authorName = name;
+		saveToStorage();
+	}
+
 	private void setReshareAuthorName( String name ) {
 		this.reshareAuthorName = name;
 		saveToStorage();
@@ -99,7 +101,7 @@ public class Post implements GooglePlusCallbackIfc {
 	private void saveToStorage() {
 		if( isFollowed() ) {
 			saveValue( ValueType.POST_ID, postID );
-			saveValue( ValueType.TITLE, title );		
+			saveValue( ValueType.AUTHOR_NAME, authorName );
 			saveValue( ValueType.SUMMARY, summaryText );
 			saveValue( ValueType.IS_FOLLOWED, String.valueOf( isFollowed ) );
 			saveValue( ValueType.RESHARE_AUTHOR_NAME, reshareAuthorName  );
@@ -111,11 +113,6 @@ public class Post implements GooglePlusCallbackIfc {
 	private void saveValue( ValueType type, String value ) {
 		if( value != null )
 			storage.saveValueByKeyAndType( value, url, type );
-	}
-
-	private void setTitle( String title ) {
-		this.title = title;
-		saveToStorage();
 	}
 
 	private void setSummary( String summaryText ) {
@@ -189,7 +186,8 @@ public class Post implements GooglePlusCallbackIfc {
 		return  postID == null || postID.isEmpty() || 
 				authorID == null || authorID.isEmpty() || 
 				content == null || content.isEmpty() ||
-				authorImage == null || authorImage.isEmpty();
+				authorImage == null || authorImage.isEmpty() ||
+				authorName == null || authorName.isEmpty();
 	}
 
 	private void refreshFromGooglePlus() {
@@ -205,7 +203,6 @@ public class Post implements GooglePlusCallbackIfc {
 	}
 	
 	private void updateViewWithCurrentData() {
-		view.setTitle( title );
 		view.setAuthor( authorName );
 		view.setAuthorImage( authorImage );
 		view.setHTMLContent( content );

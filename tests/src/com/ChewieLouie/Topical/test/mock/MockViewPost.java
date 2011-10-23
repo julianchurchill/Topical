@@ -11,8 +11,6 @@ public class MockViewPost implements ViewPostIfc {
 
 	public boolean setAuthorCalled = false;
 	public boolean activityStartedCalled = false;
-	public boolean setTitleCalled = false;
-	public String setTitleArg = null;
 	public boolean setCommentsCalled = false;
 	public List<PostComment> setCommentsArg = null;
 	public String setAuthorArg = null;
@@ -57,12 +55,6 @@ public class MockViewPost implements ViewPostIfc {
 	public void setStatus(Status status) {
 		setStatusCalled = true;
 		setStatusArg = status;
-	}
-
-	@Override
-	public void setTitle(String title) {
-		setTitleCalled = true;
-		setTitleArg = title;
 	}
 
 	@Override

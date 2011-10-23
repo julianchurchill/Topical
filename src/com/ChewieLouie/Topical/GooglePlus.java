@@ -265,7 +265,6 @@ public class GooglePlus implements GooglePlusIfc {
 			putString( values, DataType.POST_CONTENT, activity.getPlusObject().getContent() );
 			putString( values, DataType.POST_ID, activity.getId() );
 			putString( values, DataType.SUMMARY, activity.getTitle() );
-			putString( values, DataType.TITLE, authorName );
 			putString( values, DataType.URL, activity.getUrl() );
 			String reshareAuthorName = "";
 			if( activity.getPlusObject().getActor() != null )

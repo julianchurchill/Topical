@@ -29,10 +29,6 @@ public class NullViewPost implements ViewPostIfc {
 	}
 
 	@Override
-	public void setTitle(String title) {
-	}
-
-	@Override
 	public void setSummaryText(String summary) {
 	}
 

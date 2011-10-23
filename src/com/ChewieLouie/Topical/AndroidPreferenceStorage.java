@@ -25,8 +25,8 @@ public class AndroidPreferenceStorage implements PersistentStorageIfc {
 		map.put( ValueType.IS_FOLLOWED, "IsFollowed" );
 		map.put( ValueType.LAST_VIEWED_MODIFICATION_TIME, "LastViewedModificationTime" );
 		map.put( ValueType.POST_ID, "PostID" );
-		map.put( ValueType.TITLE, "Title" );
 		map.put( ValueType.SUMMARY, "Summary" );
+		map.put( ValueType.AUTHOR_NAME, "AuthorName" );
 		map.put( ValueType.WATCHED_TOPICS, "WatchedTopics" );
 		return Collections.unmodifiableMap( map );
 	}
@@ -37,7 +37,7 @@ public class AndroidPreferenceStorage implements PersistentStorageIfc {
 		types.add( ValueType.LAST_VIEWED_MODIFICATION_TIME );
 		types.add( ValueType.POST_ID );
 		types.add( ValueType.SUMMARY );
-		types.add( ValueType.TITLE );
+		types.add( ValueType.AUTHOR_NAME );
 		return Collections.unmodifiableList( types );
 	}
 	
@@ -54,6 +54,10 @@ public class AndroidPreferenceStorage implements PersistentStorageIfc {
 		editor.commit();
 	}
 
+	private String makeKey( String uniqueString, ValueType type ) {
+		return typeToString.get( type ) + uniqueString;
+	}
+
 	@Override
 	public String loadValueByKeyAndType( String key, ValueType type ) {
 		return prefs.getString( makeKey( key, type ), "" );
@@ -65,10 +69,6 @@ public class AndroidPreferenceStorage implements PersistentStorageIfc {
 		if( postURLsString.isEmpty() )
 			return new ArrayList<String>();
 		return new ArrayList<String>( Arrays.asList( postURLsString.split( "," ) ) );
-	}
-
-	private String makeKey( String uniqueString, ValueType type ) {
-		return typeToString.get( type ) + uniqueString;
 	}
 
 	private void updateFollowedPostList( String url, String nowFollowing, SharedPreferences.Editor editor ) {

@@ -37,6 +37,7 @@ public class AndroidSummaryViewPost implements ViewPostIfc {
 
 	@Override
 	public void setAuthor(String author) {
+		titleTextView.setText( author );
 	}
 
 	@Override
@@ -54,11 +55,6 @@ public class AndroidSummaryViewPost implements ViewPostIfc {
 	@Override
 	public void setStatus( Status status ) {
     	titleTextView.setBackgroundColor( statusToBackgroundColourMap.get( status ) );
-	}
-
-	@Override
-	public void setTitle( String title ) {
-		titleTextView.setText( title );
 	}
 
 	@Override

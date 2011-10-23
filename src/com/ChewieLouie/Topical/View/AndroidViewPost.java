@@ -86,10 +86,6 @@ public class AndroidViewPost implements ViewPostIfc {
 	}
 
 	@Override
-	public void setTitle( String title ) {
-	}
-
-	@Override
 	public void setSummaryText( String summary ) {
 	}
 
