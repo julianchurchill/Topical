@@ -91,7 +91,7 @@ public class MockViewPost implements ViewPostIfc {
 	}
 
 	@Override
-	public void setModificationTime( String modTime ) {
+	public void setModificationTimeRfc3339( String modTime ) {
 		setModificationTimeCalled = true;
 		setModificationTimeArg = modTime;
 	}

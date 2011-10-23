@@ -19,5 +19,5 @@ public interface ViewPostIfc {
 	public abstract void activityStopped();
 	public abstract void setReshareAuthorName( String author );
 	public abstract void setTopicListStatus( TopicListStatus status );
-	public abstract void setModificationTime( String modTime );
+	public abstract void setModificationTimeRfc3339( String modTime );
 }

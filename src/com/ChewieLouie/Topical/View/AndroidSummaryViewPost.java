@@ -5,12 +5,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.joda.time.DateTime;
+import org.joda.time.Duration;
+
 import android.graphics.Color;
 import android.widget.TextView;
 
 import com.ChewieLouie.Topical.Post;
-import com.ChewieLouie.Topical.PostComment;
 import com.ChewieLouie.Topical.Post.Status;
+import com.ChewieLouie.Topical.PostComment;
 import com.ChewieLouie.Topical.TopicListStatus;
 
 public class AndroidSummaryViewPost implements ViewPostIfc {
@@ -29,7 +32,7 @@ public class AndroidSummaryViewPost implements ViewPostIfc {
 	private TextView summaryTextView = null;
 	private TextView listStatusTextView = null;
 	private String author = "";
-	private String modificationTime = "";
+	private DateTime modificationDateTime = null;
 
 	public AndroidSummaryViewPost( TextView titleTextView, TextView summaryTextView, TextView listStatusTextView ) {
 		this.titleTextView = titleTextView;
@@ -44,7 +47,34 @@ public class AndroidSummaryViewPost implements ViewPostIfc {
 	}
 	
 	private void updateTitle() {
-		titleTextView.setText( author );
+		String dateTimeString = "";
+		if( modificationDateTime != null ) {
+			Duration difference = new Duration( modificationDateTime.getMillis(), DateTime.now().getMillis() );
+			if( difference.isLongerThan( Duration.standardDays( 2 ) ) )
+				dateTimeString = modificationDateTime.dayOfMonth().getAsString() + " " +
+								 modificationDateTime.monthOfYear().getAsShortText();
+			else if( difference.isLongerThan( Duration.standardDays( 1 ) ) )
+				dateTimeString = "yesterday";
+			else if( difference.isLongerThan( Duration.standardHours( 1 ) ) ) {
+				int hours = difference.toStandardHours().getHours();
+				if( hours == 1 )
+					dateTimeString = Integer.toString( hours ) + " hour ago";
+				else
+					dateTimeString = Integer.toString( hours ) + " hours ago";
+			}
+			else if( difference.isLongerThan( Duration.standardMinutes( 1 ) ) ) {
+				int minutes = difference.toStandardMinutes().getMinutes();
+				if( minutes == 1 )
+					dateTimeString = Integer.toString( minutes ) + " minute ago";
+				else
+					dateTimeString = Integer.toString( minutes ) + " minutes ago";
+			}
+			else
+				dateTimeString = modificationDateTime.dayOfMonth().getAsString() + " " +
+								 modificationDateTime.monthOfYear().getAsShortText() + " " +
+								 modificationDateTime.year().getAsString();
+		}
+		titleTextView.setText( author + " " + dateTimeString );
 	}
 
 	@Override
@@ -99,7 +129,7 @@ public class AndroidSummaryViewPost implements ViewPostIfc {
 	}
 
 	@Override
-	public void setModificationTime( String modificationTime ) {
-		this.modificationTime = modificationTime;
+	public void setModificationTimeRfc3339( String modificationTime ) {
+		this.modificationDateTime = new DateTime( modificationTime );
 	}
 }

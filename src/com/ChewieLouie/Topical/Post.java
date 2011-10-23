@@ -221,7 +221,7 @@ public class Post implements GooglePlusCallbackIfc {
 		view.setReshareAuthorName( reshareAuthorName );
 		view.setTopicListStatus( topicListStatus );
 		if( currentModificationTime != null )
-			view.setModificationTime( convertModificationTimeToDisplayableString() );
+			view.setModificationTimeRfc3339( convertModificationTimeToDisplayableString() );
 	}
 	
 	private String convertModificationTimeToDisplayableString() {
